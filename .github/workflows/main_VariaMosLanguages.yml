@@ -35,7 +35,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: ${{vars.ACR}}/${{secrets.ACRUSERNAME}}/variamosple:latest
+        tags: ${{vars.ACR}}/${{secrets.ACRUSERNAME}}/variamoslanguages:latest
         file: ./Dockerfile
 
   deploy:
@@ -50,7 +50,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'variamos2023'
+        app-name: 'VariamosLanguages'
         slot-name: 'production'
         publish-profile: ${{secrets.PRODUCTIONSLOTPUBLISHPROFILE}}
-        images: '${{vars.ACR}}/${{secrets.ACRUSERNAME}}/variamosple:latest'
+        images: '${{vars.ACR}}/${{secrets.ACRUSERNAME}}/variamoslanguages:latest'
