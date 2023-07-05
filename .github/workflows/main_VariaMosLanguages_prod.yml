@@ -1,4 +1,4 @@
-name: VariaMosLanguagesPLE_BUILD_AND_DEPLOY
+name: VariaMosLanguagesPLE_BUILD_AND_DEPLOY_PROD
 
 on:
   push:
