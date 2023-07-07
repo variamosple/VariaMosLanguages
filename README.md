@@ -1,7 +1,22 @@
-# Learn More
+# Variamos Languages
 
+This project contains the Languages module of the VariaMos platform.
 
-[![GitHub Super-Linter](https://github.com/variamosple/VariaMosPLE/workflows/VariaMosPLE_LINT/badge.svg)](https://github.com/marketplace/actions/super-linter)
+## Run the project
+
+You can run the project by either running any of the following commands.
+
+```bash
+yarn start
+```
+
+or
+
+```bash
+npm run start
+```
+
+## Learn more
 
 You can learn more in the [VariaMos App documentation](https://github.com/variamosple/VariaMosPLE/wiki).
 
