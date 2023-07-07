@@ -349,23 +349,23 @@ export default class ProjectUseCases {
 
     for (let i = 0; i < project.productLines.length; i++) {
       const productLine = project.productLines[i];
-      if (type == "Domain") {
+      if (type === "Domain") {
         for (let k = 0; k < productLine.domainEngineering.models.length; k++) {
           const model = productLine.domainEngineering.models[k];
-          if (model.name == modelName) {
-            if (productLine.domainEngineering == modelNeighborDomain) {
+          if (model.name === modelName) {
+            if (productLine.domainEngineering === modelNeighborDomain) {
               return model;
             }
           }
         }
       }
-      else if (type == "Application") {
+      else if (type === "Application") {
         for (let ap = 0; ap < productLine.applicationEngineering.applications.length; ap++) {
           const application = productLine.applicationEngineering.applications[ap];
           for (let k = 0; k < application.models.length; k++) {
             const model = application.models[k];
-            if (model.name == modelName) {
-              if (application == modelNeighborApplication) {
+            if (model.name === modelName) {
+              if (application === modelNeighborApplication) {
                 return model;
               }
             }
@@ -379,8 +379,8 @@ export default class ProjectUseCases {
             const adaptation = application.adaptations[ad];
             for (let k = 0; k < adaptation.models.length; k++) {
               const model = adaptation.models[k];
-              if (model.name == modelName) {
-                if (adaptation == modelNeighborAdaptation) {
+              if (model.name === modelName) {
+                if (adaptation === modelNeighborAdaptation) {
                   return model;
                 }
               }
@@ -399,7 +399,7 @@ export default class ProjectUseCases {
       if (applicationModel) {
         for (let ap = 0; ap < productLine.applicationEngineering.applications.length; ap++) {
           const application = productLine.applicationEngineering.applications[ap];
-          if (application == applicationModel) {
+          if (application === applicationModel) {
             return productLine.domainEngineering;
           }
         }
@@ -407,7 +407,7 @@ export default class ProjectUseCases {
         const domain = productLine.domainEngineering;
         for (let k = 0; k < domain.models.length; k++) {
           const model = domain.models[k];
-          if (model.id == modelId) {
+          if (model.id === modelId) {
             return domain;
           }
         }
@@ -422,7 +422,7 @@ export default class ProjectUseCases {
         const application = productLine.applicationEngineering.applications[ap];
         for (let k = 0; k < application.models.length; k++) {
           const model = application.models[k];
-          if (model.id == modelId) {
+          if (model.id === modelId) {
             return application;
           }
         }
@@ -430,7 +430,7 @@ export default class ProjectUseCases {
           const adaptation = application.adaptations[ad];
           for (let k = 0; k < adaptation.models.length; k++) {
             const model = adaptation.models[k];
-            if (model.id == modelId) {
+            if (model.id === modelId) {
               return application;
             }
           }
@@ -448,7 +448,7 @@ export default class ProjectUseCases {
           const adaptation = application.adaptations[ad];
           for (let k = 0; k < adaptation.models.length; k++) {
             const model = adaptation.models[k];
-            if (model.id == modelId) {
+            if (model.id === modelId) {
               return adaptation;
             }
           }
@@ -507,7 +507,7 @@ export default class ProjectUseCases {
       function (c) {
         var r = (dt + Math.random() * 16) % 16 | 0;
         dt = Math.floor(dt / 16);
-        return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+        return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
       }
     );
     return uuid;
@@ -519,13 +519,13 @@ export default class ProjectUseCases {
         const productLine: ProductLine = project.productLines[pl];
         for (let m = 0; m < productLine.domainEngineering.models.length; m++) {
           const model: Model = productLine.domainEngineering.models[m];
-          if (model.id == uid) {
+          if (model.id === uid) {
             return model;
           }
         }
         for (let m = 0; m < productLine.applicationEngineering.models.length; m++) {
           const model: Model = productLine.applicationEngineering.models[m];
-          if (model.id == uid) {
+          if (model.id === uid) {
             return model;
           }
         }
@@ -533,7 +533,7 @@ export default class ProjectUseCases {
           const application: Application = productLine.applicationEngineering.applications[ap];
           for (let m = 0; m < application.models.length; m++) { 
             const model: Model = application.models[m];
-            if (model.id == uid) {
+            if (model.id === uid) {
               return model;
             }
           }
@@ -541,7 +541,7 @@ export default class ProjectUseCases {
             const adaptation: Adaptation = application.adaptations[ad];
             for (let m = 0; m < adaptation.models.length; m++) { 
               const model: Model = adaptation.models[m];
-              if (model.id == uid) {
+              if (model.id === uid) {
                 return model;
               }
             }
@@ -556,7 +556,7 @@ export default class ProjectUseCases {
     if (model) {
       for (let i = 0; i < model.elements.length; i++) {
         const element: any = model.elements[i];
-        if (element.id == uid) {
+        if (element.id === uid) {
           return element;
         }
       }
@@ -565,11 +565,10 @@ export default class ProjectUseCases {
   }
 
   static findModelRelationshipById(model: Model, uid: any) {
-    let me = this;
     if (model) {
       for (let i = 0; i < model.relationships.length; i++) {
         const relationship: any = model.relationships[i];
-        if (relationship.id == uid) {
+        if (relationship.id === uid) {
           return relationship;
         }
       }
@@ -615,7 +614,7 @@ export default class ProjectUseCases {
     if (model) {
       for (let i = 0; i < model.elements.length; i++) {
         const element: any = model.elements[i];
-        if (element.id == uid) {
+        if (element.id === uid) {
           model.elements.splice(i, 1);
           this.removeModelRelationshipsOfElement(model, uid);
           return;
@@ -628,7 +627,7 @@ export default class ProjectUseCases {
     if (model) {
       for (let i = 0; i < model.relationships.length; i++) {
         const relationship: any = model.relationships[i];
-        if (relationship.id == uid) {
+        if (relationship.id === uid) {
           model.relationships.splice(i, 1);
           return;
         }
@@ -640,7 +639,7 @@ export default class ProjectUseCases {
     if (model) {
       for (let i = model.relationships.length - 1; i >= 0; i--) {
         const relationship: any = model.relationships[i];
-        if (relationship.sourceId == uid || relationship.targetId == uid) {
+        if (relationship.sourceId === uid || relationship.targetId === uid) {
           model.relationships.splice(i, 1);
         }
       }

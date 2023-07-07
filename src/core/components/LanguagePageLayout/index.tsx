@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Container, Col, Navbar, Nav } from "react-bootstrap";
+import { Row, Container, Col } from "react-bootstrap";
 import { LanguagePageLayoutProps } from "./index.types";
 import Layout from "../Layout";
 

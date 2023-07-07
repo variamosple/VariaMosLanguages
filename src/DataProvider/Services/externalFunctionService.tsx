@@ -52,7 +52,6 @@ export default class ExternalFuntionService {
 
         callback(responseAPISuccess);
       }).catch(function (error) {
-        let x=0;
         if (error.response) {
           // Request made and server responded
           console.log(error.response.data);
