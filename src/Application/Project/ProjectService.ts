@@ -24,7 +24,6 @@ import { Property } from "../../Domain/ProductLineEngineering/Entities/Property"
 import { Point } from "../../Domain/ProductLineEngineering/Entities/Point";
 import RestrictionsUseCases from "../../Domain/ProductLineEngineering/UseCases/RestrictionsUseCases";
 import ProjectUseCases from "../../Domain/ProductLineEngineering/UseCases/ProjectUseCases";
-import { isJSDocThisTag } from "typescript";
 import * as alertify from "alertifyjs";
 import { Buffer } from 'buffer';
 
@@ -175,7 +174,7 @@ export default class ProjectService {
 
   loadExternalFunctions(languageName: string) {
     let me = this;
-    let language = this._languages.filter(language => language.name == languageName);
+    let language = this._languages.filter(language => language.name === languageName);
     let callback = function (data: any) {
       me._externalFunctions = data;
     };

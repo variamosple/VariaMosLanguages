@@ -1,4 +1,5 @@
-import { Row, Container, Col, Navbar, Nav } from "react-bootstrap";
+import React from 'react';
+import { Container, Navbar, Nav } from "react-bootstrap";
 import VariaMosLogo from "../../../Addons/images/VariaMosLogo.png";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { useEffect, useState } from "react";
