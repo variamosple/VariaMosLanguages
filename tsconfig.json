@@ -26,6 +26,7 @@
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
     "strictNullChecks": false,
+    "ignoreDeprecations": "5.0",
     "sourceMap": true
   },
   "include": [
