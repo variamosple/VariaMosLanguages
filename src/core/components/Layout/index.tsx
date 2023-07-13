@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { getUserProfile, logoutUser } from "../../../UI/SignUp/SignUp.utils";
 
 function Layout({ children }) {
-  const [userName, setUserName] = useState();
+  const [userName, setUserName] = useState(null);
 
   useEffect(() => {
     const userProfile = getUserProfile();

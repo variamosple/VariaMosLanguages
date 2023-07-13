@@ -23,7 +23,7 @@ export default function LanguagePage() {
         isCreatingLanguage={isCreatingLanguage}
         setRequestLanguages={setRequestLanguages}
       />
-      <LanguageReview />
+      <LanguageReview language={language} />
     </LanguagePageLayout>
   );
 }

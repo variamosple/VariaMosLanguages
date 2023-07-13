@@ -1,7 +1,14 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Form, FormControl, ListGroup } from "react-bootstrap";
+import { PersonCircle } from "react-bootstrap-icons";
 
-export default function AutocompleteUserSearch({ users }) {
+export default function AutocompleteUserSearch({
+  users,
+  onClick,
+}: {
+  users: any[],
+  onClick?: (event: any) => void;
+}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
@@ -19,6 +26,12 @@ export default function AutocompleteUserSearch({ users }) {
     setResults(filteredUsers);
   };
 
+  const handleClick = (user) => () => {
+    setResults([]);
+    setQuery("");
+    onClick(user);
+  };
+
   return (
     <Form className="mt-3">
       <FormControl
@@ -29,7 +42,10 @@ export default function AutocompleteUserSearch({ users }) {
       />
       <ListGroup>
         {results.map((user) => (
-          <ListGroup.Item key={user.id}>{user.name}</ListGroup.Item>
+          <ListGroup.Item action onClick={handleClick(user)} key={user.id}>
+            <PersonCircle style={{ marginRight: "10px" }} />
+            {user.name}
+          </ListGroup.Item>
         ))}
       </ListGroup>
     </Form>

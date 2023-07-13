@@ -5,18 +5,8 @@ import { CardText } from "react-bootstrap-icons";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
-import { getServiceUrl } from "./index.utils";
+import { getServiceUrl, sortAphabetically } from "./index.utils";
 import { LanguageManagerProps } from "./index.types";
-
-const sortAphabetically = (a, b) => {
-  if (a.name < b.name) {
-    return -1;
-  }
-  if (a.name > b.name) {
-    return 1;
-  }
-  return 0;
-};
 
 export default function LanguageManager({
   setLanguage,

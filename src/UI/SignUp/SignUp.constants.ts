@@ -1,6 +1,11 @@
 export const CLIENT_ID =
   "364413657269-7h80i7vdc1mbooitbpa9n2s719io1ts2.apps.googleusercontent.com";
 
+export enum UserTypes {
+  Guest = "guest",
+  Registered = "registered"
+}
+
 export enum SignUpMessages {
   Welcome = "Welcome",
   ContinueAsGuest = "Continue as a Guest",

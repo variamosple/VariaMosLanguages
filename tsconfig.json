@@ -24,10 +24,11 @@
       "node_modules/@typed-mxgraph"
     ],
     "noImplicitAny": false,
-    "suppressImplicitAnyIndexErrors": true,
     "strictNullChecks": false,
-    "ignoreDeprecations": "5.0",
-    "sourceMap": true
+    "sourceMap": true,
+    "paths": {
+      "react": [ "./node_modules/@types/react" ]
+    }
   },
   "include": [
     "src"
