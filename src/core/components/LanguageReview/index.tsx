@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, ListGroup } from "react-bootstrap";
 import { People, PersonGear } from "react-bootstrap-icons";
 import AutocompleteUserSearch from "./AutocompleteUserSearch";
@@ -8,74 +8,76 @@ import {
   getDataBaseUserProfile,
   getUserProfile,
 } from "../../../UI/SignUp/SignUp.utils";
-import { UserTypes } from "../../../UI/SignUp/SignUp.constants";
 import { Review, ReviewUser } from "./index.types";
+import { ExternalServices } from "./index.constants";
+import { Service } from "./index.structures";
+import { getOwner } from "./index.utils";
+import useUsers from "./hooks/useUsers";
+import useLanguageReview from "./hooks/useLanguageReview";
 
-export default function LanguageReview({ language }: { language: Language }) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function LanguageReview({
+  language: selectedLanguage,
+}: {
+  language: Language;
+}) {
+  const [review, setReview] = useState<Review | null>(null);
+  const [enableReviewButton, setEnableReviewButton] = useState<boolean>(false);
+  const [enableReview, setEnableReview] = useState<boolean>(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [enableReviewButton, setEnableReviewButton] = useState(false);
-  const [enableReview, setEnableReview] = useState(false);
-  const [, setReview] = useState<Review | null>(null);
-  const [users, setUsers] = useState<ReviewUser[]>([]);
-  const [owner, setOwner] = useState<ReviewUser>(null);
 
-  useEffect(() => {
-    axios
-      .get("https://variamos-ms-users.azurewebsites.net/users")
-      .then(({ data }) => {
-        setUsers(data.map((item) => ({ ...item, avatar: "" })));
-      });
-  }, []);
-
-  useEffect(() => {
-    const userLoginProfile = getUserProfile();
-    if (userLoginProfile.userType === UserTypes.Guest) {
-      return;
-    }
-
-    if (!language) {
-      return;
-    }
-
-    axios.get(`/languagereviews/language/${language.id}`).then(({ data }) => {
-      const languageReview: Review = data;
-      const owner = users.find(
-        (user) => user.id === languageReview.languageOwner
-      );
-
-      if (language && !languageReview) {
-        setReview(null);
-        setEnableReview(false);
-        setEnableReviewButton(true);
-        setOwner(null);
-        return;
-      }
-
-      setReview(languageReview);
-      setEnableReview(true);
-      setEnableReviewButton(false);
-      setOwner(owner);
-    });
-  }, [language, users]);
+  const users = useUsers();
+  const { owner, setOwner } = useLanguageReview({
+    selectedLanguage,
+    users,
+    setReview,
+    setEnableReview,
+    setSelectedUsers,
+    setEnableReviewButton,
+  });
 
   const handleStartReviewClick = () => {
     const userDBProfile = getDataBaseUserProfile();
     const userLoginProfile = getUserProfile();
 
     axios
-      .post("/languagereviews/", {
-        languageId: language.id,
-        status: "review",
-        languageOwner: userDBProfile.user.id,
-        languageOwnerEmail: userLoginProfile.email,
-      })
-      .then(() => {
+      .post(
+        Service(ExternalServices.LanguageReviewDomain).getAll(
+          ExternalServices.LanguageReviewsContext
+        ),
+        {
+          languageId: selectedLanguage.id,
+          status: "review",
+          languageOwner: userDBProfile.user.id,
+          languageOwnerEmail: userLoginProfile.email,
+        }
+      )
+      .then(({ data }) => {
+        const review: Review = data;
+        const owner = getOwner({ users, languageReview: review });
+        setReview(review);
+        setOwner(owner);
+        setSelectedUsers([]);
         setEnableReview(true);
+        setEnableReviewButton(false);
       });
   };
 
-  if (!language) {
+  const handleAutocompleteClick = (user: ReviewUser) => {
+    const serviceUrl = Service(ExternalServices.LanguageReviewDomain).post(
+      ExternalServices.ReviewersResource
+    );
+
+    axios
+      .post(serviceUrl, {
+        email: user.email,
+        languageReview: review.id,
+      })
+      .then(() => {
+        setSelectedUsers([...selectedUsers, user]);
+      });
+  };
+
+  if (!selectedLanguage) {
     return null;
   }
 
@@ -94,10 +96,7 @@ export default function LanguageReview({ language }: { language: Language }) {
         <>
           <AutocompleteUserSearch
             users={users}
-            onClick={(user) => {
-              console.log("Selected user", user);
-              setSelectedUsers([...selectedUsers, user]);
-            }}
+            onClick={handleAutocompleteClick}
           />
           {!!selectedUsers.length && (
             <>

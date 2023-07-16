@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Form, FormControl, ListGroup } from "react-bootstrap";
 import { PersonCircle } from "react-bootstrap-icons";
+import { ReviewUser } from "./index.types";
 
 export default function AutocompleteUserSearch({
   users,
   onClick,
 }: {
-  users: any[],
+  users: ReviewUser[];
   onClick?: (event: any) => void;
 }) {
   const [query, setQuery] = useState("");
@@ -26,7 +27,7 @@ export default function AutocompleteUserSearch({
     setResults(filteredUsers);
   };
 
-  const handleClick = (user) => () => {
+  const handleClick = (user: ReviewUser) => () => {
     setResults([]);
     setQuery("");
     onClick(user);
