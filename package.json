@@ -36,8 +36,10 @@
     "build": "CI=false && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "docker:ci": "docker build -t variamos:latest .",
-    "docker:deploy": "docker run -d --name variamos -p 3000:3000 variamos:latest "
+    "docker:clear": "docker rmi variamos-languages:latest",
+    "docker:build": "docker build -t variamos-languages:latest .", 
+    "docker:ci": "yarn docker:build && yarn docker:clear",
+    "docker:deploy": "yarn docker:build && docker run -d --name variamos-languages -p 3000:3000 variamos-languages:latest"
   },
   "eslintConfig": {
     "extends": [
