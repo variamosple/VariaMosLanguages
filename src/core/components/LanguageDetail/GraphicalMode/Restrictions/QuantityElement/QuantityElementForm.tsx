@@ -9,7 +9,6 @@ export default function QuantityElementForm ({
     handleUpdateRestriction}) {
     const {elements} = useContext(LanguageContext);
     const [formValues, setFormValues] = useState(selectedRestriction);
-
     useEffect(() => {
         setFormValues(selectedRestriction);
       }, [selectedRestriction]);
@@ -43,7 +42,7 @@ export default function QuantityElementForm ({
                     >
                     <option value="" className="text-muted">Select element</option>
                     {elements.map((element, index) => (
-                        <option key={index} value={element}>
+                        <option key={index} value={element.name}>
                         {element.name}
                         </option>
                     ))}
