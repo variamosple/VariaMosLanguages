@@ -9,6 +9,7 @@ export default function QuantityElementForm ({
     handleUpdateRestriction}) {
     const {elements} = useContext(LanguageContext);
     const [formValues, setFormValues] = useState(selectedRestriction);
+    
     useEffect(() => {
         setFormValues(selectedRestriction);
       }, [selectedRestriction]);
