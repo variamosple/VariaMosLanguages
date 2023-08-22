@@ -1,3 +1,6 @@
 {
-  "buttonLabel": "Create language"
+  "buttonLabel": "Create language",
+  "modeGraphicalLabel" : "Graphical",
+  "modeTextualLabel" : "Textual"
+  
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   Alert,
   Button,
@@ -6,20 +6,31 @@ import {
   InputGroup,
   ListGroup,
   Spinner,
-  Tab,
-  Tabs,
   Container,
   Row,
 } from "react-bootstrap";
 import Comment from "./Comment/Comment";
-import SourceCode from "./SourceCode/SourceCode";
 import { capitalize, formatCode } from "./index.utils";
 import ProjectService from "../../../Application/Project/ProjectService";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import { LanguageDetailProps } from "./index.types";
+import config from "../LanguageManager/CreateLanguageButton/CreateLanguageButton.json";
+import { LanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
+import { textualToGraphical } from "./GraphicalMode/SyntaxCompiler";
+import TextualMode from "./TextualMode/TextualMode";
+import GraphicalMode from "./GraphicalMode/GraphicalMode";
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
+const DEFAULT_ELEMENTS = [];
+const DEFAULT_RELATIONSHIPS = [];
+const DEFAULT_RESTRICTIONS = {
+  unique_name: {
+    elements:[[]]
+  },
+  parent_child: [],
+  quantity_element: [],
+};
 
 export default function LanguageDetail({
   language,
@@ -33,31 +44,49 @@ export default function LanguageDetail({
   const [errorMessage, setErrorMessage] = useState(String());
   const [languageName, setLanguageName] = useState(String());
   const [languageType, setLanguageType] = useState(String());
-  const [abstractSyntax, setAbstractSyntax] = useState(String());
-  const [concreteSyntax, setConcteteSyntax] = useState(String());
   const [semantics, setSemantics] = useState(String());
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [comments, setComments] = useState([]);
 
+  const{abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax,
+     setElements, setRelationships, setRestrictions, creatingMode} = useContext(LanguageContext);
+  
   useEffect(() => {
     if (isCreatingLanguage) {
       setLanguageName(String());
       setAbstractSyntax(DEFAULT_SYNTAX);
-      setConcteteSyntax(DEFAULT_SYNTAX);
+      setConcreteSyntax(DEFAULT_SYNTAX);
       setSemantics(DEFAULT_SYNTAX);
-    }
-
+      setElements(DEFAULT_ELEMENTS);
+      setRelationships(DEFAULT_RELATIONSHIPS);
+      setRestrictions(DEFAULT_RESTRICTIONS);
+    }}, [isCreatingLanguage, setAbstractSyntax, setConcreteSyntax, setElements, setRelationships, setRestrictions]);
+  
+  useEffect(()=>{
     if (language && !isCreatingLanguage) {
-      setLanguageName(language.name);
+      setLanguageName(language.name||"");
       setLanguageType(capitalize(language.type));
-      setAbstractSyntax(formatCode(language.abstractSyntax));
-      setConcteteSyntax(formatCode(language.concreteSyntax));
-      setSemantics(formatCode(language.semantics));
+      setAbstractSyntax(formatCode(language.abstractSyntax||DEFAULT_SYNTAX));
+      setConcreteSyntax(formatCode(language.concreteSyntax||DEFAULT_SYNTAX));
+      setSemantics(formatCode(language.semantics||DEFAULT_SYNTAX));
+      if (creatingMode === config.modeGraphicalLabel){
+        if (abstractSyntax && concreteSyntax)  {
+          const { elements, relationships, restrictions } = textualToGraphical(abstractSyntax, concreteSyntax);
+          if (elements) {
+            setElements(elements);
+          }
+          if (relationships) {
+            setRelationships(relationships);
+          }
+          if (restrictions) {
+            setRestrictions(restrictions)
+          } 
+        }
+      }
     }
-
     setShowErrorMessage(false);
     setShowSuccessfulMessage(false);
-  }, [language, isCreatingLanguage]);
+  }, [language, isCreatingLanguage, creatingMode, abstractSyntax, concreteSyntax, setAbstractSyntax, setConcreteSyntax, setElements, setRelationships, setRestrictions]);
 
   const handleServiceCallback = ({ messageError }) => {
     setShowSpinner(false);
@@ -142,21 +171,15 @@ export default function LanguageDetail({
           <option>Adaptation</option>
         </Form.Select>
       </InputGroup>
-      <Tabs
-        defaultActiveKey="abstract-syntax"
-        id="uncontrolled-tab"
-        className="mb-3"
-      >
-        <Tab eventKey="abstract-syntax" title="Abstract Syntax">
-          <SourceCode code={abstractSyntax} dispatcher={setAbstractSyntax} />
-        </Tab>
-        <Tab eventKey="concrete-syntax" title="Concrete Syntax">
-          <SourceCode code={concreteSyntax} dispatcher={setConcteteSyntax} />
-        </Tab>
-        <Tab eventKey="semantics" title="Semantics">
-          <SourceCode code={semantics} dispatcher={setSemantics} />
-        </Tab>
-      </Tabs>
+      {creatingMode === config.modeTextualLabel && (
+        <TextualMode 
+        />
+      )}
+
+      {creatingMode === config.modeGraphicalLabel && (
+        <GraphicalMode/>
+      )}
+      
 
       <Container>
         <Row>
