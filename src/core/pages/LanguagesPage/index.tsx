@@ -26,7 +26,7 @@ export default function LanguagePage() {
           setRequestLanguages={setRequestLanguages}
         />
         <LanguageReview language={language} />
-        </LanguagePageLayout>
+      </LanguagePageLayout>
     </LanguageContextProvider>
     
   );

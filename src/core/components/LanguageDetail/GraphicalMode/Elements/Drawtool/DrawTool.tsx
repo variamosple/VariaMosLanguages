@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { Modal, Button, Col, Row } from "react-bootstrap";
-import XMLInput from "./XMLInput";
-import ShapeRenderer from "./ShapeRenderer"; 
-import axios from "axios";
-
+import React, { useState } from 'react';
+import { Modal, Button, Col, Row } from 'react-bootstrap';
+import XMLInput from './XMLInput';
+import ShapeRenderer from './ShapeRenderer';
+import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
 
 interface DrawToolProps {
   show: boolean;
@@ -12,8 +11,25 @@ interface DrawToolProps {
   onXmlChange: (xml: string) => void;
 }
 
-export default function DrawTool({ show, handleClose, xml, onXmlChange }: DrawToolProps) {
+const DrawTool: React.FC<DrawToolProps> = ({ show, handleClose, xml, onXmlChange }) => {
+  const [file, setFile] = useState<File | null>(null);
   const [previewXml, setPreviewXml] = useState<string | null>(null);
+  const svgToXmlService = new SvgToXmlService();
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files && event.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+
+      try {
+        const xmlResult = await svgToXmlService.convertSvgFileToXml(selectedFile);
+        setPreviewXml(xmlResult);
+        onXmlChange(xmlResult); // Update XML input value
+      } catch (error) {
+        console.error('Error converting SVG to XML: ', error);
+      }
+    }
+  };
 
   const handlePreview = () => {
     setPreviewXml(xml);
@@ -24,36 +40,6 @@ export default function DrawTool({ show, handleClose, xml, onXmlChange }: DrawTo
     handleClose();
   };
 
-  // const [file, setFile] = useState(null);
-  // const [xmlResult, setXmlResult] = useState('');
-
-  // const handleFileChange = (event) => {
-  //   setFile(event.target.files[0]);
-  // };
-
-  // const handleConvertClick = async () => {
-  //   if (!file) {
-  //     console.log('No file selected.');
-  //     return;
-  //   }
-
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append('svgFile', file);
-
-  //     const response = await axios.post('/api/convert', formData, {
-  //       baseURL: 'http://localhost:8080',  // L'URL de votre application Spring Boot
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data'
-  //       }
-  //     });
-
-  //     setXmlResult(response.data);
-  //   } catch (error) {
-  //     console.error('Error converting SVG to XML:', error);
-  //   }
-  // };
-
   return (
     <Modal show={show} onHide={handleClose} size="lg" dialogClassName="draw-tool-modal">
       <Modal.Header closeButton>
@@ -62,30 +48,30 @@ export default function DrawTool({ show, handleClose, xml, onXmlChange }: DrawTo
       <Modal.Body>
         <Row>
           <Col sm={6}>
-            <XMLInput xml={xml} onXmlChange={onXmlChange} />
+            <XMLInput xml={previewXml || xml} onXmlChange={onXmlChange} />
             <Button variant="secondary" onClick={handlePreview}>
               Preview
             </Button>
           </Col>
           <Col sm={6}>
-            <ShapeRenderer shapeXml={previewXml}/>
+            <ShapeRenderer shapeXml={previewXml} />
           </Col>
         </Row>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" onClick={handleFormSubmit}>
-          Save
-        </Button>
-        {/* <div>
-        <input type="file" accept=".svg" onChange={handleFileChange} />
-        <button onClick={handleConvertClick}>Convert SVG</button>
-
-        <div>
-          <h2>Converted XML:</h2>
-          <pre>{xmlResult}</pre>
+        <div className="d-flex justify-content-start"> {/* Align Upload Button to the Left */}
+          <div>
+            <input type="file" accept=".svg" onChange={handleFileChange} />
+          </div>
         </div>
-        </div> */}
+        <div className="d-flex justify-content-end"> {/* Align Save Button to the Right */}
+          <Button variant="primary" onClick={handleFormSubmit}>
+            Save
+          </Button>
+        </div>
       </Modal.Footer>
     </Modal>
   );
-}
+};
+
+export default DrawTool;
