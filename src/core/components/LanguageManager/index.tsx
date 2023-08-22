@@ -1,12 +1,15 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { Alert, Form, ListGroup, Spinner } from "react-bootstrap";
+import { useContext, useEffect, useState } from "react";
+import { Alert, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap";
 import { CardText } from "react-bootstrap-icons";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { getServiceUrl, sortAphabetically } from "./index.utils";
-import { LanguageManagerProps } from "./index.types";
+import { CreatingMode, LanguageManagerProps } from "./index.types";
+import CreationModeButton from "./CreateLanguageButton/CreationModeButton";
+import { LanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
+
 
 export default function LanguageManager({
   setLanguage,
@@ -17,9 +20,15 @@ export default function LanguageManager({
   const [showSpinner, setShowSpinner] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [displayedLanguages, setDisplayedLanguages] = useState<Language[]>([]);
+  const {setCreatingMode} = useContext(LanguageContext);
+
   const handleCreateClick = () => {
     setCreatingLanguage(true);
   };
+  const handleModeClick = (mode : CreatingMode) => {
+    setCreatingMode(mode);
+  }
+
 
   useEffect(() => {
     setShowSpinner(true);
@@ -54,8 +63,14 @@ export default function LanguageManager({
 
   return (
     <LanguageManagerLayout>
-      <CreateLanguageButton handleCreateClick={handleCreateClick} />
-      <Form.Group controlId="searchLanguages">
+      <Col as={Row}>
+        <Col sm={6}>
+          <CreateLanguageButton handleCreateClick={handleCreateClick} />
+        </Col>
+        <Col >
+          <CreationModeButton handleModeClick={handleModeClick}/>
+        </Col>
+      </Col>      <Form.Group controlId="searchLanguages">
         <Form.Control
           type="text"
           placeholder="Find a language..."

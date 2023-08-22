@@ -1,0 +1,26 @@
+.secondary-btn:hover {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+
+
+
+.main-btn{
+    background-color: #e2e3e5;
+    color: #333;
+  }
+
+.main-btn:hover {
+  background-color:#d4d4d4;
+  ;
+  color: #333;
+}
+
+.trash-btn:hover {
+  color : red;  
+  background-color: #f0f0f0 ;
+}
+
+.modal-title, .form-label {
+  color:#333;
+}

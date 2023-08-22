@@ -26,3 +26,6 @@ export interface LanguageManagerProps {
   requestLanguages: boolean;
   setRequestLanguages: (value) => void;
 }
+
+export type CreatingMode = "Graphical"| "Textual";
+
