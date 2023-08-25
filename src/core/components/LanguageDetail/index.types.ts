@@ -9,7 +9,7 @@ export interface LanguageDetailProps {
 export type propertyType = {
   name:string;
   type:string;
-  possible_values:string[];
+  possibleValues:string[];
   comment:string;
   linked_property:string;
   linked_value:string;

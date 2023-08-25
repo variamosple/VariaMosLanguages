@@ -1,7 +1,8 @@
 import axios from 'axios';
+import _config from "../../Infraestructure/config.json";
 
 class SvgToXmlService {
-  private apiUrl: string = 'http://localhost:8080/api/convert'; // URL de l'API
+  private apiUrl: string = _config.url_svg2xmlService ; // URL de l'API
 
   async convertSvgFileToXml(file: File): Promise<string | null> {
     try {
@@ -13,7 +14,6 @@ class SvgToXmlService {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response)
 
 
       return response.data;

@@ -8,5 +8,6 @@
   "_comment.environment": "The environments available are development and production",
   "environment": "development",
   "urlVariamosDocumentation": "https://github.com/variamosple/VariaMosPLE/wiki",
-  "urlVariamosLangDocumentation": "https://github.com/variamosple/VariaMosPLE/wiki/Language-definition"
+  "urlVariamosLangDocumentation": "https://github.com/variamosple/VariaMosPLE/wiki/Language-definition",
+  "url_svg2xmlService" : "http://localhost:8080/api/convert"
 }

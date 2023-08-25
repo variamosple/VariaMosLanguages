@@ -1,9 +1,9 @@
 import { Modal, Button } from "react-bootstrap";
-import ItemList from "../Utils/ItemList";
+import ItemListModal from "./ItemListModal";
 import { useContext, useState } from "react";
 import { LanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
 
-export default function ItemListModal({
+export default function RestrictionList({
   show,
   handleClose,
   title,
@@ -46,7 +46,7 @@ export default function ItemListModal({
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <ItemList
+        <ItemListModal
           items={restrictions[restrictionType]}
           setItems={setRestrictionList}
           onAdd={handleAddRestriction}

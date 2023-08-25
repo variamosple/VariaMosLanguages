@@ -91,7 +91,7 @@ function Layout({ children }) {
             <div><a href="#">Link 5</a></div>
           </div>
         </div> */}
-        <div className="row copyright">
+        <div className="row g-0 copyright">  {/* no gutters to avoid horizontal scroll*/}
           <p>© Copyright 2023 VariaMos.</p>
         </div>
       </footer>

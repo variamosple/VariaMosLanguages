@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Button, Form, Col, Row } from "react-bootstrap";
-import "../GraphicalMode.css";
+import "../../GraphicalMode.css";
 import Select from "react-select";
 
 
@@ -31,7 +31,7 @@ export default function LabelForm({
   
 //A MODIFIER
   const handleUpdateLabels = (updatedLabel) => {
-    const index = labels.findIndex((label) => label.name === updatedLabel.name);
+    const index = labels.findIndex((item) => item === selectedLabel);
 
     if (index !== -1) {
       const updatedLabels = [...labels];
@@ -75,7 +75,7 @@ export default function LabelForm({
             </Form.Label>
             <Col sm={10}>
               <Form.Control
-                name="align"
+                name="style"
                 value={formValues.style}
                 onChange={handleChange}
               />

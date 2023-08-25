@@ -12,14 +12,12 @@ interface DrawToolProps {
 }
 
 const DrawTool: React.FC<DrawToolProps> = ({ show, handleClose, xml, onXmlChange }) => {
-  const [file, setFile] = useState<File | null>(null);
   const [previewXml, setPreviewXml] = useState<string | null>(null);
   const svgToXmlService = new SvgToXmlService();
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files && event.target.files[0];
     if (selectedFile) {
-      setFile(selectedFile);
 
       try {
         const xmlResult = await svgToXmlService.convertSvgFileToXml(selectedFile);

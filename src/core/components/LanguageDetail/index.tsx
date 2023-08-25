@@ -54,6 +54,7 @@ export default function LanguageDetail({
   useEffect(() => {
     if (isCreatingLanguage) {
       setLanguageName(String());
+      setLanguageType("Domain");
       setAbstractSyntax(DEFAULT_SYNTAX);
       setConcreteSyntax(DEFAULT_SYNTAX);
       setSemantics(DEFAULT_SYNTAX);
@@ -69,7 +70,13 @@ export default function LanguageDetail({
       setAbstractSyntax(formatCode(language.abstractSyntax||DEFAULT_SYNTAX));
       setConcreteSyntax(formatCode(language.concreteSyntax||DEFAULT_SYNTAX));
       setSemantics(formatCode(language.semantics||DEFAULT_SYNTAX));
-      if (creatingMode === config.modeGraphicalLabel){
+    }
+    setShowErrorMessage(false);
+    setShowSuccessfulMessage(false);
+  }, [language, isCreatingLanguage, setAbstractSyntax, setConcreteSyntax, setElements, setRelationships, setRestrictions]);
+
+  useEffect(() => {
+      if (creatingMode === config.modeGraphicalLabel && language && !isCreatingLanguage){
         if (abstractSyntax && concreteSyntax)  {
           const { elements, relationships, restrictions } = textualToGraphical(abstractSyntax, concreteSyntax);
           if (elements) {
@@ -83,11 +90,7 @@ export default function LanguageDetail({
           } 
         }
       }
-    }
-    setShowErrorMessage(false);
-    setShowSuccessfulMessage(false);
-  }, [language, isCreatingLanguage, creatingMode, abstractSyntax, concreteSyntax, setAbstractSyntax, setConcreteSyntax, setElements, setRelationships, setRestrictions]);
-
+  }, [creatingMode, language, abstractSyntax, concreteSyntax, isCreatingLanguage, setElements, setRelationships, setRestrictions])
   const handleServiceCallback = ({ messageError }) => {
     setShowSpinner(false);
     setDisableSaveButton(false);

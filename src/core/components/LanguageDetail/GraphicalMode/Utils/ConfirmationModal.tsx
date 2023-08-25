@@ -16,7 +16,7 @@ export default function ConfirmationModal({
   return (
     <Modal show={show} onHide={onCancel}>
       <Modal.Body>
-        Are you sure you want to remove the {itemName} ?
+        Are you sure you want to remove {itemName} ?
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onCancel}>

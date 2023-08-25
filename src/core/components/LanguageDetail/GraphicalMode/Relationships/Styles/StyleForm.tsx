@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, Button, Form, Col, Row} from "react-bootstrap";
-import "../GraphicalMode.css";
-import { propertyType } from "../../index.types";
+import "../../GraphicalMode.css";
+import { propertyType } from "../../../index.types";
 
 
 export default function StyleForm({
@@ -35,7 +35,7 @@ export default function StyleForm({
   
 //A MODIFIER
   const handleUpdateStyles = (updatedStyle) => {
-    const index = styles.findIndex((style) => style.name === updatedStyle.name);
+    const index = styles.findIndex((item) => item === selectedStyle);
 
     if (index !== -1) {
       const updatedStyles = [...styles];
@@ -101,7 +101,7 @@ export default function StyleForm({
                     aria-label="Select a value"
                     >
                     <option value="" className="text-muted">Select a value</option>
-                    {(linkedProperty.possible_values||[]).map((value,index) => (
+                    {(linkedProperty.possibleValues||[]).map((value,index) => (
                         <option key={index} value={value}>
                         {value}
                         </option>

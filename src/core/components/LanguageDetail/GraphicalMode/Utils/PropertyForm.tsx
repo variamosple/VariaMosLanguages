@@ -35,12 +35,12 @@ export default function PropertyForm({
   const handlePossibleValuesChange = (selectedItems: string[]) => {
     setFormValues((prevFormValues) => ({
       ...prevFormValues,
-      possible_values: selectedItems,
+      possibleValues: selectedItems,
     }));
   };
 
   const handleUpdateProperties = (updatedProperty) => {
-    const index = properties.findIndex((property) => property.id === updatedProperty.id);
+    const index = properties.findIndex((item) => item === selectedProperty);
 
     if (index !== -1) {
       const updatedProperties = [...properties];
@@ -54,15 +54,15 @@ export default function PropertyForm({
   const handleFormSubmit = () => {
     // Update the selectedProperty with the new formValues
     handleUpdateProperties(formValues);
-    setSelectedProperty(formValues);
+    setSelectedProperty({});
     // Close the modal after form submission
     handleClose();
   };
 
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show} onHide={handleClose} centered size="lg">
       <Modal.Header>
-        <Modal.Title>{selectedProperty?.name}</Modal.Title>
+        <Modal.Title>{formValues.name}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
@@ -104,7 +104,7 @@ export default function PropertyForm({
             </FormLabel>
             <Col sm={10}>
               <MultiValueForm
-              selectedItems={formValues.possible_values || []}
+              selectedItems={formValues.possibleValues || []}
               setSelectedItems={handlePossibleValuesChange}/>
             </Col>
           </Form.Group>
@@ -153,7 +153,7 @@ export default function PropertyForm({
                     aria-label="Select a value"
                     >
                     <option value="" className="text-muted">Select a value</option>
-                    {linkedProperty.possible_values.map((value,index) => (
+                    {linkedProperty.possibleValues.map((value,index) => (
                         <option key={index} value={value}>
                         {value}
                         </option>

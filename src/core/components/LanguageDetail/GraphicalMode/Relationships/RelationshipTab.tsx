@@ -1,53 +1,31 @@
-import { useContext, useState } from "react";
-import ItemList from "../Utils/ItemList";
-import RelationshipForm from "./RelationshipForm";
+import React, { useContext } from "react";
 import { LanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
+import RelationshipForm from "./RelationshipForm";
+import ItemTab from "../Utils/ItemTab";
 
 export default function RelationshipTab() {
-  const { relationships, setRelationships} = useContext(LanguageContext);
-  const [selectedRelationship, setSelectedRelationship] = useState({});
-
-  const handleAddRelationship = () => {
-    const newRelationship = {
-      name: `Relationship ${relationships.length + 1}`,
-      min: "",
-      max: "",
-      source: "",
-      target: [],
-      properties: [],
-      styles:[],
-      labels:[]
-    };
-    setRelationships([...relationships, newRelationship]);
-  };
-
-  const handleUpdateRelationships = (updatedRelationship) => {
-    const index = relationships.findIndex((relationship) => relationship.name === updatedRelationship.name);
-
-    if (index !== -1) {
-      const updatedRelationships = [...relationships];
-      updatedRelationships[index] = updatedRelationship;
-      setRelationships(updatedRelationships);
-    }
+  const { relationships, setRelationships } = useContext(LanguageContext);
+  const newRelationship = {
+    name: `Relationship ${relationships.length + 1}`,
+    min: "",
+    max: "",
+    source: "",
+    target: "",
+    label_property: "",
+    properties: [],
+    labels : [],
+    styles:[]
   };
 
   return (
-    <div>
-      <ItemList
-        items={relationships}
-        setItems={setRelationships}
-        onAdd={handleAddRelationship}
-        label="relationship"
-        selectedItem={selectedRelationship}
-        setSelectedItem={setSelectedRelationship}
-        renderModal={({ show, onClose }) => (
-            <RelationshipForm
-              show={show}
-              handleClose={onClose}
-              selectedRelationship={selectedRelationship}
-              handleUpdateRelationships={handleUpdateRelationships}/>
-        )}
-      />
-    </div>
+    <ItemTab
+      items={relationships}
+      setItems={setRelationships}
+      newItem={newRelationship}
+      label="relationship"
+      FormComponent={RelationshipForm} 
+      withProperties={true}
+      withLabels={true}
+      withStyles={true}/>
   );
 }

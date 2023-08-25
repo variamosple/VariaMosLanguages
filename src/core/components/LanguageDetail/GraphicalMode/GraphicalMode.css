@@ -3,6 +3,19 @@
     color: #333;
   }
 
+.secondary-btn {
+  min-width: 0;
+}
+
+.input-btn {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+
 
 
 .main-btn{
@@ -23,4 +36,23 @@
 
 .modal-title, .form-label {
   color:#333;
+}
+
+.item-form {
+  padding : 15px;
+}
+
+.center-text {
+  text-align: center;
+}
+
+.section-list-title {
+  margin-top : 30px;
+  margin-bottom: 0px;
+  margin-left: 5px;
+  font-size: 12px;
+}
+
+.form-separation {
+  margin-top: 0;
 }

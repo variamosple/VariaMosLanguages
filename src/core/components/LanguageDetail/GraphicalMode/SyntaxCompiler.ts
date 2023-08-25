@@ -24,17 +24,19 @@ export function graphicalToTextual(elements, relationships, restrictions) {
           draw: element.draw,
           icon: element.icon,
           label: element.label,
-          width: element.width,
-          height: element.height,
+          width: parseInt(element.width), 
+          height: parseInt(element.height), 
+          label_property: element.label_property
         };
         return acc;
       }, {}),
       relationships: relationships.reduce((acc, relationship) => {
         const { name, styles, labels } = relationship;
-        acc[name] = {
+        acc[name] = removeNullKeys({
           styles,
           labels,
-        };
+          label_property: relationship.label_property
+        });
           
         return acc;
       }, {}),
@@ -48,26 +50,34 @@ export function graphicalToTextual(elements, relationships, restrictions) {
     {
       elements: elements.reduce((acc, element) => {
         acc[element.name] = removeNullKeys({
-          properties: (element.properties || []).map((property) => ({
+           properties: (element.properties || []).map(property => ({
             ...property,
-            possible_values: property.possible_values.join(','), // Concaténer les valeurs possibles
+            possibleValues: property.possibleValues ? property.possibleValues.join(',') : "",
           })),
         });
         return acc;
       }, {}),
       relationships: relationships.reduce((acc, relationship) => {
-        const { name, styles, labels, ...rest } = relationship;
+        const { name, styles, labels, label_property, properties, min, max, ...rest } = relationship; // Destructuring min and max
         acc[name] = removeNullKeys({
-          styles,
-          labels,
+          min: parseInt(min),
+          max: parseInt(max),
           ...rest,
+          properties: (relationship.properties || []).map(property => ({
+            ...property,
+            possibleValues: Array.isArray(property.possibleValues) ? property.possibleValues.join(',') : "",
+          })),
         });
         return acc;
       }, {}),
       restrictions: removeNullKeys({
         unique_name: removeNullKeys(restrictions.unique_name),
         parent_child: removeNullKeys(restrictions.parent_child),
-        quantity_element: removeNullKeys(restrictions.quantity_element),
+        quantity_element: restrictions.quantity_element.map(item => ({
+          ...item,
+          min: parseInt(item.min),
+          max: parseInt(item.max),
+        })),
       }),
     },
     null,
@@ -97,7 +107,7 @@ export function textualToGraphical(abstractSyntaxJson, concreteSyntaxJson) {
     const properties = abstractSyntax.elements?.[element.name]?.properties || [];
     element.properties = properties.map((property) => ({
       ...property,
-      possible_values: property.possible_values ? property.possible_values.split(",") : [],
+      possibleValues: property.possibleValues ? property.possibleValues.split(",") : [],
     }));
   });
   
@@ -108,8 +118,11 @@ export function textualToGraphical(abstractSyntaxJson, concreteSyntaxJson) {
       name,
       ...abstractRelationships[name],
     };
-    if (relationship.possible_values) {
-      relationship.possible_values = relationship.possible_values.split(",");
+    if (relationship.properties) {
+      relationship.properties = relationship.properties.map((property) => ({
+        ...property,
+        possibleValues: property.possibleValues ? property.possibleValues.split(",") : [],
+      }));
     }
     return relationship;
   });
@@ -133,9 +146,10 @@ export function textualToGraphical(abstractSyntaxJson, concreteSyntaxJson) {
     }
   }
 
-  // Parse styles and labels for relationships from concreteSyntax
+  // Parse label_property, styles and labels for relationships from concreteSyntax
   relationships.forEach((relationship) => {
     const concreteRelationship = concreteSyntax.relationships?.[relationship.name] || {};
+    relationship.label_property = concreteRelationship.label_property;
     relationship.styles = concreteRelationship.styles || [];
     relationship.labels = concreteRelationship.labels || [];
   });
