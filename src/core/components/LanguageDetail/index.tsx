@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -15,10 +15,10 @@ import ProjectService from "../../../Application/Project/ProjectService";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import { LanguageDetailProps } from "./index.types";
 import config from "../LanguageManager/CreateLanguageButton/CreateLanguageButton.json";
-import { LanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
 import { textualToGraphical } from "./GraphicalMode/SyntaxCompiler";
 import TextualMode from "./TextualMode/TextualMode";
 import GraphicalMode from "./GraphicalMode/GraphicalMode";
+import { useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -49,7 +49,7 @@ export default function LanguageDetail({
   const [comments, setComments] = useState([]);
 
   const{abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax,
-     setElements, setRelationships, setRestrictions, creatingMode} = useContext(LanguageContext);
+     setElements, setRelationships, setRestrictions, creatingMode} = useLanguageContext();
   
   useEffect(() => {
     if (isCreatingLanguage) {

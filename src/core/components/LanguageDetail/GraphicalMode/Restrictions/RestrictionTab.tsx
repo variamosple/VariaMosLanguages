@@ -1,14 +1,14 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Button, Row } from "react-bootstrap";
 import "../GraphicalMode.css";
 import { Container } from "react-bootstrap";
 import ParentChildList from "./ParentChild/ParentChildList";
 import QuantityElementList from "./QuantityElement/QuantityElementList";
 import UniqueNameForm from "./UniqueName/UniqueNameForm";
-import { LanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
+import { useLanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
 
 export default function RestrictionTab() {
-  const {restrictions} = useContext(LanguageContext);
+  const {restrictions} = useLanguageContext();
   const [showUniqueNameModal, setShowUniqueNameModal] = useState(false);
   const [showParentChildModal, setShowParentChildModal] = useState(false);
   const [showQuantityElementModal, setShowQuantityElementModal] = useState(false);

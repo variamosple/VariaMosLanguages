@@ -1,8 +1,7 @@
-import { useContext } from "react";
 import {Form, Col, Row } from "react-bootstrap";
 import "../GraphicalMode.css";
 import Select from "react-select";
-import { LanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
+import { useLanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
 
 
 export default function RelationshipForm({
@@ -10,7 +9,7 @@ export default function RelationshipForm({
   handleChange,
   properties
 }) {
-  const {elements} = useContext(LanguageContext);
+  const {elements} = useLanguageContext();
   const elementOptions = (elements).map((element) => element.name);
 
   return (

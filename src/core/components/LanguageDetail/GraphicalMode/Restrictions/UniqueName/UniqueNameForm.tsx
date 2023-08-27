@@ -1,15 +1,15 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Row, Col, Modal, Button } from "react-bootstrap";
 import { Trash } from "react-bootstrap-icons";
 import Select from "react-select";
 import "../../GraphicalMode.css";
-import { LanguageContext } from "../../../../../context/LanguageContext/LanguageContextProvider";
+import { useLanguageContext } from "../../../../../context/LanguageContext/LanguageContextProvider";
 
 export default function UniqueNameForm({
   show,
   handleClose,
 }) {
-  const {restrictions, setRestrictions, elements} = useContext(LanguageContext);
+  const {restrictions, setRestrictions, elements} = useLanguageContext();
   const uniqueNameRestriction = restrictions.unique_name.elements;
   const [selectedSets, setSelectedSets] = useState([[]]);
   const elementOptions = elements.map((element) => element.name);

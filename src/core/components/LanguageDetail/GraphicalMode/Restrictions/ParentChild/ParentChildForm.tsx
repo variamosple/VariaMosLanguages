@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Button, Form, Col, Row } from "react-bootstrap";
 import Select from "react-select";
-import { LanguageContext } from "../../../../../context/LanguageContext/LanguageContextProvider";
+import { useLanguageContext } from "../../../../../context/LanguageContext/LanguageContextProvider";
 
 export default function ParentChildForm ({
   show,
@@ -9,7 +9,7 @@ export default function ParentChildForm ({
   selectedRestriction,
   handleUpdateRestriction
 }) {
-  const {elements} = useContext(LanguageContext);
+  const {elements} = useLanguageContext();
   const [formValues, setFormValues] = useState(selectedRestriction);
   const [selectedElements, setSelectedElements] = useState(selectedRestriction.parentElement);
 

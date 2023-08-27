@@ -1,7 +1,7 @@
 import { Modal, Button } from "react-bootstrap";
 import ItemListModal from "./ItemListModal";
-import { useContext, useState } from "react";
-import { LanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
+import { useState } from "react";
+import { useLanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
 
 export default function RestrictionList({
   show,
@@ -11,7 +11,7 @@ export default function RestrictionList({
   FormComponent,
   newItemTemplate,
 }) {
-  const {elements, restrictions, setRestrictions} = useContext(LanguageContext);
+  const {elements, restrictions, setRestrictions} = useLanguageContext();
   const [selectedRestriction, setSelectedRestriction] = useState({});
   const setRestrictionList = (updatedRestrictions) => {
     setRestrictions((prevRestrictions) => ({

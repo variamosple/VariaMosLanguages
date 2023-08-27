@@ -2,28 +2,32 @@ import {useRef, useState} from "react";
 import {Button, Form, Col, Row } from "react-bootstrap";
 import "../GraphicalMode.css";
 import DrawTool from "./Drawtool/DrawTool";
+import UploadButton from "../Utils/UploadButton";
 
 export default function ElementForm({
-    formValues,
-    handleChange,
-    properties
+    selectedElement,
+    handleChange
 }) {
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  
   const [showDrawTool, setShowDrawTool] = useState(false);
   const [xml, setXml] = useState("<shape></shape>");
-
-  const handleUpload = () => {
-    inputRef.current?.click();
+  const properties = [];
+  
+  const handleXmlChange = (xml: string) => {
+    setXml(xml);
+    handleChange({target:{name : "draw", value : btoa(xml)}});
   };
 
-  const handleDisplayFileDetails = async () => {
-    if (inputRef.current?.files) {
-      const file = inputRef.current.files[0];
-      setUploadedFileName(file.name);
-  
-      // Read the file as a data URL (base64)
-      const reader = new FileReader();
+  const handleOpenDrawtool =() => {
+    if(selectedElement.draw) {
+      try {setXml(atob(selectedElement.draw))}
+      catch (e) {}}
+    setShowDrawTool(true);
+  }
+
+  const onFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    const reader = new FileReader();
       reader.onload = () => {
         const base64String = reader.result as string;
         // Extract the base64 string without the prefix
@@ -31,20 +35,7 @@ export default function ElementForm({
         handleChange({ target: { name: "icon", value: base64WithoutPrefix } });
       };
       reader.readAsDataURL(file);
-    }
-  };
-  
-  const handleXmlChange = (xml) => {
-    setXml(xml);
-    handleChange({ target: { name: "draw", value: btoa(xml) } });
-  };
-
-  const handleOpenDrawtool =() => {
-    if(formValues.draw) {
-      try {setXml(atob(formValues.draw))}
-      catch (e) {}}
-    setShowDrawTool(true);
-  }
+  } 
 
   return (
     <div>
@@ -56,7 +47,7 @@ export default function ElementForm({
           <Col sm={10}>
             <Form.Control
               name="name"
-              value={formValues.name || ""}
+              value={selectedElement.name || ""}
               onChange={handleChange}
             />
           </Col>
@@ -69,7 +60,7 @@ export default function ElementForm({
           <Col sm={10}>
             <Form.Control
               name="label"
-              value={formValues.label || ""}
+              value={selectedElement.label || ""}
               onChange={handleChange}
             />
           </Col>
@@ -82,7 +73,7 @@ export default function ElementForm({
           <Col sm={6}>
             <Form.Control 
             name ="draw"
-            value={formValues.draw || ""}
+            value={selectedElement.draw || ""}
             onChange={handleChange}/>
           </Col>
           <Col sm={4} className="d-flex align-items-stretch">
@@ -102,14 +93,11 @@ export default function ElementForm({
           <Col sm={6}>
             <Form.Control 
             name ="icon"
-            value={formValues.icon || ""}
+            value={selectedElement.icon || ""}
             onChange={handleChange}/>
           </Col>
           <Col sm={4} className="d-flex align-items-stretch flex-grow-1 ">
-            <input ref={inputRef} onChange={handleDisplayFileDetails} className="d-none" type="file" />
-            <Button onClick={handleUpload} variant="outline-secondary" className="secondary-btn input-btn btn-sm flex-grow-1">
-              {uploadedFileName ? uploadedFileName : "Upload file"}
-            </Button>
+           <UploadButton onFileChange={onFileChange} fileExtensionAccepted={".png"}/>
           </Col>
         </Form.Group>
 
@@ -120,7 +108,7 @@ export default function ElementForm({
           <Col sm={10}>
             <Form.Control 
             name ="height"
-            value={formValues.height || ""}
+            value={selectedElement.height || ""}
             type = "number"
             onChange={handleChange}/>
           </Col>
@@ -133,7 +121,7 @@ export default function ElementForm({
           <Col sm={10}>
             <Form.Control 
             name ="width"
-            value={formValues.width || ""}
+            value={selectedElement.width || ""}
             type="number"
             onChange={handleChange}/>
           </Col>
@@ -145,7 +133,7 @@ export default function ElementForm({
           <Col sm={10}>
               <Form.Select
               name="label_property"
-              value={formValues.label_property || ""}
+              value={selectedElement.label_property || ""}
               onChange={handleChange}
               aria-label="Select a property"
               >

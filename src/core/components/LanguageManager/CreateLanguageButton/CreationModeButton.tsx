@@ -1,7 +1,6 @@
 import { Dropdown } from "react-bootstrap";
 import config from './CreateLanguageButton.json';
-import { useContext } from "react";
-import { LanguageContext } from "../../../context/LanguageContext/LanguageContextProvider";
+import { useLanguageContext } from "../../../context/LanguageContext/LanguageContextProvider";
 import { graphicalToTextual, textualToGraphical } from "../../LanguageDetail/GraphicalMode/SyntaxCompiler";
 
 export default function CreationModeButton({handleModeClick}) {
@@ -16,7 +15,7 @@ export default function CreationModeButton({handleModeClick}) {
     setAbstractSyntax,
     concreteSyntax,
     setConcreteSyntax,
-  } = useContext(LanguageContext);
+  } = useLanguageContext();
 
   const handleSwitchModeToGraphical = () => {
     if (abstractSyntax && concreteSyntax) {

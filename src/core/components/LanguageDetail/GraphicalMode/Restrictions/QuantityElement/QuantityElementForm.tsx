@@ -1,13 +1,13 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap"
-import { LanguageContext } from "../../../../../context/LanguageContext/LanguageContextProvider";
+import { useLanguageContext } from "../../../../../context/LanguageContext/LanguageContextProvider";
 
 export default function QuantityElementForm ({
     show,
     handleClose,
     selectedRestriction,
     handleUpdateRestriction}) {
-    const {elements} = useContext(LanguageContext);
+    const {elements} = useLanguageContext();
     const [formValues, setFormValues] = useState(selectedRestriction);
     
     useEffect(() => {

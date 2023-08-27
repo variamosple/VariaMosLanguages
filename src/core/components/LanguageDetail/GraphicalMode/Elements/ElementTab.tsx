@@ -1,30 +1,26 @@
-import React, { useContext } from "react";
 import ElementForm from "./ElementForm";
-import { LanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
-import ItemTab from "../Utils/ItemTab";
+import { useLanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
+import ItemListWithForm from "../Utils/ItemListWithForm";
 
 export default function ElementTab() {
-  const { elements, setElements } = useContext(LanguageContext);
-  const newElement = {
+  const { elements, setElements } = useLanguageContext();
+  const defaultNewElement = {
     name: `Element ${elements.length + 1}`,
     label: "",
     draw: "",
     icon: "",
     height: "",
     width: "",
-    properties: [],
-    label_property:""
+    label_property:"",
+    properties: []
   };
 
   return (
-    <ItemTab
+    <ItemListWithForm
       items={elements}
       setItems={setElements}
-      newItem={newElement}
-      label="element"
-      FormComponent={ElementForm} 
-      withProperties={true}
-      withLabels={false}
-      withStyles={false}/>
+      defaultNewItem={defaultNewElement}
+      itemLabel="element"
+      FormComponent={ElementForm} />
   );
 }

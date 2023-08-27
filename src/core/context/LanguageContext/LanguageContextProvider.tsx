@@ -1,5 +1,6 @@
-import { createContext, useState } from "react";
-import { CreatingMode } from "../../components/LanguageManager/index.types";
+import { createContext, useContext, useState } from "react";
+
+export type CreatingMode = "Graphical"| "Textual";
 
 export const LanguageContext = createContext(null)
 
@@ -38,5 +39,13 @@ export default function LanguageContextProvider ({children}) {
   return(
     <LanguageContext.Provider value={default_value}>{children}</LanguageContext.Provider>
   )
+}
+
+export function useLanguageContext() {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error("useLanguageContext must be used within a LanguageContextProvider");
+  }
+  return context;
 }
 

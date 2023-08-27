@@ -1,14 +1,14 @@
 import axios from "axios";
-import { useContext, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import { Alert, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap";
 import { CardText } from "react-bootstrap-icons";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { getServiceUrl, sortAphabetically } from "./index.utils";
-import { CreatingMode, LanguageManagerProps } from "./index.types";
+import {LanguageManagerProps } from "./index.types";
 import CreationModeButton from "./CreateLanguageButton/CreationModeButton";
-import { LanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
+import { CreatingMode, useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
 
 
 export default function LanguageManager({
@@ -20,7 +20,7 @@ export default function LanguageManager({
   const [showSpinner, setShowSpinner] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [displayedLanguages, setDisplayedLanguages] = useState<Language[]>([]);
-  const {setCreatingMode} = useContext(LanguageContext);
+  const {setCreatingMode} = useLanguageContext();
 
   const handleCreateClick = () => {
     setCreatingLanguage(true);

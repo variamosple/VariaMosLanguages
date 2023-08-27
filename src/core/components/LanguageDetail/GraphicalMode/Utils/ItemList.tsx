@@ -4,39 +4,34 @@ import { Trash } from "react-bootstrap-icons";
 import ConfirmationModal from "./ConfirmationModal";
 import "../GraphicalMode.css";
 
-interface ItemWithName {
-  name: string;
+interface ItemType {
+  name?: string; 
 }
 
-export default function ItemList({ items, setItems, newItem, label, setSelectedItem}) {
+export default function ItemList({ items, setItems, defaultNewItem, itemLabel, setSelectedItem}) {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<ItemWithName>({ name: "" });
+  const [itemToDelete, setItemToDelete] = useState<ItemType>({});
 
 
   const handleAddItem = () => {
-    setItems([...items,newItem])
+    setItems([...items, defaultNewItem])
   }
 
-  const handleRemoveItem = (updatedItems) => {
-    setItems(updatedItems);
-  };
-
-  const handleRemoveElement = (index: number) => {
+  const handleRemoveItem = (index: number) => {
     const itemToDelete = items[index];
-    if (!itemToDelete.name) {(itemToDelete as ItemWithName).name= `${(label.charAt(0).toUpperCase() + label.substring(1))} ${index+1}`}
     setItemToDelete(itemToDelete);
     setShowConfirmationModal(true);
   };
 
   const confirmRemoveElement = () => {
     const updatedItems = items.filter((item) => item !== itemToDelete);
-    handleRemoveItem(updatedItems);
-    setItemToDelete({name:""});
+    setItems(updatedItems);
+    setItemToDelete({});
     setShowConfirmationModal(false);
   };
 
   const cancelRemoveElement = () => {
-    setItemToDelete({name:""});
+    setItemToDelete({});
     setShowConfirmationModal(false);
   };
 
@@ -49,15 +44,10 @@ export default function ItemList({ items, setItems, newItem, label, setSelectedI
       <Button
         variant="outline-secondary"
         onClick={handleAddItem}
-        className="w-100 mb-4 main-btn btn-lg"
-        style={{
-          fontSize: 14,
-        }}
-      >
-        {`Add new ${label}`}
+        className="w-100 mb-4 main-btn btn-lg">
+        {`Add new ${itemLabel}`}
       </Button>
-
-      {/* Items list*/}
+      
       {(items).map((item, index) => (
         <Row key={index} className="mb-2">
           <Col className="d-flex align-items-center">
@@ -65,15 +55,13 @@ export default function ItemList({ items, setItems, newItem, label, setSelectedI
               <Button
                 variant="outline-secondary"
                 onClick={()=>handleOnClick(item)}
-                className="flex-grow-1 secondary-btn btn-sm text-center"
-              >
-                {item.name || `${(label.charAt(0).toUpperCase() + label.substring(1))} ${index+1}`} {/*if item has no name : render a gneric name "label of itemlist + index" */}
+                className="flex-grow-1 secondary-btn btn-sm text-center">
+                {item.name || `${(itemLabel.charAt(0).toUpperCase() + itemLabel.substring(1))} ${index+1}`} {/*if item has no name : render a gneric name "itemLabel of itemlist + index" */}
               </Button>
               <Button
                 variant="outline-secondary"
-                onClick={() => handleRemoveElement(index)}
-                className="flex-grow-0 trash-btn btn-sm"
-              >
+                onClick={() => handleRemoveItem(index)}
+                className="flex-grow-0 trash-btn btn-sm">
                 <Trash className="trash" />
               </Button>
             </ButtonGroup>
@@ -81,14 +69,11 @@ export default function ItemList({ items, setItems, newItem, label, setSelectedI
         </Row>
       ))}
 
-      {/* Remove confirmation modal */}
       <ConfirmationModal
         show={showConfirmationModal}
         onCancel={cancelRemoveElement}
         onConfirm={confirmRemoveElement}
-        itemName={itemToDelete.name || label}
-      />
-
+        itemName={itemToDelete.name || itemLabel}/>
     </div>
   );
 }

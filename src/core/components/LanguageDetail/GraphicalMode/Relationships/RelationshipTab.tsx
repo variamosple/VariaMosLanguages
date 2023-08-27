@@ -1,10 +1,9 @@
-import React, { useContext } from "react";
-import { LanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
+import { useLanguageContext } from "../../../../context/LanguageContext/LanguageContextProvider";
 import RelationshipForm from "./RelationshipForm";
-import ItemTab from "../Utils/ItemTab";
+import ItemTab from "../Utils/ItemListWithForm";
 
 export default function RelationshipTab() {
-  const { relationships, setRelationships } = useContext(LanguageContext);
+  const { relationships, setRelationships } = useLanguageContext();
   const newRelationship = {
     name: `Relationship ${relationships.length + 1}`,
     min: "",

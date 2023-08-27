@@ -1,11 +1,10 @@
 import { Tab, Tabs } from "react-bootstrap";
 import SourceCode from "./SourceCode/SourceCode";
-import { LanguageContext } from "../../../context/LanguageContext/LanguageContextProvider";
-import { useContext } from "react";
+import {useLanguageContext } from "../../../context/LanguageContext/LanguageContextProvider";
 
 
 export default function TextualMode() {
-    const {abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax, semantics, setSemantics} = useContext(LanguageContext)
+    const {abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax, semantics, setSemantics} = useLanguageContext()
 
     return(
     <Tabs
