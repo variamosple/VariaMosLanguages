@@ -1,40 +1,37 @@
-import React, { useState } from "react";
+import axios from "axios";
 import { Button, ListGroup } from "react-bootstrap";
 import { People, PersonGear } from "react-bootstrap-icons";
-import AutocompleteUserSearch from "./AutocompleteUserSearch";
-import axios from "axios";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import {
   getDataBaseUserProfile,
   getUserProfile,
 } from "../../../UI/SignUp/SignUp.utils";
-import { Review, ReviewUser } from "./index.types";
+import AutocompleteUserSearch from "./AutocompleteUserSearch";
+import {
+  UseLanguageReviewOutput,
+} from "./hooks/useLanguageReview";
 import { ExternalServices } from "./index.constants";
 import { Service } from "./index.structures";
+import { Review, ReviewUser } from "./index.types";
 import { getOwner } from "./index.utils";
-import useUsers from "./hooks/useUsers";
-import useLanguageReview from "./hooks/useLanguageReview";
 
 export default function LanguageReview({
-  language: selectedLanguage,
-}: {
-  language: Language;
+  owner,
+  setOwner,
+  review,
+  setReview,
+  enableReview,
+  setEnableReview,
+  enableReviewButton,
+  setEnableReviewButton,
+  selectedUsers,
+  setSelectedUsers,
+  users,
+  selectedLanguage,
+}: UseLanguageReviewOutput & {
+  users: ReviewUser[];
+  selectedLanguage: Language;
 }) {
-  const [review, setReview] = useState<Review | null>(null);
-  const [enableReviewButton, setEnableReviewButton] = useState<boolean>(false);
-  const [enableReview, setEnableReview] = useState<boolean>(false);
-  const [selectedUsers, setSelectedUsers] = useState([]);
-
-  const users = useUsers();
-  const { owner, setOwner } = useLanguageReview({
-    selectedLanguage,
-    users,
-    setReview,
-    setEnableReview,
-    setSelectedUsers,
-    setEnableReviewButton,
-  });
-
   const handleStartReviewClick = () => {
     const userDBProfile = getDataBaseUserProfile();
     const userLoginProfile = getUserProfile();

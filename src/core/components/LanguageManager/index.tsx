@@ -20,23 +20,23 @@ export default function LanguageManager({
   const [showSpinner, setShowSpinner] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [displayedLanguages, setDisplayedLanguages] = useState<Language[]>([]);
-  const {setCreatingMode} = useContext(LanguageContext);
+  const { setCreatingMode } = useContext(LanguageContext);
 
   const handleCreateClick = () => {
     setCreatingLanguage(true);
   };
-  const handleModeClick = (mode : CreatingMode) => {
+  
+  const handleModeClick = (mode: CreatingMode) => {
     setCreatingMode(mode);
-  }
-
+  };
 
   useEffect(() => {
     setShowSpinner(true);
-    setDisplayedLanguages([])
+    setDisplayedLanguages([]);
     axios
       .get(getServiceUrl("languages", "detail"))
       .then(({ data: { data } }) => {
-        const sortedLanguages = data.sort(sortAphabetically)
+        const sortedLanguages = data.sort(sortAphabetically);
         setLanguages(sortedLanguages);
         setDisplayedLanguages(sortedLanguages);
         setShowSpinner(false);

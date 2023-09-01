@@ -36,6 +36,7 @@ export default function LanguageDetail({
   language,
   isCreatingLanguage,
   setRequestLanguages,
+  comments,
 }: LanguageDetailProps) {
   const [showSpinner, setShowSpinner] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -46,7 +47,6 @@ export default function LanguageDetail({
   const [languageType, setLanguageType] = useState(String());
   const [semantics, setSemantics] = useState(String());
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [comments, setComments] = useState([]);
 
   const{abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax,
      setElements, setRelationships, setRestrictions, creatingMode} = useContext(LanguageContext);
@@ -91,6 +91,7 @@ export default function LanguageDetail({
         }
       }
   }, [creatingMode, language, abstractSyntax, concreteSyntax, isCreatingLanguage, setElements, setRelationships, setRestrictions])
+  
   const handleServiceCallback = ({ messageError }) => {
     setShowSpinner(false);
     setDisableSaveButton(false);
@@ -182,7 +183,6 @@ export default function LanguageDetail({
       {creatingMode === config.modeGraphicalLabel && (
         <GraphicalMode/>
       )}
-      
 
       <Container>
         <Row>
@@ -226,10 +226,10 @@ export default function LanguageDetail({
         </Form.Select>
       </InputGroup>
       <ListGroup>
-        {comments.map((_, index) => {
+        {comments.map((comment, index) => {
           return (
             <ListGroup.Item key={index}>
-              <Comment />
+              <Comment comment={comment} />
             </ListGroup.Item>
           );
         })}

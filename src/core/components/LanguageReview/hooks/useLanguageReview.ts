@@ -8,18 +8,28 @@ import { getOwner, getReviewers } from "../index.utils";
 import axios from "axios";
 import { UseLanguageReviewProps } from "./useLanguageReview.type";
 
+export interface UseLanguageReviewOutput {
+  owner: ReviewUser;
+  setOwner: React.Dispatch<React.SetStateAction<ReviewUser>>;
+  review: Review;
+  setReview: React.Dispatch<React.SetStateAction<Review>>;
+  enableReview: boolean;
+  setEnableReview: React.Dispatch<React.SetStateAction<boolean>>;
+  enableReviewButton: boolean;
+  setEnableReviewButton: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedUsers: ReviewUser[];
+  setSelectedUsers: React.Dispatch<React.SetStateAction<ReviewUser[]>>;
+}
+
 export default function useLanguageReview({
   selectedLanguage,
   users,
-  setReview,
-  setEnableReview,
-  setSelectedUsers,
-  setEnableReviewButton,
-}: UseLanguageReviewProps): {
-  owner: ReviewUser;
-  setOwner: React.Dispatch<React.SetStateAction<ReviewUser>>;
-} {
+}: UseLanguageReviewProps): UseLanguageReviewOutput {
   const [owner, setOwner] = useState<ReviewUser>(null);
+  const [review, setReview] = useState<Review | null>(null);
+  const [enableReview, setEnableReview] = useState<boolean>(false);
+  const [enableReviewButton, setEnableReviewButton] = useState<boolean>(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
 
   useEffect(() => {
     const userLoginProfile = getUserProfile();
@@ -51,7 +61,6 @@ export default function useLanguageReview({
         return;
       }
 
-      console.log(languageReview);
       const reviewers = getReviewers({ users, languageReview });
 
       setReview(languageReview);
@@ -72,5 +81,13 @@ export default function useLanguageReview({
   return {
     owner,
     setOwner,
+    review,
+    setReview,
+    enableReview,
+    setEnableReview,
+    enableReviewButton,
+    setEnableReviewButton,
+    selectedUsers,
+    setSelectedUsers,
   };
 }
