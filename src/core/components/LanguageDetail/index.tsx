@@ -274,6 +274,10 @@ export default function LanguageDetail({
           <Form.Control
             as="textarea"
             rows={3}
+            placeholder={
+              !review ? "Create a new review in order to enable comments" : ""
+            }
+            disabled={!review}
             value={commentContent}
             onChange={(event) => {
               setCommentContent(event.target.value);
@@ -291,6 +295,7 @@ export default function LanguageDetail({
               authorName: "Julian Murillo",
               languageReview: review.id,
             };
+            setCommentContent(String());
             saveComment(comment);
           }}
         >
@@ -300,18 +305,23 @@ export default function LanguageDetail({
 
       {/* List Comments */}
       <ListGroup>
-        {review?.comments.map((comment, index) => {
-          return (
-            <ListGroup.Item key={index}>
-              <Comment comment={comment} />
-            </ListGroup.Item>
-          );
-        }).reverse()}
+        {review && review.comments && review.comments.length &&
+          review.comments
+            .map((comment, index) => {
+              return (
+                <ListGroup.Item key={index}>
+                  <Comment comment={comment} /> 
+                </ListGroup.Item>
+              );
+            })
+            .reverse()}
 
-        {!review?.comments.length && (
+        {!review || !review?.comments || !review?.comments.length ? (
           <Alert variant="secondary" className="mb-3 mt-3">
             There are no comments available.
           </Alert>
+        ) : (
+          false
         )}
       </ListGroup>
     </>
