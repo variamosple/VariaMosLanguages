@@ -5,8 +5,8 @@ import LanguagePageLayout from "../../components/LanguagePageLayout";
 import LanguageReview from "../../components/LanguageReview";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import LanguageContextProvider from "../../context/LanguageContext/LanguageContextProvider";
-import useUsers from "../../components/LanguageReview/hooks/useUsers";
-import useLanguageReview from "../../components/LanguageReview/hooks/useLanguageReview";
+import useUsers from "../../hooks/useUsers";
+import useLanguageReview from "../../hooks/useLanguageReview";
 
 export default function LanguagePage() {
   const [language, setLanguage] = useState<Language | null>(null);
@@ -25,6 +25,7 @@ export default function LanguagePage() {
     setEnableReviewButton,
     selectedUsers,
     setSelectedUsers,
+    setComment
   } = useLanguageReview({
     selectedLanguage: language,
     users,
@@ -41,7 +42,8 @@ export default function LanguagePage() {
         />
         <LanguageDetail
           language={language}
-          comments={review ? review.comments : []}
+          review={review}
+          setComment={setComment}
           isCreatingLanguage={isCreatingLanguage}
           setRequestLanguages={setRequestLanguages}
         />

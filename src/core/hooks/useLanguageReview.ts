@@ -1,25 +1,13 @@
 import { useEffect, useState } from "react";
-import { Review, ReviewUser } from "../index.types";
-import { getUserProfile } from "../../../../UI/SignUp/SignUp.utils";
-import { UserTypes } from "../../../../UI/SignUp/SignUp.constants";
-import { Service } from "../index.structures";
-import { ExternalServices } from "../index.constants";
-import { getOwner, getReviewers } from "../index.utils";
+import { Review, ReviewUser } from "../components/LanguageReview/index.types";
+import { getUserProfile } from "../../UI/SignUp/SignUp.utils";
+import { UserTypes } from "../../UI/SignUp/SignUp.constants";
+import { Service } from "../components/LanguageReview/index.structures";
+import { ExternalServices } from "../components/LanguageReview/index.constants";
+import { getOwner, getReviewers } from "../components/LanguageReview/index.utils";
 import axios from "axios";
 import { UseLanguageReviewProps } from "./useLanguageReview.type";
-
-export interface UseLanguageReviewOutput {
-  owner: ReviewUser;
-  setOwner: React.Dispatch<React.SetStateAction<ReviewUser>>;
-  review: Review;
-  setReview: React.Dispatch<React.SetStateAction<Review>>;
-  enableReview: boolean;
-  setEnableReview: React.Dispatch<React.SetStateAction<boolean>>;
-  enableReviewButton: boolean;
-  setEnableReviewButton: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedUsers: ReviewUser[];
-  setSelectedUsers: React.Dispatch<React.SetStateAction<ReviewUser[]>>;
-}
+import { UseLanguageReviewOutput } from "./useLanguageReview.type";
 
 export default function useLanguageReview({
   selectedLanguage,
@@ -30,6 +18,7 @@ export default function useLanguageReview({
   const [enableReview, setEnableReview] = useState<boolean>(false);
   const [enableReviewButton, setEnableReviewButton] = useState<boolean>(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [comment, setComment] = useState(null);
 
   useEffect(() => {
     const userLoginProfile = getUserProfile();
@@ -69,6 +58,7 @@ export default function useLanguageReview({
       setEnableReviewButton(false);
       setOwner(owner);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedLanguage,
     setEnableReview,
@@ -76,6 +66,7 @@ export default function useLanguageReview({
     setReview,
     setSelectedUsers,
     users,
+    comment,
   ]);
 
   return {
@@ -89,5 +80,6 @@ export default function useLanguageReview({
     setEnableReviewButton,
     selectedUsers,
     setSelectedUsers,
+    setComment,
   };
 }

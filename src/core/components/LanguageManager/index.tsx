@@ -70,7 +70,8 @@ export default function LanguageManager({
         <Col >
           <CreationModeButton handleModeClick={handleModeClick}/>
         </Col>
-      </Col>      <Form.Group controlId="searchLanguages">
+      </Col>      
+      <Form.Group controlId="searchLanguages">
         <Form.Control
           type="text"
           placeholder="Find a language..."

@@ -5,7 +5,7 @@ export default function Comment({ comment }: { comment: CurrentComment }) {
   return (
     <div className="media">
       <div className="media-body">
-        {/* <h5></h5> */}
+        <h5>{ comment.authorName }</h5>
         <Badge bg="secondary" className="ml-3">
           { comment.date }
         </Badge>

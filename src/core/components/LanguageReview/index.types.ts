@@ -4,10 +4,12 @@ export interface Reviewer {
 }
 
 export interface Comment {
-  id: string;
+  id?: string;
   content: string;
   date: string;
   status: string;
+  authorName: string;
+  languageReview?: number;
 }
 
 export interface Review {

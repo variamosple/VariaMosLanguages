@@ -7,9 +7,7 @@ import {
   getUserProfile,
 } from "../../../UI/SignUp/SignUp.utils";
 import AutocompleteUserSearch from "./AutocompleteUserSearch";
-import {
-  UseLanguageReviewOutput,
-} from "./hooks/useLanguageReview";
+import { UseLanguageReviewOutput } from "../../hooks/useLanguageReview.type";
 import { ExternalServices } from "./index.constants";
 import { Service } from "./index.structures";
 import { Review, ReviewUser } from "./index.types";

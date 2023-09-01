@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { ReviewUser } from "../index.types";
+import { ReviewUser } from "../components/LanguageReview/index.types";
 import axios from "axios";
-import { ExternalServices } from "../index.constants";
-import { Service } from "../index.structures";
+import { ExternalServices } from "../components/LanguageReview/index.constants";
+import { Service } from "../components/LanguageReview/index.structures";
 
 export default function useUsers(): ReviewUser[] {
   const [users, setUsers] = useState<ReviewUser[]>([]);
