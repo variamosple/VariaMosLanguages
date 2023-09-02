@@ -20,7 +20,7 @@ COPY ./ .
 # No sense to run this after copying!!!
 # RUN npm ci
 # RUN npm install -g ts-node
-# RUN npm run build
+RUN npm run build
 
 EXPOSE 3000
 
