@@ -12,6 +12,12 @@ COPY tsconfig.json ./
 
 RUN npm ci
 
+# Install project dependencies
+RUN npm install
+
+# Add the command to update the browserslist database
+RUN npx update-browserslist-db@latest
+
 # copy source code to /variamos/src folder
 COPY ./ . 
 
