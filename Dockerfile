@@ -17,7 +17,6 @@ COPY ./ .
 
 # # check files list
 # RUN ls -a
-
 # No sense to run this after copying!!!
 # RUN npm ci
 # RUN npm install -g ts-node
