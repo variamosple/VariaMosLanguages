@@ -1,34 +1,16 @@
-import { useState, useEffect } from "react";
-import { Button, Col, Form, Modal, Row } from "react-bootstrap"
+import { Col, Form, Modal, Row } from "react-bootstrap"
 import { useLanguageContext } from "../../../../../context/LanguageContext/LanguageContextProvider";
+import { useItemEditorContext } from "../../../../../context/LanguageContext/ItemEditorContextProvider";
+import ItemSaveButton from "../../Utils/ItemUtils/ItemEditor/ItemSaveButton";
 
-export default function QuantityElementForm ({
-    show,
-    handleClose,
-    selectedRestriction,
-    handleUpdateRestriction}) {
+export default function QuantityElementForm ({show}) {
     const {elements} = useLanguageContext();
-    const [formValues, setFormValues] = useState(selectedRestriction);
+    const {formValues, handleChange} = useItemEditorContext()
     
-    useEffect(() => {
-        setFormValues(selectedRestriction);
-      }, [selectedRestriction]);
 
-    const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prevFormValues) => ({
-        ...prevFormValues,
-        [name]: value,
-    }));
-    };
-
-    const handleFormSubmit = () => {
-        handleUpdateRestriction(formValues)
-        handleClose();
-    };
 
     return(
-        <Modal show={show} onHide={handleClose} backdrop="static">
+        <Modal show={show} centered size="lg" backdrop="static">
             <Modal.Body>
             <Form>
             <Form.Group as={Row} className="mb-3">
@@ -81,9 +63,7 @@ export default function QuantityElementForm ({
         </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="primary" onClick={handleFormSubmit}>
-                    Save
-                </Button>
+                <ItemSaveButton/>
             </Modal.Footer>
         </Modal>
     )

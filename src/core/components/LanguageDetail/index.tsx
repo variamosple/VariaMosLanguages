@@ -192,7 +192,7 @@ export default function LanguageDetail({
             variant="primary"
             disabled={disableSaveButton}
           >
-            Save
+            Save language
           </Button>
           {showSpinner && (
             <Container className="mb-3 mt-3 center">

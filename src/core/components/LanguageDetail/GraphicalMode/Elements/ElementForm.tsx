@@ -1,17 +1,15 @@
-import {useRef, useState} from "react";
+import {useState} from "react";
 import {Button, Form, Col, Row } from "react-bootstrap";
 import "../GraphicalMode.css";
 import DrawTool from "./Drawtool/DrawTool";
-import UploadButton from "../Utils/UploadButton";
+import UploadButton from "../Utils/FormUtils/UploadButton";
+import { useItemEditorContext } from "../../../../context/LanguageContext/ItemEditorContextProvider";
 
-export default function ElementForm({
-    selectedElement,
-    handleChange
-}) {
-  
+export default function ElementForm() {
+
+  const {formValues, handleChange} = useItemEditorContext()
   const [showDrawTool, setShowDrawTool] = useState(false);
   const [xml, setXml] = useState("<shape></shape>");
-  const properties = [];
   
   const handleXmlChange = (xml: string) => {
     setXml(xml);
@@ -19,8 +17,8 @@ export default function ElementForm({
   };
 
   const handleOpenDrawtool =() => {
-    if(selectedElement.draw) {
-      try {setXml(atob(selectedElement.draw))}
+    if(formValues.draw) {
+      try {setXml(atob(formValues.draw))}
       catch (e) {}}
     setShowDrawTool(true);
   }
@@ -39,6 +37,10 @@ export default function ElementForm({
 
   return (
     <div>
+        <div>
+          <h5 className="center-text">{formValues.name}</h5>
+          <hr></hr>
+        </div>
       <Form>
         <Form.Group as={Row} className="mb-3">
           <Form.Label column sm={2}>
@@ -47,7 +49,7 @@ export default function ElementForm({
           <Col sm={10}>
             <Form.Control
               name="name"
-              value={selectedElement.name || ""}
+              value={formValues.name || ""}
               onChange={handleChange}
             />
           </Col>
@@ -60,7 +62,7 @@ export default function ElementForm({
           <Col sm={10}>
             <Form.Control
               name="label"
-              value={selectedElement.label || ""}
+              value={formValues.label || ""}
               onChange={handleChange}
             />
           </Col>
@@ -73,7 +75,7 @@ export default function ElementForm({
           <Col sm={6}>
             <Form.Control 
             name ="draw"
-            value={selectedElement.draw || ""}
+            value={formValues.draw || ""}
             onChange={handleChange}/>
           </Col>
           <Col sm={4} className="d-flex align-items-stretch">
@@ -90,13 +92,13 @@ export default function ElementForm({
           <Form.Label column sm={2}>
             Icon
           </Form.Label>
-          <Col sm={6}>
+          <Col sm={6} >
             <Form.Control 
             name ="icon"
-            value={selectedElement.icon || ""}
+            value={formValues.icon || ""}
             onChange={handleChange}/>
           </Col>
-          <Col sm={4} className="d-flex align-items-stretch flex-grow-1 ">
+          <Col sm={4} className="d-flex align-items-stretch">
            <UploadButton onFileChange={onFileChange} fileExtensionAccepted={".png"}/>
           </Col>
         </Form.Group>
@@ -108,7 +110,7 @@ export default function ElementForm({
           <Col sm={10}>
             <Form.Control 
             name ="height"
-            value={selectedElement.height || ""}
+            value={formValues.height || ""}
             type = "number"
             onChange={handleChange}/>
           </Col>
@@ -121,7 +123,7 @@ export default function ElementForm({
           <Col sm={10}>
             <Form.Control 
             name ="width"
-            value={selectedElement.width || ""}
+            value={formValues.width || ""}
             type="number"
             onChange={handleChange}/>
           </Col>
@@ -133,13 +135,13 @@ export default function ElementForm({
           <Col sm={10}>
               <Form.Select
               name="label_property"
-              value={selectedElement.label_property || ""}
+              value={formValues.label_property || ""}
               onChange={handleChange}
               aria-label="Select a property"
               >
               <option value="" className="text-muted">Select a property</option>
               <option value="None" >None</option>
-              {properties.map((property,index) => (
+              {(formValues.properties||[]).map((property,index) => (
                   <option key={index} value={property.name}>
                   {property.name}
                   </option>
@@ -156,5 +158,6 @@ export default function ElementForm({
       onXmlChange={handleXmlChange}
       />
     </div>
+    
   );
 }

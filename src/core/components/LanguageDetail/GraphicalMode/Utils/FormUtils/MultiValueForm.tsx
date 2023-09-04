@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, ListGroup, Col, Row } from "react-bootstrap";
-import "../GraphicalMode.css";
+import "../../GraphicalMode.css";
 import { Trash } from "react-bootstrap-icons";
 
 

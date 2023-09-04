@@ -2,7 +2,7 @@ import {useState } from "react";
 import { Button, ButtonGroup, Row, Col } from "react-bootstrap";
 import { Trash } from "react-bootstrap-icons";
 import ConfirmationModal from "./ConfirmationModal";
-import "../GraphicalMode.css";
+import "../../../GraphicalMode.css";
 
 interface ItemType {
   name?: string; 

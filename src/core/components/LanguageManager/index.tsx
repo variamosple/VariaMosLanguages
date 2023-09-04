@@ -7,7 +7,7 @@ import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { getServiceUrl, sortAphabetically } from "./index.utils";
 import {LanguageManagerProps } from "./index.types";
-import CreationModeButton from "./CreateLanguageButton/CreationModeButton";
+import CreationModeButton from "./CreationModeButton/CreationModeButton";
 import { CreatingMode, useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
 
 
@@ -28,7 +28,6 @@ export default function LanguageManager({
   const handleModeClick = (mode : CreatingMode) => {
     setCreatingMode(mode);
   }
-
 
   useEffect(() => {
     setShowSpinner(true);

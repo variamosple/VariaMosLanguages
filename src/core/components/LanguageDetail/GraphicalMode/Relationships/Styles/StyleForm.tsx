@@ -1,71 +1,55 @@
 import { useEffect, useState } from "react";
-import { Modal, Button, Form, Col, Row} from "react-bootstrap";
+import { Modal, Form, Col, Row, Button} from "react-bootstrap";
 import "../../GraphicalMode.css";
-import { propertyType } from "../../../index.types";
+import { propertyType } from "../../Utils/PropertyForm";
+import { useItemEditorContext } from "../../../../../context/LanguageContext/ItemEditorContextProvider";
+import ItemSaveButton from "../../Utils/ItemUtils/ItemEditor/ItemSaveButton";
+import StyleTool from "./StyleTool/StyleTool";
 
 
 export default function StyleForm({
   show,
-  handleClose,
-  selectedStyle,
-  setSelectedStyle,
-  properties,
-  styles,
-  setStyles
+  properties
 }) {
-  const [formValues, setFormValues] = useState(selectedStyle);
+  const {formValues, setFormValues, handleChange} = useItemEditorContext();
   const [linkedProperty, setLinkedProperty] = useState<propertyType>();
-
-  useEffect(() => {
-    setFormValues(selectedStyle);
-  }, [selectedStyle]);
+  const [showStyleTool, setShowStyleTool] = useState(false);
+  // const setStyle = (newStyle) => {
+  //   setFormValues((prev) => ({
+  //     ...prev,
+  //     style: newStyle,
+  //   }));
+  // };
+  
 
   useEffect(()=>{
     setLinkedProperty(properties.find((property)=>property.name === formValues.linked_property));
   }, [formValues.linked_property, properties]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prevFormValues) => ({
-      ...prevFormValues,
-      [name]: value,
-    }));
-  };
-
-  
-//A MODIFIER
-  const handleUpdateStyles = (updatedStyle) => {
-    const index = styles.findIndex((item) => item === selectedStyle);
-
-    if (index !== -1) {
-      const updatedStyles = [...styles];
-      updatedStyles[index] = updatedStyle;
-      setStyles(updatedStyles);
-    }
-  };
-
-
-
-  const handleFormSubmit = () => {
-    handleUpdateStyles(formValues);
-    setSelectedStyle(formValues);
-    handleClose();
-  };
+  const handleOpenStyleTool=() => {setShowStyleTool(true)};
 
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show}>
       <Modal.Body>
         <Form>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={2}>
               Style
             </Form.Label>
-            <Col sm={10}>
+            <Col sm={6}>
               <Form.Control
                 name="style"
                 value={formValues.style}
                 onChange={handleChange}
               />
+            </Col>
+            <Col sm={4} className="d-flex align-items-stretch">
+              <Button 
+                variant="outline-secondary" 
+                className="secondary-btn btn-sm flex-grow-1"
+                onClick={handleOpenStyleTool} >
+                Style tool
+              </Button>
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -114,10 +98,9 @@ export default function StyleForm({
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" onClick={handleFormSubmit}>
-          Save
-        </Button>
+        <ItemSaveButton/>
       </Modal.Footer>
+      <StyleTool show={showStyleTool} handleClose={()=>setShowStyleTool(false)} />
     </Modal>
   );
 };

@@ -1,3 +1,12 @@
+.graphical-mode {
+  margin-bottom: 20px;
+  background-color: red;
+}
+
+.nested-tab{
+  font-size: smaller;
+}
+
 .secondary-btn:hover {
     background-color: #f0f0f0;
     color: #333;
@@ -14,14 +23,10 @@
   text-overflow: ellipsis;
 }
 
-
-
-
-
 .main-btn{
     background-color: #e2e3e5;
     color: #333;
-    font-size: 14;
+    font-size: 14px;
   }
 
 .main-btn:hover {

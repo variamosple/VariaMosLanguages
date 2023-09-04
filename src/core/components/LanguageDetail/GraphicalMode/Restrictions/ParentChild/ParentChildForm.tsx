@@ -1,44 +1,27 @@
 import { useEffect, useState } from "react";
-import { Modal, Button, Form, Col, Row } from "react-bootstrap";
+import { Modal, Form, Col, Row } from "react-bootstrap";
 import Select from "react-select";
 import { useLanguageContext } from "../../../../../context/LanguageContext/LanguageContextProvider";
+import { useItemEditorContext } from "../../../../../context/LanguageContext/ItemEditorContextProvider";
+import ItemSaveButton from "../../Utils/ItemUtils/ItemEditor/ItemSaveButton";
 
-export default function ParentChildForm ({
-  show,
-  handleClose,
-  selectedRestriction,
-  handleUpdateRestriction
-}) {
+export default function ParentChildForm ({show}) {
   const {elements} = useLanguageContext();
-  const [formValues, setFormValues] = useState(selectedRestriction);
+  const {formValues, setFormValues, selectedItem:selectedRestriction, handleChange} = useItemEditorContext()
   const [selectedElements, setSelectedElements] = useState(selectedRestriction.parentElement);
 
 
   useEffect(() => {
-    setFormValues(selectedRestriction);
     setSelectedElements(selectedRestriction.parentElement);
   }, [selectedRestriction]);
 
   const elementOptions = elements.map((element) => element.name);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prevFormValues) => ({
-      ...prevFormValues,
-      [name]: value,
-    }));
-  };
-
-  const handleFormSubmit = () => {
-    handleUpdateRestriction(formValues)
-    handleClose();
-  };
 
 
   return (
     <div>
-      <Modal show={show} onHide={handleClose} backdrop="static">
-
+      <Modal show={show} centered size="lg" backdrop="static">
         <Modal.Body>
           <Form>
             <Form.Group as={Row} className="mb-3">
@@ -94,9 +77,7 @@ export default function ParentChildForm ({
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleFormSubmit}>
-            Save
-          </Button>
+          <ItemSaveButton/>
         </Modal.Footer>
       </Modal>
     </div>

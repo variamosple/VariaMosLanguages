@@ -18,7 +18,7 @@ export default function GenericFileUploadButton ({ onFileChange, fileExtensionAc
   };
 
   return (
-    <div>
+    <div className='d-flex flex-grow-1'>
       <input ref={inputRef} onChange={handleFileChange} type="file" className="d-none" accept={fileExtensionAccepted} />
       <Button variant="outline-secondary" className="secondary-btn input-btn btn-sm flex-grow-1" 
       onClick={handleUpload}>

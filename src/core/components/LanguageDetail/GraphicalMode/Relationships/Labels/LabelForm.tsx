@@ -1,55 +1,19 @@
-import { useEffect, useState } from "react";
-import { Modal, Button, Form, Col, Row } from "react-bootstrap";
+import { Modal, Form, Col, Row } from "react-bootstrap";
 import "../../GraphicalMode.css";
 import Select from "react-select";
+import { useItemEditorContext } from "../../../../../context/LanguageContext/ItemEditorContextProvider";
+import ItemSaveButton from "../../Utils/ItemUtils/ItemEditor/ItemSaveButton";
 
 
 export default function LabelForm({
   show,
-  handleClose,
-  selectedLabel,
-  setSelectedLabel,
   properties,
-  labels,
-  setLabels
 }) {
-  const [formValues, setFormValues] = useState(selectedLabel);
-
-  useEffect(() => {
-    setFormValues(selectedLabel);
-  }, [selectedLabel]);
-
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prevFormValues) => ({
-      ...prevFormValues,
-      [name]: value,
-    }));
-  };
-
-  
-//A MODIFIER
-  const handleUpdateLabels = (updatedLabel) => {
-    const index = labels.findIndex((item) => item === selectedLabel);
-
-    if (index !== -1) {
-      const updatedLabels = [...labels];
-      updatedLabels[index] = updatedLabel;
-      setLabels(updatedLabels);
-    }
-  };
-
-
-
-  const handleFormSubmit = () => {
-    handleUpdateLabels(formValues);
-    setSelectedLabel(formValues);
-    handleClose();
-  };
+  const {formValues, setFormValues, handleChange} = useItemEditorContext()
+  console.log(formValues);
 
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show} centered size="lg">
       <Modal.Body>
         <Form>
             <Form.Group as={Row} className="mb-3">
@@ -139,9 +103,7 @@ export default function LabelForm({
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" onClick={handleFormSubmit}>
-          Save
-        </Button>
+        <ItemSaveButton/>
       </Modal.Footer>
     </Modal>
   );

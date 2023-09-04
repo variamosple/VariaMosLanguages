@@ -1,5 +1,5 @@
 import { Dropdown } from "react-bootstrap";
-import config from './CreateLanguageButton.json';
+import config from '../CreateLanguageButton/CreateLanguageButton.json';
 import { useLanguageContext } from "../../../context/LanguageContext/LanguageContextProvider";
 import { graphicalToTextual, textualToGraphical } from "../../LanguageDetail/GraphicalMode/SyntaxCompiler";
 
@@ -15,10 +15,11 @@ export default function CreationModeButton({handleModeClick}) {
     setAbstractSyntax,
     concreteSyntax,
     setConcreteSyntax,
+    creatingMode
   } = useLanguageContext();
 
   const handleSwitchModeToGraphical = () => {
-    if (abstractSyntax && concreteSyntax) {
+    if (abstractSyntax && concreteSyntax && creatingMode !== config.modeGraphicalLabel) {
       const { elements, relationships, restrictions } = textualToGraphical(abstractSyntax, concreteSyntax);
       if (elements) {
         setElements(elements);
