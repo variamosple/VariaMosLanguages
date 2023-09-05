@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Col, Row, FormLabel } from "react-bootstrap";
+import { Modal, Form, Col, Row, FormLabel, FormCheck } from "react-bootstrap";
 import MultiValueForm from "./FormUtils/MultiValueForm";
 import "../GraphicalMode.css";
 import { useItemEditorContext } from "../../../../context/LanguageContext/ItemEditorContextProvider";
 import ItemSaveButton from "./ItemUtils/ItemEditor/ItemSaveButton";
+import useFirstRender from "../../../../hooks/useFirstRender";
 export type propertyType = {
   name:string;
   type:string;
@@ -14,13 +15,56 @@ export type propertyType = {
 }
 export default function PropertyForm({show}) {
   const [linkedProperty, setLinkedProperty] = useState<propertyType>();
-  // const [isRangeSelected, setIsRangeSelected] = useState(false);
-  const {formValues, handleChange, selectedItem:selectedProperty, items:properties} = useItemEditorContext()
+  const {formValues, setFormValues, handleChange, selectedItem:selectedProperty, items:properties} = useItemEditorContext()
+  const [Range,setRange] = useState({isRangeSelected:false, min:"", max:""})
+  const isFirstRender = useFirstRender();
+
+  useEffect(() => {
+    if (isFirstRender) {
+      const possibleValues = formValues.possibleValues;
+      if (possibleValues.length === 1) {
+        const rangeMatch = possibleValues[0].match(/^(\d+)\.\.(\d+)$/);
+        if (rangeMatch) {
+          const min = rangeMatch[1];
+          const max = rangeMatch[2];
+          setRange({
+            isRangeSelected: true,
+            min: min,
+            max: max,
+          });
+        }
+      }
+    }
+  }, [isFirstRender, formValues]);
+
+  useEffect(()=>{
+    if (Range.isRangeSelected && Range.min && Range.max) {
+      setFormValues((prev)=>({
+        ...prev,
+        possibleValues: [`${Range.min}..${Range.max}`]
+      }))
+    }
+  },[Range, setFormValues])
 
   useEffect(()=>{
     setLinkedProperty(properties.find((property)=>property.name === formValues.linked_property));
   }, [formValues.linked_property, properties]);
 
+  const handleChangeRange = (e) => {
+    const { name, value } = e.target;
+    setRange((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleChangeIsRangeSelected= (event) => {
+    const { checked } = event.target;
+    setRange((prev)=>({ 
+      ...prev,
+      isRangeSelected:checked
+    }));
+  }
 
   const handlePossibleValuesChange = (selectedItems: string[]) => {
     handleChange({target:{name:"possibleValues", value: selectedItems}});
@@ -66,14 +110,42 @@ export default function PropertyForm({show}) {
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3"  >
-            <FormLabel column sm={2}>
+            {Range.isRangeSelected ? 
+            (<Row className="mb-3">
+              <Form.Label column sm={2}>Min</Form.Label>
+              <Col>
+              <Form.Control  type="number" name="min" value={Range.min} onChange={handleChangeRange}></Form.Control>
+              </Col>
+              <Form.Label column sm={2} className="text-end">Max</Form.Label>
+              <Col>
+              <Form.Control type ="number" name="max" value={Range.max} onChange={handleChangeRange}></Form.Control>
+              </Col>
+            </Row>)
+            :
+            (<Row>
+              <FormLabel column sm={2}>
               Possible Values
-            </FormLabel>
-            <Col sm={10}>
+              </FormLabel>
+              <Col sm={10}>
               <MultiValueForm
               selectedItems={formValues.possibleValues || []}
               setSelectedItems={handlePossibleValuesChange}/>
-            </Col>
+              </Col>
+            </Row>
+            )}
+            <Row className="mb-3 align-items-start" >
+              <Col  sm={2}>
+                <Form.Label>Range</Form.Label>
+              </Col>
+              <Col className="justify-content-start" >
+                <FormCheck
+                  name="range"
+                  type="checkbox"
+                  checked={Range.isRangeSelected}
+                  onChange={handleChangeIsRangeSelected}
+                />
+              </Col>
+            </Row>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={2}>
@@ -137,4 +209,4 @@ export default function PropertyForm({show}) {
       </Modal.Footer>
     </Modal>
   );
-};
+}

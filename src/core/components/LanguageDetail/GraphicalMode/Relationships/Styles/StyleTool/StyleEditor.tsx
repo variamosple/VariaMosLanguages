@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Col, Form, FormCheck, Row } from 'react-bootstrap';
 import { SketchPicker } from 'react-color';
 import "../../../GraphicalMode.css";
@@ -52,11 +52,13 @@ export default function StyleEditor({ style, setStyle }) {
     return styleString;
   }
 
-  useEffect(() => {
+  const formatStyle = useCallback(() => {
     setStyle(formatStyleString(styleOptions));
-    console.log(style);
-    console.log(styleOptions);
-  }, [styleOptions, formatStyleString]);
+  }, [styleOptions, setStyle]);
+  
+  useEffect(() => {
+    formatStyle();
+  }, [formatStyle]);
 
   const [showColorPicker, setShowColorPicker] = useState(false);
 

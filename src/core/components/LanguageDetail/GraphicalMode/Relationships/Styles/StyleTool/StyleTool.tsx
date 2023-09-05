@@ -1,4 +1,4 @@
-import { Button, Col, Container, Modal, Row } from "react-bootstrap";
+import { Button, Col, Modal, Row } from "react-bootstrap";
 import StyleEditor from "./StyleEditor";
 import StylePreview from "./StylePreview";
 import { useState } from "react";
@@ -7,7 +7,7 @@ import { useItemEditorContext } from "../../../../../../context/LanguageContext/
 
 export default function StyleTool({show, handleClose}) {
     const [style,setStyle] = useState("");
-    const {formValues, setFormValues} = useItemEditorContext()
+    const {setFormValues} = useItemEditorContext()
     const handleFormSubmit=()=> {
         setFormValues((prev) => ({
             ...prev,
