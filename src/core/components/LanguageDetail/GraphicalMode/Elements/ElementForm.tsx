@@ -23,17 +23,16 @@ export default function ElementForm() {
     setShowDrawTool(true);
   }
 
-  const onFileChange = (e) => {
-    const file = e.target.files && e.target.files[0];
-    const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = reader.result as string;
-        // Extract the base64 string without the prefix
-        const base64WithoutPrefix = base64String.split(",")[1];
-        handleChange({ target: { name: "icon", value: base64WithoutPrefix } });
-      };
-      reader.readAsDataURL(file);
-  } 
+  const onFileChange = (file) => {
+      const reader = new FileReader();
+        reader.onload = () => {
+          const base64String = reader.result as string;
+          // Extract the base64 string without the prefix
+          const base64WithoutPrefix = base64String.split(",")[1];
+          handleChange({ target: { name: "icon", value: base64WithoutPrefix } });
+        };
+        reader.readAsDataURL(file);
+  }
 
   return (
     <div>

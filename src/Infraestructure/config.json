@@ -9,5 +9,5 @@
   "environment": "development",
   "urlVariamosDocumentation": "https://github.com/variamosple/VariaMosPLE/wiki",
   "urlVariamosLangDocumentation": "https://github.com/variamosple/VariaMosPLE/wiki/Language-definition",
-  "url_svg2xmlService" : "http://localhost:8080/api/convert"
+  "url_svg2xmlService" : "https://variamos-ms-svg2xml.azurewebsites.net/api/convert"
 }

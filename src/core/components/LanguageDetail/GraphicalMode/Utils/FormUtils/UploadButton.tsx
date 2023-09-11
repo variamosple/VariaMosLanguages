@@ -9,17 +9,17 @@ export default function GenericFileUploadButton ({ onFileChange, fileExtensionAc
     inputRef.current?.click();
   };
 
-  const handleFileChange = event => {
-    const selectedFile = event.target.files && event.target.files[0];
-    setUploadedFileName(selectedFile.name)
-    if (selectedFile) {
-      onFileChange(selectedFile);
+  const handleDisplayFileDetails = async () => {
+    if (inputRef.current?.files) {
+      const file = inputRef.current.files[0];
+      setUploadedFileName(file.name);
+      onFileChange(file);
     }
   };
 
   return (
     <div className='d-flex flex-grow-1'>
-      <input ref={inputRef} onChange={handleFileChange} type="file" className="d-none" accept={fileExtensionAccepted} />
+      <input ref={inputRef} onChange={handleDisplayFileDetails} type="file" className="d-none" accept={fileExtensionAccepted} />
       <Button variant="outline-secondary" className="secondary-btn input-btn btn-sm flex-grow-1" 
       onClick={handleUpload}>
         {uploadedFileName ? uploadedFileName : "Upload file"}

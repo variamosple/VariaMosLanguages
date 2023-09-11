@@ -15,7 +15,7 @@ import ProjectService from "../../../Application/Project/ProjectService";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import { LanguageDetailProps } from "./index.types";
 import config from "../LanguageManager/CreateLanguageButton/CreateLanguageButton.json";
-import { textualToGraphical } from "./GraphicalMode/SyntaxCompiler";
+import { graphicalToTextual, textualToGraphical } from "./GraphicalMode/SyntaxCompiler";
 import TextualMode from "./TextualMode/TextualMode";
 import GraphicalMode from "./GraphicalMode/GraphicalMode";
 import { useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
@@ -48,7 +48,7 @@ export default function LanguageDetail({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [comments, setComments] = useState([]);
 
-  const{abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax,
+  const{abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax, elements, relationships, restrictions,
      setElements, setRelationships, setRestrictions, creatingMode} = useLanguageContext();
   
   useEffect(() => {
@@ -119,16 +119,24 @@ export default function LanguageDetail({
   };
 
   const handleSaveLanguage = () => {
+    let abstractSyntaxtoSave = abstractSyntax;
+    let concreteSyntaxtoSave = concreteSyntax;
+
+    if (creatingMode === config.modeGraphicalLabel) {
+      const { abstractSyntax, concreteSyntax } = graphicalToTextual(elements, relationships, restrictions);
+      abstractSyntaxtoSave = abstractSyntax;
+      concreteSyntaxtoSave = concreteSyntax;
+    };
     const service = new ProjectService();
     const currentLanguage: Language = {
       ...(isCreatingLanguage ? {} : { id: language?.id }),
-      name: languageName,
+      name: languageName, 
       type: languageType.toUpperCase(),
       ...(isCreatingLanguage
         ? { stateAccept: DEFAULT_STATE_ACCEPT }
         : { stateAccept: language?.stateAccept }),
-      abstractSyntax,
-      concreteSyntax,
+      abstractSyntax : abstractSyntaxtoSave,
+      concreteSyntax : concreteSyntaxtoSave,
       semantics,
     };
 

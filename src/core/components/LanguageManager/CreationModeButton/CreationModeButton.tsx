@@ -34,10 +34,11 @@ export default function CreationModeButton({handleModeClick}) {
   };
 
   const handleSwitchModeToTexual = () => {
+    if (creatingMode !== config.modeTextualLabel) {
     const {abstractSyntax, concreteSyntax} = graphicalToTextual(elements, relationships, restrictions);
     setAbstractSyntax(abstractSyntax);
     setConcreteSyntax(concreteSyntax);
-  }
+  }}
 
     return (
       <Dropdown>

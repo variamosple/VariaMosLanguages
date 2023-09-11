@@ -17,7 +17,7 @@ export default function ShapeRenderer({ shapeXml }) {
     try {
       graph.current.removeCells(graph.current.getChildVertices(graph.current.getDefaultParent()));
       if (shapeXml) {
-        const xmlDoc = mxgraph.mxUtils.parseXml(shapeXml);
+        const xmlDoc = mxgraph.mxUtils.parseXml("<shapes>" + shapeXml + "<shapes/>");
         const shape = xmlDoc.documentElement;
 
         const stencil = new mxgraph.mxStencil(shape);
@@ -28,10 +28,10 @@ export default function ShapeRenderer({ shapeXml }) {
           parent,
           null,
           '',
-          50,
-          50,
+          120,
           100,
-          100,
+          200,
+          200,
           'shape=customShape;'
         );
 
