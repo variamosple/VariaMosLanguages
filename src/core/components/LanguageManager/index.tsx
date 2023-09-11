@@ -8,7 +8,7 @@ import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout
 import { getServiceUrl, sortAphabetically } from "./index.utils";
 import {LanguageManagerProps } from "./index.types";
 import CreationModeButton from "./CreationModeButton/CreationModeButton";
-import { CreatingMode, useLanguageContext, useLanguageContext, useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
+import { CreatingMode, useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
 
 
 export default function LanguageManager({
