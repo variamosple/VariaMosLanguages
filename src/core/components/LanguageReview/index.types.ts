@@ -3,6 +3,15 @@ export interface Reviewer {
   email: string;
 }
 
+export interface Comment {
+  id?: string;
+  content: string;
+  date: string;
+  status: string;
+  authorName: string;
+  languageReview?: number;
+}
+
 export interface Review {
   id: number;
   languageId: number;
@@ -10,6 +19,7 @@ export interface Review {
   languageOwner: string;
   languageOwnerEmail: string;
   reviewers: Reviewer[];
+  comments: Comment[];
 }
 
 export interface ReviewUser {

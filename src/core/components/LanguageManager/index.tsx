@@ -8,7 +8,7 @@ import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout
 import { getServiceUrl, sortAphabetically } from "./index.utils";
 import {LanguageManagerProps } from "./index.types";
 import CreationModeButton from "./CreationModeButton/CreationModeButton";
-import { CreatingMode, useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
+import { CreatingMode, useLanguageContext, useLanguageContext, useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
 
 
 export default function LanguageManager({
@@ -25,17 +25,18 @@ export default function LanguageManager({
   const handleCreateClick = () => {
     setCreatingLanguage(true);
   };
-  const handleModeClick = (mode : CreatingMode) => {
+  
+  const handleModeClick = (mode: CreatingMode) => {
     setCreatingMode(mode);
   }
 
   useEffect(() => {
     setShowSpinner(true);
-    setDisplayedLanguages([])
+    setDisplayedLanguages([]);
     axios
       .get(getServiceUrl("languages", "detail"))
       .then(({ data: { data } }) => {
-        const sortedLanguages = data.sort(sortAphabetically)
+        const sortedLanguages = data.sort(sortAphabetically);
         setLanguages(sortedLanguages);
         setDisplayedLanguages(sortedLanguages);
         setShowSpinner(false);
@@ -69,7 +70,8 @@ export default function LanguageManager({
         <Col >
           <CreationModeButton handleModeClick={handleModeClick}/>
         </Col>
-      </Col>      <Form.Group controlId="searchLanguages">
+      </Col>      
+      <Form.Group controlId="searchLanguages">
         <Form.Control
           type="text"
           placeholder="Find a language..."

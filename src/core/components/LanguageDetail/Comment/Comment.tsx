@@ -1,17 +1,16 @@
 import { Badge, Form, InputGroup } from "react-bootstrap";
+import { Comment as CurrentComment } from "../../LanguageReview/index.types";
 
-export default function Comment() {
+export default function Comment({ comment }: { comment: CurrentComment }) {
   return (
     <div className="media">
       <div className="media-body">
-        <h5>Jessie Pinkman</h5>
+        <h5>{ comment.authorName }</h5>
         <Badge bg="secondary" className="ml-3">
-          2012-12-12
+          { comment.date }
         </Badge>
         <p>
-          Phasellus lacinia, turpis pellentesque aliquam consectetur, nunc felis
-          aliquam quam, eget maximus risus risus id diam. Suspendisse interdum
-          condimentum aliquet.
+          { comment.content }
         </p>
         <InputGroup className="mb-3">
           <InputGroup.Text id="inputGroup-sizing-default">

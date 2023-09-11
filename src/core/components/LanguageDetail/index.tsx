@@ -10,7 +10,7 @@ import {
   Row,
 } from "react-bootstrap";
 import Comment from "./Comment/Comment";
-import { capitalize, formatCode } from "./index.utils";
+import { capitalize, formatCode, getFormattedDate } from "./index.utils";
 import ProjectService from "../../../Application/Project/ProjectService";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import { LanguageDetailProps } from "./index.types";
@@ -18,6 +18,8 @@ import config from "../LanguageManager/CreateLanguageButton/CreateLanguageButton
 import { graphicalToTextual, textualToGraphical } from "./GraphicalMode/SyntaxCompiler";
 import TextualMode from "./TextualMode/TextualMode";
 import GraphicalMode from "./GraphicalMode/GraphicalMode";
+import { Comment as CommentType } from "../LanguageReview/index.types";
+import { useComment } from "../../hooks/useComment";
 import { useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
 
 const DEFAULT_SYNTAX = "{}";
@@ -26,16 +28,20 @@ const DEFAULT_ELEMENTS = [];
 const DEFAULT_RELATIONSHIPS = [];
 const DEFAULT_RESTRICTIONS = {
   unique_name: {
-    elements:[[]]
+    elements: [[]],
   },
   parent_child: [],
   quantity_element: [],
 };
 
+const COMMENT_STATUS_OPEN = "open";
+
 export default function LanguageDetail({
   language,
   isCreatingLanguage,
   setRequestLanguages,
+  review,
+  setComment,
 }: LanguageDetailProps) {
   const [showSpinner, setShowSpinner] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -45,8 +51,8 @@ export default function LanguageDetail({
   const [languageName, setLanguageName] = useState(String());
   const [languageType, setLanguageType] = useState(String());
   const [semantics, setSemantics] = useState(String());
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [comments, setComments] = useState([]);
+  const [commentContent, setCommentContent] = useState(String());
+  const { saveComment } = useComment({ setComment });
 
   const{abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax, elements, relationships, restrictions,
      setElements, setRelationships, setRestrictions, creatingMode} = useLanguageContext();
@@ -61,36 +67,69 @@ export default function LanguageDetail({
       setElements(DEFAULT_ELEMENTS);
       setRelationships(DEFAULT_RELATIONSHIPS);
       setRestrictions(DEFAULT_RESTRICTIONS);
-    }}, [isCreatingLanguage, setAbstractSyntax, setConcreteSyntax, setElements, setRelationships, setRestrictions]);
-  
-  useEffect(()=>{
+    }
+  }, [
+    isCreatingLanguage,
+    setAbstractSyntax,
+    setConcreteSyntax,
+    setElements,
+    setRelationships,
+    setRestrictions,
+  ]);
+
+  useEffect(() => {
     if (language && !isCreatingLanguage) {
-      setLanguageName(language.name||"");
+      setLanguageName(language.name || "");
       setLanguageType(capitalize(language.type));
-      setAbstractSyntax(formatCode(language.abstractSyntax||DEFAULT_SYNTAX));
-      setConcreteSyntax(formatCode(language.concreteSyntax||DEFAULT_SYNTAX));
-      setSemantics(formatCode(language.semantics||DEFAULT_SYNTAX));
+      setAbstractSyntax(formatCode(language.abstractSyntax || DEFAULT_SYNTAX));
+      setConcreteSyntax(formatCode(language.concreteSyntax || DEFAULT_SYNTAX));
+      setSemantics(formatCode(language.semantics || DEFAULT_SYNTAX));
     }
     setShowErrorMessage(false);
     setShowSuccessfulMessage(false);
-  }, [language, isCreatingLanguage, setAbstractSyntax, setConcreteSyntax, setElements, setRelationships, setRestrictions]);
+  }, [
+    language,
+    isCreatingLanguage,
+    setAbstractSyntax,
+    setConcreteSyntax,
+    setElements,
+    setRelationships,
+    setRestrictions,
+  ]);
 
   useEffect(() => {
-      if (creatingMode === config.modeGraphicalLabel && language && !isCreatingLanguage){
-        if (abstractSyntax && concreteSyntax)  {
-          const { elements, relationships, restrictions } = textualToGraphical(abstractSyntax, concreteSyntax);
-          if (elements) {
-            setElements(elements);
-          }
-          if (relationships) {
-            setRelationships(relationships);
-          }
-          if (restrictions) {
-            setRestrictions(restrictions)
-          } 
+    if (
+      creatingMode === config.modeGraphicalLabel &&
+      language &&
+      !isCreatingLanguage
+    ) {
+      if (abstractSyntax && concreteSyntax) {
+        const { elements, relationships, restrictions } = textualToGraphical(
+          abstractSyntax,
+          concreteSyntax
+        );
+        if (elements) {
+          setElements(elements);
+        }
+        if (relationships) {
+          setRelationships(relationships);
+        }
+        if (restrictions) {
+          setRestrictions(restrictions);
         }
       }
-  }, [creatingMode, language, abstractSyntax, concreteSyntax, isCreatingLanguage, setElements, setRelationships, setRestrictions])
+    }
+  }, [
+    creatingMode,
+    language,
+    abstractSyntax,
+    concreteSyntax,
+    isCreatingLanguage,
+    setElements,
+    setRelationships,
+    setRestrictions,
+  ]);
+
   const handleServiceCallback = ({ messageError }) => {
     setShowSpinner(false);
     setDisableSaveButton(false);
@@ -182,15 +221,9 @@ export default function LanguageDetail({
           <option>Adaptation</option>
         </Form.Select>
       </InputGroup>
-      {creatingMode === config.modeTextualLabel && (
-        <TextualMode 
-        />
-      )}
+      {creatingMode === config.modeTextualLabel && <TextualMode />}
 
-      {creatingMode === config.modeGraphicalLabel && (
-        <GraphicalMode/>
-      )}
-      
+      {creatingMode === config.modeGraphicalLabel && <GraphicalMode />}
 
       <Container>
         <Row>
@@ -221,8 +254,8 @@ export default function LanguageDetail({
           )}
         </Row>
       </Container>
-
       <hr />
+
       <InputGroup className="mb-3">
         <InputGroup.Text id="inputGroup-sizing-default">Status</InputGroup.Text>
         <Form.Select
@@ -233,19 +266,62 @@ export default function LanguageDetail({
           <option>Approved</option>
         </Form.Select>
       </InputGroup>
-      <ListGroup>
-        {comments.map((_, index) => {
-          return (
-            <ListGroup.Item key={index}>
-              <Comment />
-            </ListGroup.Item>
-          );
-        })}
 
-        {!comments.length && (
+      {/* Add Comment */}
+      <Form className="mb-3">
+        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Label>New comment</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            placeholder={
+              !review ? "Create a new review in order to enable comments" : ""
+            }
+            disabled={!review}
+            value={commentContent}
+            onChange={(event) => {
+              setCommentContent(event.target.value);
+            }}
+          />
+        </Form.Group>
+        <Button
+          variant="primary"
+          disabled={!commentContent}
+          onClick={() => {
+            const comment: CommentType = {
+              content: commentContent,
+              date: getFormattedDate(),
+              status: COMMENT_STATUS_OPEN,
+              authorName: "Julian Murillo",
+              languageReview: review.id,
+            };
+            setCommentContent(String());
+            saveComment(comment);
+          }}
+        >
+          Add Comment
+        </Button>
+      </Form>
+
+      {/* List Comments */}
+      <ListGroup>
+        {review && review.comments && review.comments.length &&
+          review.comments
+            .map((comment, index) => {
+              return (
+                <ListGroup.Item key={index}>
+                  <Comment comment={comment} /> 
+                </ListGroup.Item>
+              );
+            })
+            .reverse()}
+
+        {!review || !review?.comments || !review?.comments.length ? (
           <Alert variant="secondary" className="mb-3 mt-3">
             There are no comments available.
           </Alert>
+        ) : (
+          false
         )}
       </ListGroup>
     </>
