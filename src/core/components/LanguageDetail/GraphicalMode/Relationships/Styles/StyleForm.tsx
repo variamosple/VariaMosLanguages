@@ -11,6 +11,7 @@ export default function StyleForm({
   show,
   properties
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {formValues, setFormValues, handleChange} = useItemEditorContext();
   const [linkedProperty, setLinkedProperty] = useState<propertyType>();
   const [showStyleTool, setShowStyleTool] = useState(false);

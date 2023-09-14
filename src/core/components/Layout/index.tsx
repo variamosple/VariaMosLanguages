@@ -5,6 +5,8 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { useEffect, useState } from "react";
 import { getUserProfile, logoutUser } from "../../../UI/SignUp/SignUp.utils";
 
+const REPOSITORY_URL = "https://github.com/variamosple/VariaMosLanguages/"
+
 function Layout({ children }) {
   const [userName, setUserName] = useState(null);
 
@@ -15,6 +17,10 @@ function Layout({ children }) {
 
   const handleLogout = () => {
     logoutUser();
+  }
+
+  const handleReportProblem = () => {
+    window.open(`${REPOSITORY_URL}issues/new`, `blank`)
   }
 
   return (
@@ -45,8 +51,8 @@ function Layout({ children }) {
             <Nav>
               <NavDropdown title={userName} id="nav-dropdown">
                 {/* TODO: Add a Profile page */}
-                {/* <NavDropdown.Item eventKey="4.2">Profile</NavDropdown.Item>
-                <NavDropdown.Divider /> */}
+                <NavDropdown.Item eventKey="4.2" onClick={handleReportProblem} >Report a problem</NavDropdown.Item>
+                <NavDropdown.Divider />
                 <NavDropdown.Item eventKey="4.3" onClick={handleLogout}>Logout</NavDropdown.Item>
               </NavDropdown>
             </Nav>

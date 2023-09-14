@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Form, Row, Col, Modal, Button } from "react-bootstrap";
+import { Form, Row, Col, Button } from "react-bootstrap";
 import { Trash } from "react-bootstrap-icons";
 import Select from "react-select";
 import "../../GraphicalMode.css";
