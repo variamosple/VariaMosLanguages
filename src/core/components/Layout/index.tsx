@@ -1,27 +1,31 @@
-import React from 'react';
+import React from "react";
 import { Container, Navbar, Nav } from "react-bootstrap";
 import VariaMosLogo from "../../../Addons/images/VariaMosLogo.png";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { useEffect, useState } from "react";
 import { getUserProfile, logoutUser } from "../../../UI/SignUp/SignUp.utils";
-
-const REPOSITORY_URL = "https://github.com/variamosple/VariaMosLanguages/"
+import { REPOSITORY_URL } from "../../constants/constants";
+import { UserTypes } from "../../../UI/SignUp/SignUp.constants";
 
 function Layout({ children }) {
-  const [userName, setUserName] = useState(null);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const userProfile = getUserProfile();
-    setUserName(userProfile.givenName);
+    setProfile(userProfile);
   }, []);
 
   const handleLogout = () => {
     logoutUser();
-  }
+  };
 
   const handleReportProblem = () => {
-    window.open(`${REPOSITORY_URL}issues/new`, `blank`)
-  }
+    window.open(`${REPOSITORY_URL}issues/new`, `blank`);
+  };
+
+  const handleOpenIssues = () => {
+    window.open(`${REPOSITORY_URL}issues/`, `blank`);
+  };
 
   return (
     <>
@@ -49,19 +53,27 @@ function Layout({ children }) {
               <Nav.Link href="/languages">Languages</Nav.Link>
             </Nav>
             <Nav>
-              <NavDropdown title={userName} id="nav-dropdown">
+              <NavDropdown title={profile?.givenName} className="me-5 pe-5" id="nav-dropdown">
                 {/* TODO: Add a Profile page */}
-                <NavDropdown.Item eventKey="4.2" onClick={handleReportProblem} >Report a problem</NavDropdown.Item>
+                <NavDropdown.Item onClick={handleReportProblem}>
+                  Report a problem
+                </NavDropdown.Item>
+                {profile?.userType !== UserTypes.Guest && (
+                  <NavDropdown.Item onClick={handleOpenIssues}>
+                    Issues
+                  </NavDropdown.Item>
+                )}
                 <NavDropdown.Divider />
-                <NavDropdown.Item eventKey="4.3" onClick={handleLogout}>Logout</NavDropdown.Item>
+                <NavDropdown.Item eventKey="4.3" onClick={handleLogout}>
+                  Logout
+                </NavDropdown.Item>
               </NavDropdown>
             </Nav>
+            <Nav/>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      <div className="bodyContent">
-        {children}
-      </div>
+      <div className="bodyContent">{children}</div>
       <footer>
         {/* <div className="row">
           <div className="col-md-3">
@@ -97,7 +109,9 @@ function Layout({ children }) {
             <div><a href="#">Link 5</a></div>
           </div>
         </div> */}
-        <div className="row g-0 copyright">  {/* no gutters to avoid horizontal scroll*/}
+        <div className="row g-0 copyright">
+          {" "}
+          {/* no gutters to avoid horizontal scroll*/}
           <p>© Copyright 2023 VariaMos.</p>
         </div>
       </footer>
