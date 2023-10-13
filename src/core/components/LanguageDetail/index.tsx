@@ -179,7 +179,8 @@ export default function LanguageDetail({
       semantics,
     };
 
-    isCreatingLanguage
+    try {
+      isCreatingLanguage
       ? service.createLanguage(handleServiceCallback, currentLanguage)
       : service.updateLanguage(
           handleServiceCallback,
@@ -187,8 +188,14 @@ export default function LanguageDetail({
           String(language.id)
         );
 
-    setShowSpinner(true);
-    setDisableSaveButton(true);
+      setShowSpinner(true);
+      setDisableSaveButton(true);
+    } catch (e) {
+      setErrorMessage((e as Error).message);
+      setShowErrorMessage(true);
+      setShowSuccessfulMessage(false);
+      setShowSpinner(false)
+    }
   };
 
   if (!language && !isCreatingLanguage) {
