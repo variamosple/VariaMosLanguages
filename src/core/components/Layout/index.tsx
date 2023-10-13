@@ -1,17 +1,24 @@
-import React from "react";
-import { Container, Navbar, Nav } from "react-bootstrap";
-import VariaMosLogo from "../../../Addons/images/VariaMosLogo.png";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import { useEffect, useState } from "react";
-import { getUserProfile, logoutUser } from "../../../UI/SignUp/SignUp.utils";
+import { Container, Nav, Navbar } from "react-bootstrap";
+import NavDropdown from "react-bootstrap/NavDropdown";
+import VariaMosLogo from "../../../Addons/images/VariaMosLogo.png";
+import {
+  getDataBaseUserProfile,
+  logoutUser,
+} from "../../../UI/SignUp/SignUp.utils";
 import { REPOSITORY_URL } from "../../constants/constants";
-import { UserTypes } from "../../../UI/SignUp/SignUp.constants";
+
+const CREATE_LANGUAGES_PERMISSION_ID = 1;
+const CREATE_PRODUCT_LINES_PERMISSION_ID = 3;
 
 function Layout({ children }) {
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState<{
+    user: { id: string; name: string };
+    permissions: { id: number; name: string }[];
+  }>(null);
 
   useEffect(() => {
-    const userProfile = getUserProfile();
+    const userProfile = getDataBaseUserProfile();
     setProfile(userProfile);
   }, []);
 
@@ -53,12 +60,21 @@ function Layout({ children }) {
               <Nav.Link href="/languages">Languages</Nav.Link>
             </Nav>
             <Nav>
-              <NavDropdown title={profile?.givenName} className="me-5 pe-5" id="nav-dropdown">
+              <NavDropdown
+                title={profile?.user.name || 'Guest'}
+                className="me-5 pe-5"
+                id="nav-dropdown"
+              >
                 {/* TODO: Add a Profile page */}
                 <NavDropdown.Item onClick={handleReportProblem}>
                   Report a problem
                 </NavDropdown.Item>
-                {profile?.userType !== UserTypes.Guest && (
+                {(profile?.permissions
+                  .map((permission) => permission.id)
+                  .includes(CREATE_LANGUAGES_PERMISSION_ID) ||
+                  profile?.permissions
+                    .map((permission) => permission.id)
+                    .includes(CREATE_PRODUCT_LINES_PERMISSION_ID)) && (
                   <NavDropdown.Item onClick={handleOpenIssues}>
                     Issues
                   </NavDropdown.Item>
@@ -69,7 +85,7 @@ function Layout({ children }) {
                 </NavDropdown.Item>
               </NavDropdown>
             </Nav>
-            <Nav/>
+            <Nav />
           </Navbar.Collapse>
         </Container>
       </Navbar>

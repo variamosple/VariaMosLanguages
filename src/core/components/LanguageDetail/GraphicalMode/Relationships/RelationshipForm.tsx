@@ -115,7 +115,7 @@ export default function RelationshipForm() {
               >
               <option value="" className="text-muted">Select a property</option>
               <option value="None" >None</option>
-              {formValues.properties.map((property,index) => (
+              {formValues.properties && formValues.properties.map((property, index) => (
                   <option key={index} value={property.name}>
                   {property.name}
                   </option>
