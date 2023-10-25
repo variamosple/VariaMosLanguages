@@ -32,5 +32,5 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{vars.ACR_DOKCERHUB}}/${{secrets.ACRUSERNAME_DOKCERHUB}}/variamoslanguages:latest
+        tags: ${{vars.ACR_DOKCERHUB}}/${{secrets.ACRUSERNAME_DOKCERHUB}}/variamoslanguages_aws:latest
         file: ./Dockerfile
