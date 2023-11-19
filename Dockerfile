@@ -10,7 +10,7 @@ WORKDIR /variamos
 COPY package*.json ./
 COPY tsconfig.json ./
 
-RUN npm ci
+# RUN npm ci
 
 # Install project dependencies
 RUN npm install
