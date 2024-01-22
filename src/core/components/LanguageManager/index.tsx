@@ -1,4 +1,3 @@
-import axios from "axios";
 import {useEffect, useState } from "react";
 import { Alert, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap";
 import { CardText } from "react-bootstrap-icons";
@@ -9,7 +8,6 @@ import { getServiceUrl, sortAphabetically } from "./index.utils";
 import {LanguageManagerProps } from "./index.types";
 import CreationModeButton from "./CreationModeButton/CreationModeButton";
 import { CreatingMode, useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
-
 
 export default function LanguageManager({
   setLanguage,
@@ -33,15 +31,26 @@ export default function LanguageManager({
   useEffect(() => {
     setShowSpinner(true);
     setDisplayedLanguages([]);
-    axios
-      .get(getServiceUrl("languages", "detail"))
-      .then(({ data: { data } }) => {
-        const sortedLanguages = data.sort(sortAphabetically);
+    const servicePath = getServiceUrl("languages", "detail");
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch(servicePath);
+        const dataResponse = await response.json();
+        const sortedLanguages = dataResponse.data.sort(sortAphabetically);
         setLanguages(sortedLanguages);
         setDisplayedLanguages(sortedLanguages);
         setShowSpinner(false);
         setRequestLanguages(false);
-      });
+      } catch (error) {
+        console.log(`Error trying to connect to the ${servicePath} service. Error: ${error}`);
+        setLanguages([])
+        setShowSpinner(false);
+        setRequestLanguages(false);
+      }
+    }
+    
+    fetchData();
   }, [requestLanguages, setRequestLanguages]);
 
   const handleClick = (language) => () => {

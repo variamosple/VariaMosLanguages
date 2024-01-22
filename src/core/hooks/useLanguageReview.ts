@@ -4,10 +4,14 @@ import { getUserProfile } from "../../UI/SignUp/SignUp.utils";
 import { UserTypes } from "../../UI/SignUp/SignUp.constants";
 import { Service } from "../components/LanguageReview/index.structures";
 import { ExternalServices } from "../components/LanguageReview/index.constants";
-import { getOwner, getReviewers } from "../components/LanguageReview/index.utils";
+import {
+  getOwner,
+  getReviewers,
+} from "../components/LanguageReview/index.utils";
 import axios from "axios";
 import { UseLanguageReviewProps } from "./useLanguageReview.type";
 import { UseLanguageReviewOutput } from "./useLanguageReview.type";
+import { joinPath } from "../utils/PathUtils";
 
 export default function useLanguageReview({
   selectedLanguage,
@@ -30,35 +34,45 @@ export default function useLanguageReview({
       return;
     }
 
-    const serviceUrlGetOneReview = Service(
-      ExternalServices.LanguageReviewDomain
-    ).getOne({
-      service: ExternalServices.LanguageReviewsContext,
-      subservice: ExternalServices.LanguageResource,
-      id: selectedLanguage.id,
-    });
+    const servicePath = joinPath(
+      process.env.REACT_APP_URLBACKENDLANGUAGEREVIEWS || ExternalServices.LanguageReviewDomain,
+      ExternalServices.LanguageReviewsContext,
+      ExternalServices.LanguageResource,
+      String(selectedLanguage.id)
+    );
 
-    axios.get(serviceUrlGetOneReview).then(({ data }) => {
-      const languageReview: Review = data;
-      const owner = getOwner({ users, languageReview });
+    const fetchData = async () => {
 
-      if (selectedLanguage && !languageReview) {
-        setReview(null);
-        setEnableReview(false);
-        setEnableReviewButton(true);
-        setOwner(null);
-        return;
+      try {
+        const response = await fetch(servicePath);
+        const data = await response.json();
+
+        const languageReview: Review = data;
+        const owner = getOwner({ users, languageReview });
+
+        if (selectedLanguage && !languageReview) {
+          setReview(null);
+          setEnableReview(false);
+          setEnableReviewButton(true);
+          setOwner(null);
+          return;
+        }
+
+        const reviewers = getReviewers({ users, languageReview });
+
+        setReview(languageReview);
+        setSelectedUsers(reviewers);
+        setEnableReview(true);
+        setEnableReviewButton(false);
+        setOwner(owner);
+      } catch (error) {
+        console.log(`Error trying to connect to the ${servicePath} service. Error ${(error)}`);
       }
+      
+    }
 
-      const reviewers = getReviewers({ users, languageReview });
-
-      setReview(languageReview);
-      setSelectedUsers(reviewers);
-      setEnableReview(true);
-      setEnableReviewButton(false);
-      setOwner(owner);
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedLanguage,
     setEnableReview,
