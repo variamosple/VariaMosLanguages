@@ -1,13 +1,16 @@
-import {useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap";
 import { CardText } from "react-bootstrap-icons";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { getServiceUrl, sortAphabetically } from "./index.utils";
-import {LanguageManagerProps } from "./index.types";
+import { LanguageManagerProps } from "./index.types";
 import CreationModeButton from "./CreationModeButton/CreationModeButton";
-import { CreatingMode, useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
+import {
+  CreatingMode,
+  useLanguageContext,
+} from "../../context/LanguageContext/LanguageContextProvider";
 
 export default function LanguageManager({
   setLanguage,
@@ -18,15 +21,15 @@ export default function LanguageManager({
   const [showSpinner, setShowSpinner] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [displayedLanguages, setDisplayedLanguages] = useState<Language[]>([]);
-  const {setCreatingMode} = useLanguageContext();
+  const { setCreatingMode } = useLanguageContext();
 
   const handleCreateClick = () => {
     setCreatingLanguage(true);
   };
-  
+
   const handleModeClick = (mode: CreatingMode) => {
     setCreatingMode(mode);
-  }
+  };
 
   useEffect(() => {
     setShowSpinner(true);
@@ -43,13 +46,15 @@ export default function LanguageManager({
         setShowSpinner(false);
         setRequestLanguages(false);
       } catch (error) {
-        console.log(`Error trying to connect to the ${servicePath} service. Error: ${error}`);
-        setLanguages([])
+        console.log(
+          `Error trying to connect to the ${servicePath} service. Error: ${error}`
+        );
+        setLanguages([]);
         setShowSpinner(false);
         setRequestLanguages(false);
       }
-    }
-    
+    };
+
     fetchData();
   }, [requestLanguages, setRequestLanguages]);
 
@@ -76,10 +81,10 @@ export default function LanguageManager({
         <Col sm={6}>
           <CreateLanguageButton handleCreateClick={handleCreateClick} />
         </Col>
-        <Col >
-          <CreationModeButton handleModeClick={handleModeClick}/>
+        <Col>
+          <CreationModeButton handleModeClick={handleModeClick} />
         </Col>
-      </Col>      
+      </Col>
       <Form.Group controlId="searchLanguages">
         <Form.Control
           type="text"
@@ -87,7 +92,14 @@ export default function LanguageManager({
           onChange={handleSearchChange}
         />
       </Form.Group>
-      <ListGroup style={{ minWidth: "312px", marginBottom: "10px" }}>
+      <ListGroup
+        style={{
+          minWidth: "312px",
+          marginBottom: "10px",
+          maxHeight: "100vh",
+          overflow: "auto",
+        }}
+      >
         {showSpinner && (
           <Spinner
             animation="border"

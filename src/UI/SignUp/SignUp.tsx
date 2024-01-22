@@ -31,7 +31,7 @@ function SignInUp(props: SignInUpProps) {
       sessionStorage.setItem(
         SignUpKeys.CurrentUserProfile,
         JSON.stringify({
-          email: null,
+          email: 'dummyuser@variamos.com',
           userType: SignUpUserTypes.Registered,
         })
       );

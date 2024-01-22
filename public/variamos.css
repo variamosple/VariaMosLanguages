@@ -36,6 +36,7 @@ body{
 
 .bodyContent{ 
   background-color: white;
+  min-height: 100vh;
 } 
 
 /* General design

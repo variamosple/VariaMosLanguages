@@ -8,7 +8,7 @@ export default function useUsers(): ReviewUser[] {
 
   useEffect(() => {
     const servicePath = joinPath(
-      process.env.REACT_APP_URLBACKENDUSERS || ExternalServices.UserDomain,
+      process.env.REACT_APP_URLBACKENDLANGUAGEREVIEWS || ExternalServices.UserDomain,
       ExternalServices.UsersContext
     );
 
