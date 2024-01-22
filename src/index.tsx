@@ -9,7 +9,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/">
-          <Route index element={<SignInUp disableLogin={process.env.REACT_APP_DISABLE_LOGIN === 'true'} />} />
+          {/* <Route index element={<SignInUp disableLogin={process.env.REACT_APP_DISABLE_LOGIN === 'true'} />} /> */}
+          <Route index element={<SignInUp disableLogin={true} />} />
           <Route path="languages" element={<LanguagePage/>} />
         </Route>
       </Routes>
