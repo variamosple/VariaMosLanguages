@@ -7,9 +7,21 @@ import "prism-themes/themes/prism-vsc-dark-plus.css";
 import Editor from "react-simple-code-editor";
 import { SourceCodeProps } from "./SourceCode.types";
 import { Container } from "react-bootstrap";
+import { UserTypes } from "../../../../../UI/SignUp/SignUp.constants";
 
 export default function SourceCode({ code, dispatcher }: SourceCodeProps) {
   const handleCodeChange = (currentCode) => {
+    const currentProfileString = sessionStorage.getItem("currentUserProfile")
+    const currentProfile = JSON.parse(currentProfileString);
+
+    if (currentProfile.userType === UserTypes.Guest) {
+      return;
+    }
+
+    if (!currentProfile.email) {
+      return;
+    }
+
     dispatcher(currentCode);
   };
 

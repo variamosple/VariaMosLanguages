@@ -1,4 +1,4 @@
-name: VariaMosLanguagesPLE_BUILD_AND_DEPLOY_DEV
+name: VariamosLanguages:main - AWS
 
 on:
   push:
@@ -6,50 +6,27 @@ on:
       - main
   workflow_dispatch:
 
-env: # Comment env block if you do not want to apply fixes
-  # Apply linter fixes configuration
-  APPLY_FIXES: all # When active, APPLY_FIXES must also be defined as environment variable (in github/workflows/mega-linter.yml or other CI tool)
-  APPLY_FIXES_EVENT: all # Decide which event triggers application of fixes in a commit or a PR (pull_request, push, all)
-  APPLY_FIXES_MODE: commit # If APPLY_FIXES is used, defines if the fixes are directly committed (commit) or posted in a PR (pull_request)
-
-concurrency:
-  group: ${{ github.ref }}-${{ github.workflow }}
-  cancel-in-progress: true
-
 jobs:
-
   build:
     runs-on: 'ubuntu-latest'
-    steps:
-    - uses: actions/checkout@v3
 
-    - name: Login to ACR
-      uses: docker/login-action@v2
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to registry
+      uses: docker/login-action@v1
       with:
-        registry: ${{vars.ACRDEV}}
-        username: ${{secrets.ACRUSERNAMEDEV}}
-        password: ${{secrets.ACRUSERPASSWORDDEV}}
+        registry: ${{vars.ACR_DOKCERHUB}}
+        username: ${{secrets.ACRUSERNAME_DOKCERHUB}}
+        password: ${{secrets.ACRUSERPASSWORD_DOKCERHUB}}
 
     - name: Build and push container image to registry
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v2
       with:
+        context: .
         push: true
-        tags: ${{vars.ACRDEV}}/${{secrets.ACRUSERNAMEDEV}}/variamoslanguages:latest
+        tags: ${{vars.ACR_DOKCERHUB}}/${{secrets.ACRUSERNAME_DOKCERHUB}}/variamoslanguages:main
         file: ./Dockerfile
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-    - name: Deploy to Azure Web App VariaMos in production slot
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'VariamosLanguages2024'
-        slot-name: 'production'
-        publish-profile: ${{secrets.PRODUCTIONSLOTPUBLISHPROFILEDEV}}
-        images: '${{vars.ACRDEV}}/${{secrets.ACRUSERNAMEDEV}}/variamoslanguages:latest'

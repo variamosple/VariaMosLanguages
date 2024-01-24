@@ -15,7 +15,10 @@ import ProjectService from "../../../Application/Project/ProjectService";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import { LanguageDetailProps } from "./index.types";
 import config from "../LanguageManager/CreateLanguageButton/CreateLanguageButton.json";
-import { graphicalToTextual, textualToGraphical } from "./GraphicalMode/SyntaxCompiler";
+import {
+  graphicalToTextual,
+  textualToGraphical,
+} from "./GraphicalMode/SyntaxCompiler";
 import TextualMode from "./TextualMode/TextualMode";
 import GraphicalMode from "./GraphicalMode/GraphicalMode";
 import { Comment as CommentType } from "../LanguageReview/index.types";
@@ -50,13 +53,25 @@ export default function LanguageDetail({
   const [errorMessage, setErrorMessage] = useState(String());
   const [languageName, setLanguageName] = useState(String());
   const [languageType, setLanguageType] = useState(String());
-  const [semantics, setSemantics] = useState(String());
   const [commentContent, setCommentContent] = useState(String());
   const { saveComment } = useComment({ setComment });
 
-  const{abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax, elements, relationships, restrictions,
-     setElements, setRelationships, setRestrictions, creatingMode} = useLanguageContext();
-  
+  const {
+    abstractSyntax,
+    setAbstractSyntax,
+    concreteSyntax,
+    setConcreteSyntax,
+    semantics,
+    setSemantics,
+    elements,
+    relationships,
+    restrictions,
+    setElements,
+    setRelationships,
+    setRestrictions,
+    creatingMode,
+  } = useLanguageContext();
+
   useEffect(() => {
     if (isCreatingLanguage) {
       setLanguageName(String());
@@ -75,6 +90,7 @@ export default function LanguageDetail({
     setElements,
     setRelationships,
     setRestrictions,
+    setSemantics
   ]);
 
   useEffect(() => {
@@ -95,6 +111,7 @@ export default function LanguageDetail({
     setElements,
     setRelationships,
     setRestrictions,
+    setSemantics,
   ]);
 
   useEffect(() => {
@@ -162,31 +179,35 @@ export default function LanguageDetail({
     let concreteSyntaxtoSave = concreteSyntax;
 
     if (creatingMode === config.modeGraphicalLabel) {
-      const { abstractSyntax, concreteSyntax } = graphicalToTextual(elements, relationships, restrictions);
+      const { abstractSyntax, concreteSyntax } = graphicalToTextual(
+        elements,
+        relationships,
+        restrictions
+      );
       abstractSyntaxtoSave = abstractSyntax;
       concreteSyntaxtoSave = concreteSyntax;
-    };
+    }
     const service = new ProjectService();
     const currentLanguage: Language = {
       ...(isCreatingLanguage ? {} : { id: language?.id }),
-      name: languageName, 
+      name: languageName,
       type: languageType.toUpperCase(),
       ...(isCreatingLanguage
         ? { stateAccept: DEFAULT_STATE_ACCEPT }
         : { stateAccept: language?.stateAccept }),
-      abstractSyntax : abstractSyntaxtoSave,
-      concreteSyntax : concreteSyntaxtoSave,
+      abstractSyntax: abstractSyntaxtoSave,
+      concreteSyntax: concreteSyntaxtoSave,
       semantics,
     };
 
     try {
       isCreatingLanguage
-      ? service.createLanguage(handleServiceCallback, currentLanguage)
-      : service.updateLanguage(
-          handleServiceCallback,
-          currentLanguage,
-          String(language.id)
-        );
+        ? service.createLanguage(handleServiceCallback, currentLanguage)
+        : service.updateLanguage(
+            handleServiceCallback,
+            currentLanguage,
+            String(language.id)
+          );
 
       setShowSpinner(true);
       setDisableSaveButton(true);
@@ -194,7 +215,7 @@ export default function LanguageDetail({
       setErrorMessage((e as Error).message);
       setShowErrorMessage(true);
       setShowSuccessfulMessage(false);
-      setShowSpinner(false)
+      setShowSpinner(false);
     }
   };
 
@@ -312,12 +333,14 @@ export default function LanguageDetail({
 
       {/* List Comments */}
       <ListGroup>
-        {review && review.comments && review.comments.length &&
+        {review &&
+          review.comments &&
+          review.comments.length &&
           review.comments
             .map((comment, index) => {
               return (
                 <ListGroup.Item key={index}>
-                  <Comment comment={comment} /> 
+                  <Comment comment={comment} />
                 </ListGroup.Item>
               );
             })
