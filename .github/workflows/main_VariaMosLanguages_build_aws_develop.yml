@@ -7,12 +7,12 @@ name: Build and push the image  of variamoslanguages to docker.io app - AWS
 on:
   push:
     branches:
-      - develop
+      - qa
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: 'Variamos-AWS'
+    runs-on: 'ubuntu-latest'
 
     steps:
     - uses: actions/checkout@v2
