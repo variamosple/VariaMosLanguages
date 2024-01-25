@@ -2,9 +2,11 @@ import axios, { Method } from "axios";
 import _config from "../../Infraestructure/config.json";
 import { Language } from "../../Domain/ProductLineEngineering/Entities/Language";
 
+const URL_BACKEND_LANGUAGE = process.env.REACT_APP_URLBACKENDLANGUAGE || _config.urlBackEndLanguage
+
 export default class LanguageService {
   apiVariamos = axios.create({
-    baseURL: _config.urlBackEndLanguage,
+    baseURL: URL_BACKEND_LANGUAGE,
   });
 
   getLanguagesDetail(): Language[] {
@@ -57,7 +59,7 @@ export default class LanguageService {
     // Standard Request End
 
     const config = {
-      baseURL: _config.urlBackEndLanguage + "/languages",
+      baseURL: URL_BACKEND_LANGUAGE + "/languages",
       method: "post" as Method,
       data: requestBody,
     };
@@ -102,7 +104,7 @@ export default class LanguageService {
     // Standard Request End
 
     const config = {
-      baseURL: _config.urlBackEndLanguage + "/languages/" + languageId + "/" + user,
+      baseURL: URL_BACKEND_LANGUAGE + "/languages/" + languageId + "/" + user,
       method: "delete" as Method,
       data: requestBody,
     };
@@ -150,7 +152,7 @@ export default class LanguageService {
     // Standard Request End
 
     const config = {
-      baseURL: _config.urlBackEndLanguage + "/languages/" + language.id,
+      baseURL: URL_BACKEND_LANGUAGE + "/languages/" + language.id,
       method: "put" as Method,
       data: requestBody,
     };
