@@ -101,7 +101,7 @@ function SignInUp(props: SignInUpProps) {
     setLoginProgress(SignUpMessages.Loading);
 
     axios
-      .post(`${_config.urlBackEndLanguage}${SignUpURLs.SignIn}`, {
+      .post(`${process.env.REACT_APP_URLBACKENDLANGUAGE || _config.urlBackEndLanguage}${SignUpURLs.SignIn}`, {
         email: userProfile.email,
         name: userProfile.givenName,
       })

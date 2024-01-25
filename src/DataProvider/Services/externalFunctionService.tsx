@@ -8,7 +8,7 @@ export default class ExternalFuntionService {
 
   getExternalFunctions(callback: any, languageId: number) {
     this.apiVariamos = axios.create({
-      baseURL: config.urlBackEndLanguage,
+      baseURL: process.env.REACT_APP_URLBACKENDLANGUAGE || config.urlBackEndLanguage,
     });
     let externalFunctions: ExternalFuntion[] = [];
     try {
