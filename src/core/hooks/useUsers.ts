@@ -1,22 +1,28 @@
 import { useEffect, useState } from "react";
 import { ReviewUser } from "../components/LanguageReview/index.types";
-import axios from "axios";
 import { ExternalServices } from "../components/LanguageReview/index.constants";
-import { Service } from "../components/LanguageReview/index.structures";
+import { joinPath } from "../utils/PathUtils";
 
 export default function useUsers(): ReviewUser[] {
   const [users, setUsers] = useState<ReviewUser[]>([]);
 
   useEffect(() => {
-    axios
-      .get(
-        Service(ExternalServices.UserDomain).getAll(
-          ExternalServices.UsersContext
-        )
-      )
-      .then(({ data }) => {
+    const servicePath = joinPath(
+      process.env.REACT_APP_URLBACKENDLANGUAGEREVIEWS || ExternalServices.UserDomain,
+      ExternalServices.UsersContext
+    );
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch(servicePath);
+        const data = await response.json();
         setUsers(data.map((item) => ({ ...item, avatar: "" })));
-      });
+      } catch (error) {
+        console.log(`Error trying to connect to the ${servicePath} service. Error ${(error)}`);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return users;

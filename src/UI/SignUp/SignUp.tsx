@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { gapi } from "gapi-script";
+import { useEffect, useState } from "react";
 import { GoogleLogin } from "react-google-login";
 import VariaMosLogo from "../../Addons/images/VariaMosLogo.png";
 import _config from "../../Infraestructure/config.json";
-import "./SignUp.css";
+import {
+  CREATE_LANGUAGES_PERMISSION_ID,
+  CREATE_PRODUCT_LINES_PERMISSION_ID,
+} from "../../core/components/Layout/Layout.constants";
 import {
   CLIENT_ID,
   SignUpKeys,
@@ -11,11 +15,47 @@ import {
   SignUpURLs,
   SignUpUserTypes,
 } from "./SignUp.constants";
-import { gapi } from "gapi-script";
+import "./SignUp.css";
 
-function SignInUp() {
+interface SignInUpProps {
+  disableLogin?: boolean;
+}
+
+function SignInUp(props: SignInUpProps) {
+  const { disableLogin } = props;
   const [loginProgress, setLoginProgress] = useState(SignUpMessages.Welcome);
   const [hasErrors, setErrors] = useState(false);
+
+  useEffect(() => {
+    if (disableLogin) {
+      sessionStorage.setItem(
+        SignUpKeys.CurrentUserProfile,
+        JSON.stringify({
+          email: 'dummyuser@variamos.com',
+          userType: SignUpUserTypes.Registered,
+        })
+      );
+
+      sessionStorage.setItem(
+        SignUpKeys.DataBaseUserProfile,
+        JSON.stringify({
+          user: {
+            id: "0",
+            name: "Local user",
+          },
+          permissions: [
+            { id: CREATE_LANGUAGES_PERMISSION_ID, name: "Create languages" },
+            {
+              id: CREATE_PRODUCT_LINES_PERMISSION_ID,
+              name: "Create product lines",
+            },
+          ],
+        })
+      );
+
+      setLoginProgress(SignUpMessages.Loading);
+    }
+  }, [disableLogin]);
 
   useEffect(() => {
     const isUserLoggedIn = !!sessionStorage.getItem(

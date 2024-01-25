@@ -7,15 +7,11 @@ import {
   logoutUser,
 } from "../../../UI/SignUp/SignUp.utils";
 import { REPOSITORY_URL } from "../../constants/constants";
-
-const CREATE_LANGUAGES_PERMISSION_ID = 1;
-const CREATE_PRODUCT_LINES_PERMISSION_ID = 3;
+import { CREATE_LANGUAGES_PERMISSION_ID, CREATE_PRODUCT_LINES_PERMISSION_ID } from "./Layout.constants";
+import { UserProfileProps } from "./Layout.types";
 
 function Layout({ children }) {
-  const [profile, setProfile] = useState<{
-    user: { id: string; name: string };
-    permissions: { id: number; name: string }[];
-  }>(null);
+  const [profile, setProfile] = useState<UserProfileProps>(null);
 
   useEffect(() => {
     const userProfile = getDataBaseUserProfile();
@@ -91,40 +87,6 @@ function Layout({ children }) {
       </Navbar>
       <div className="bodyContent">{children}</div>
       <footer>
-        {/* <div className="row">
-          <div className="col-md-3">
-            <h3>Help</h3>
-            <div><a href="#">Link 1</a></div>
-            <div><a href="#">Link 2</a></div>
-            <div><a href="#">Link 3</a></div>
-            <div><a href="#">Link 4</a></div>
-            <div><a href="#">Link 5</a></div>
-          </div>
-          <div className="col-md-3">
-            <h3>Help</h3>
-            <div><a href="#">Link 1</a></div>
-            <div><a href="#">Link 2</a></div>
-            <div><a href="#">Link 3</a></div>
-            <div><a href="#">Link 4</a></div>
-            <div><a href="#">Link 5</a></div>
-          </div>
-          <div className="col-md-3">
-            <h3>Help</h3>
-            <div><a href="#">Link 1</a></div>
-            <div><a href="#">Link 2</a></div>
-            <div><a href="#">Link 3</a></div>
-            <div><a href="#">Link 4</a></div>
-            <div><a href="#">Link 5</a></div>
-          </div>
-          <div className="col-md-3">
-            <h3>Help</h3>
-            <div><a href="#">Link 1</a></div>
-            <div><a href="#">Link 2</a></div>
-            <div><a href="#">Link 3</a></div>
-            <div><a href="#">Link 4</a></div>
-            <div><a href="#">Link 5</a></div>
-          </div>
-        </div> */}
         <div className="row g-0 copyright">
           {" "}
           {/* no gutters to avoid horizontal scroll*/}
