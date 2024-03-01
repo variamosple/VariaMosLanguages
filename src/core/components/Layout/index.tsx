@@ -53,7 +53,6 @@ function Layout({ children }) {
               >
                 Wiki
               </Nav.Link>
-              <Nav.Link href="/languages">Languages</Nav.Link>
             </Nav>
             <Nav>
               <NavDropdown

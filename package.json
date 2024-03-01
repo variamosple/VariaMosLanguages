@@ -10,6 +10,9 @@
       }
     }
   },
+  "engines": {
+    "node": ">=16.18.1"
+  },
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -41,7 +44,7 @@
     "docker:clear": "docker rmi variamos-languages:latest",
     "docker:build": "docker build -t variamos-languages:latest .",
     "docker:ci": "yarn docker:build && yarn docker:clear",
-    "docker:deploy": "yarn docker:build && docker run -d --name variamos-languages -p 3000:3000 variamos-languages:latest"
+    "docker:deploy": "yarn docker:build && docker run -d --name variamos-languages -p 3000:80 variamos-languages:latest"
   },
   "eslintConfig": {
     "extends": [

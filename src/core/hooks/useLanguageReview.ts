@@ -23,6 +23,7 @@ export default function useLanguageReview({
 
   useEffect(() => {
     const userLoginProfile = getUserProfile();
+
     if (userLoginProfile.userType === UserTypes.Guest) {
       return;
     }

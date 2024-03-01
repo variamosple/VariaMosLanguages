@@ -1,4 +1,4 @@
-import { SignUpKeys } from "./SignUp.constants";
+import { SignUpKeys, SignUpUserTypes } from "./SignUp.constants";
 
 export function logoutUser() {
   sessionStorage.clear();
@@ -8,14 +8,24 @@ export function logoutUser() {
 
 export function getUserProfile(): {
   email: string;
-  familyName: string;
-  givenName: string;
-  googleId: string;
-  imageUrl: string;
-  name: string;
+  familyName?: string;
+  givenName?: string;
+  googleId?: string;
+  imageUrl?: string;
+  name?: string;
   userType: string;
 } {
-  return JSON.parse(sessionStorage.getItem(SignUpKeys.CurrentUserProfile));
+  const currentProfile = sessionStorage.getItem(SignUpKeys.CurrentUserProfile)
+
+  if (!currentProfile) {
+    return {
+      email: null,
+      givenName: "Guest",
+      userType: SignUpUserTypes.Guest,
+    };
+  }
+  
+  return JSON.parse(currentProfile);
 }
 
 export function getDataBaseUserProfile(): {
