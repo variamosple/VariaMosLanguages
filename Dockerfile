@@ -1,33 +1,32 @@
-FROM node:16-alpine
+# Use an official Node.js runtime as a base image
+FROM node:16-alpine as builder
 
-# update packages
-RUN apk update
+# Set the working directory in the container
+WORKDIR /app
 
-# create root application folder
-WORKDIR /variamos
-
-# copy configs to /variamos folder
+# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
-COPY tsconfig.json ./
 
-# RUN npm ci
-
-# Install project dependencies
+# Install dependencies
 RUN npm install
 
-# Add the command to update the browserslist database
-RUN npx update-browserslist-db@latest
+# Copy the rest of the application code
+COPY . .
 
-# copy source code to /variamos/src folder
-COPY ./ . 
-
-# # check files list
-# RUN ls -a
-# No sense to run this after copying!!!
-# RUN npm ci
-# RUN npm install -g ts-node
+# Build the React application
 RUN npm run build
 
-EXPOSE 3000
 
-CMD [ "npm", "start" ]
+# Use a lightweight Nginx image as a base image for the production environment
+FROM nginx:alpine
+
+COPY ./etc/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy the built React application from the builder stage
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Expose port 80 to the outside world
+EXPOSE 80
+
+# Start Nginx when the container runs
+CMD ["nginx", "-g", "daemon off;"]
