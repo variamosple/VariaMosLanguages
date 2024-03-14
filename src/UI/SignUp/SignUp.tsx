@@ -18,46 +18,10 @@ import {
 import "./SignUp.css";
 import LanguagePage from "../../core/pages/LanguagesPage";
 
-interface SignInUpProps {
-  disableLogin?: boolean;
-}
-
-function SignInUp(props: SignInUpProps) {
-  const { disableLogin } = props;
+function SignInUp() {
   const [loginProgress, setLoginProgress] = useState(SignUpMessages.Welcome);
   const [hasErrors, setErrors] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-
-  useEffect(() => {
-    if (disableLogin) {
-      sessionStorage.setItem(
-        SignUpKeys.CurrentUserProfile,
-        JSON.stringify({
-          email: 'dummyuser@variamos.com',
-          userType: SignUpUserTypes.Registered,
-        })
-      );
-
-      sessionStorage.setItem(
-        SignUpKeys.DataBaseUserProfile,
-        JSON.stringify({
-          user: {
-            id: "0",
-            name: "Local user",
-          },
-          permissions: [
-            { id: CREATE_LANGUAGES_PERMISSION_ID, name: "Create languages" },
-            {
-              id: CREATE_PRODUCT_LINES_PERMISSION_ID,
-              name: "Create product lines",
-            },
-          ],
-        })
-      );
-
-      setLoginProgress(SignUpMessages.Loading);
-    }
-  }, [disableLogin]);
 
   useEffect(() => {
     const isUserLoggedIn = !!sessionStorage.getItem(
@@ -87,7 +51,7 @@ function SignInUp(props: SignInUpProps) {
       SignUpKeys.CurrentUserProfile,
       JSON.stringify(guestProfile)
     );
-    window.location.href = SignUpURLs.HomePage;
+    setAuthenticated(true);
   };
 
   const onSuccess = (response) => {
