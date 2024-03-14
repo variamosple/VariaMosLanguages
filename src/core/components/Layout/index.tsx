@@ -34,10 +34,7 @@ function Layout({ children }) {
     <>
       <Navbar bg="dark" variant="dark">
         <Container fluid>
-          <Navbar.Brand onClick={() => {
-            // eslint-disable-next-line no-restricted-globals
-            parent.location.href = "../dashboard";
-          }}>
+          <Navbar.Brand href="#">
             <img
               src={VariaMosLogo}
               height="30"
