@@ -1,7 +1,7 @@
 import { SignUpKeys, SignUpUserTypes } from "./SignUp.constants";
 
 export function logoutUser() {
-  sessionStorage.clear();
+  localStorage.clear();
   window.location.href = "/";
   return true;
 }
@@ -15,7 +15,7 @@ export function getUserProfile(): {
   name?: string;
   userType: string;
 } {
-  const currentProfile = sessionStorage.getItem(SignUpKeys.CurrentUserProfile)
+  const currentProfile = localStorage.getItem(SignUpKeys.CurrentUserProfile)
 
   if (!currentProfile) {
     return {
@@ -32,5 +32,5 @@ export function getDataBaseUserProfile(): {
   user: { id: string; name: string },
   permissions: {id: number; name: string}[]
 } {
-  return JSON.parse(sessionStorage.getItem(SignUpKeys.DataBaseUserProfile));
+  return JSON.parse(localStorage.getItem(SignUpKeys.DataBaseUserProfile));
 }

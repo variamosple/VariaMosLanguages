@@ -11,7 +11,7 @@ import { UserTypes } from "../../../../../UI/SignUp/SignUp.constants";
 
 export default function SourceCode({ code, dispatcher }: SourceCodeProps) {
   const handleCodeChange = (currentCode) => {
-    const currentProfileString = sessionStorage.getItem("currentUserProfile")
+    const currentProfileString = localStorage.getItem("currentUserProfile")
     const currentProfile = JSON.parse(currentProfileString);
 
     if (currentProfile.userType === UserTypes.Guest) {

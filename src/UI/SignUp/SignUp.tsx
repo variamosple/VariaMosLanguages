@@ -20,27 +20,7 @@ function SignInUp() {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const currentUserProfileParam = new URLSearchParams(
-      window.location.search
-    ).get(SignUpKeys.CurrentUserProfile);
-
-    const databaseUserProfileParam = new URLSearchParams(
-      window.location.search
-    ).get(SignUpKeys.DataBaseUserProfile);
-
-    if (currentUserProfileParam && databaseUserProfileParam) {
-      sessionStorage.setItem(
-        SignUpKeys.CurrentUserProfile,
-        atob(currentUserProfileParam)
-      );
-
-      sessionStorage.setItem(
-        SignUpKeys.DataBaseUserProfile,
-        atob(databaseUserProfileParam)
-      );
-    }
-
-    const isUserLoggedIn = !!sessionStorage.getItem(
+    const isUserLoggedIn = !!localStorage.getItem(
       SignUpKeys.CurrentUserProfile
     );
     if (isUserLoggedIn) {
@@ -63,7 +43,7 @@ function SignInUp() {
       givenName: "Guest",
       userType: SignUpUserTypes.Guest,
     };
-    sessionStorage.setItem(
+    localStorage.setItem(
       SignUpKeys.CurrentUserProfile,
       JSON.stringify(guestProfile)
     );
@@ -75,7 +55,7 @@ function SignInUp() {
       ...response.profileObj,
       userType: SignUpUserTypes.Registered,
     };
-    sessionStorage.setItem(
+    localStorage.setItem(
       SignUpKeys.CurrentUserProfile,
       JSON.stringify(userProfile)
     );
@@ -94,13 +74,12 @@ function SignInUp() {
       )
       .then(({ data: responseData }) => {
         const { data } = responseData;
-        sessionStorage.setItem(
+        localStorage.setItem(
           SignUpKeys.DataBaseUserProfile,
           JSON.stringify(data)
         );
 
         if (response && response.accessToken) {
-          // window.location.href = SignUpURLs.HomePage;
           setAuthenticated(true);
         }
       })
