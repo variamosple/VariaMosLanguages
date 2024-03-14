@@ -16,6 +16,7 @@ import {
   SignUpUserTypes,
 } from "./SignUp.constants";
 import "./SignUp.css";
+import LanguagePage from "../../core/pages/LanguagesPage";
 
 interface SignInUpProps {
   disableLogin?: boolean;
@@ -25,6 +26,7 @@ function SignInUp(props: SignInUpProps) {
   const { disableLogin } = props;
   const [loginProgress, setLoginProgress] = useState(SignUpMessages.Welcome);
   const [hasErrors, setErrors] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
     if (disableLogin) {
@@ -62,7 +64,7 @@ function SignInUp(props: SignInUpProps) {
       SignUpKeys.CurrentUserProfile
     );
     if (isUserLoggedIn) {
-      window.location.href = SignUpURLs.HomePage;
+      setAuthenticated(true)
     }
 
     function start() {
@@ -113,7 +115,8 @@ function SignInUp(props: SignInUpProps) {
         );
 
         if (response && response.accessToken) {
-          window.location.href = SignUpURLs.HomePage;
+          // window.location.href = SignUpURLs.HomePage;
+          setAuthenticated(true);
         }
       })
       .catch((e) => {
@@ -125,6 +128,10 @@ function SignInUp(props: SignInUpProps) {
   const onFailure = (response) => {
     console.log("FAILED", response);
   };
+
+  if (authenticated) {
+    return <LanguagePage/>
+  }
 
   return (
     <div className="signup">
