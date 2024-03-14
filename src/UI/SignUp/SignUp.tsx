@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import { GoogleLogin } from "react-google-login";
 import VariaMosLogo from "../../Addons/images/VariaMosLogo.png";
 import _config from "../../Infraestructure/config.json";
-import {
-  CREATE_LANGUAGES_PERMISSION_ID,
-  CREATE_PRODUCT_LINES_PERMISSION_ID,
-} from "../../core/components/Layout/Layout.constants";
+import LanguagePage from "../../core/pages/LanguagesPage";
 import {
   CLIENT_ID,
   SignUpKeys,
@@ -16,7 +13,6 @@ import {
   SignUpUserTypes,
 } from "./SignUp.constants";
 import "./SignUp.css";
-import LanguagePage from "../../core/pages/LanguagesPage";
 
 function SignInUp() {
   const [loginProgress, setLoginProgress] = useState(SignUpMessages.Welcome);
@@ -24,11 +20,31 @@ function SignInUp() {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
+    const currentUserProfileParam = new URLSearchParams(
+      window.location.search
+    ).get(SignUpKeys.CurrentUserProfile);
+
+    const databaseUserProfileParam = new URLSearchParams(
+      window.location.search
+    ).get(SignUpKeys.DataBaseUserProfile);
+
+    if (currentUserProfileParam && databaseUserProfileParam) {
+      sessionStorage.setItem(
+        SignUpKeys.CurrentUserProfile,
+        atob(currentUserProfileParam)
+      );
+
+      sessionStorage.setItem(
+        SignUpKeys.DataBaseUserProfile,
+        atob(databaseUserProfileParam)
+      );
+    }
+
     const isUserLoggedIn = !!sessionStorage.getItem(
       SignUpKeys.CurrentUserProfile
     );
     if (isUserLoggedIn) {
-      setAuthenticated(true)
+      setAuthenticated(true);
     }
 
     function start() {
@@ -67,10 +83,15 @@ function SignInUp() {
     setLoginProgress(SignUpMessages.Loading);
 
     axios
-      .post(`${process.env.REACT_APP_URLBACKENDLANGUAGE || _config.urlBackEndLanguage}${SignUpURLs.SignIn}`, {
-        email: userProfile.email,
-        name: userProfile.givenName,
-      })
+      .post(
+        `${
+          process.env.REACT_APP_URLBACKENDLANGUAGE || _config.urlBackEndLanguage
+        }${SignUpURLs.SignIn}`,
+        {
+          email: userProfile.email,
+          name: userProfile.givenName,
+        }
+      )
       .then(({ data: responseData }) => {
         const { data } = responseData;
         sessionStorage.setItem(
@@ -94,7 +115,7 @@ function SignInUp() {
   };
 
   if (authenticated) {
-    return <LanguagePage/>
+    return <LanguagePage />;
   }
 
   return (
