@@ -89,7 +89,7 @@ function Layout({ children }) {
         <div className="row g-0 copyright">
           {" "}
           {/* no gutters to avoid horizontal scroll*/}
-          <p>© Copyright 2023 VariaMos.</p>
+          <p>© Copyright 2023 VariaMos. Versión 4.24.04.18.15</p>
         </div>
       </footer>
     </>
