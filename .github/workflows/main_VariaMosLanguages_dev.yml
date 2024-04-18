@@ -1,4 +1,8 @@
-name: VariamosLanguages:main - AWS
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+# Last updated: 20230623:22:32
+
+name: variamoslanguages-main-aws-image
 
 on:
   push:
@@ -35,7 +39,7 @@ jobs:
         echo "REACT_APP_URLBACKENDLANGUAGEREVIEWS=${{vars.REACT_APP_URLBACKENDLANGUAGEREVIEWS}}" >> .env
 
     - name: Build and push container image to registry
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: .
         push: true
