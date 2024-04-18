@@ -86,9 +86,7 @@ function Layout({ children }) {
       </Navbar>
       <div className="bodyContent">{children}</div>
       <footer>
-        <div className="row g-0 copyright">
-          {" "}
-          {/* no gutters to avoid horizontal scroll*/}
+        <div className="row copyright">
           <p>© Copyright 2023 VariaMos. Versión 4.24.04.18.15</p>
         </div>
       </footer>
