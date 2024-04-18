@@ -9,24 +9,25 @@ export default function Drawtool({ show, handleClose, xml, onXmlChange }) {
     onXmlChange(xml);
     handleClose();
   };
-  return(
+  return (
     <Modal show={show} onHide={handleClose} size={"xl"}>
       <Modal.Header closeButton>
         <Modal.Title>Draw Tool</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-      <Tabs defaultActiveKey="xml" id="uncontrolled-tab" justify className="mb-3">
-        <Tab eventKey="draw" title="Draw SVG">
-        </Tab>
-        <Tab eventKey="xml" title="XML">
-          <XmlTab previewXml={previewXml} setPreviewXml={setPreviewXml} xml={xml} onXmlChange={onXmlChange}/>
-        </Tab>
-      </Tabs>
+        <XmlTab previewXml={previewXml} setPreviewXml={setPreviewXml} xml={xml} onXmlChange={onXmlChange} />
+        {/* <Tabs defaultActiveKey="xml" id="uncontrolled-tab" justify className="mb-3">
+          <Tab eventKey="xml" title="XML">
+            <XmlTab previewXml={previewXml} setPreviewXml={setPreviewXml} xml={xml} onXmlChange={onXmlChange} />
+          </Tab>
+          {<Tab eventKey="draw" title="Draw SVG">
+          </Tab>}
+        </Tabs> */}
       </Modal.Body>
       <Modal.Footer>
         <div className="d-flex justify-content-end"> {/* Align Save Button to the Right */}
           <Button variant="primary" onClick={handleFormSubmit}>
-            Save
+            Apply
           </Button>
         </div>
       </Modal.Footer>

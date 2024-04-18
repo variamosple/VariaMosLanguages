@@ -22,7 +22,7 @@ export default function ItemSaveButton() {
     return(
       <div className="d-flex justify-content-end">
         <Button variant="primary" onClick={handleFormSubmit}>
-          Save
+          Apply
         </Button>
       </div>
     )

@@ -9,13 +9,13 @@ export default function GraphicalMode() {
 
   return (
       <Tabs defaultActiveKey="elements" id="uncontrolled-tab" justify className="mb-3">
-        <Tab eventKey="elements" title="Syntax Elements/Entities">
+        <Tab eventKey="elements" title="Elements">
           <ElementTab/>
         </Tab>
-        <Tab eventKey="relationships" title="Syntax Relationships">
+        <Tab eventKey="relationships" title="Relationships">
           <RelationshipTab/>
         </Tab>
-        <Tab eventKey="restrictions" title="Syntax Constraints">
+        <Tab eventKey="restrictions" title="Constraints">
           <RestrictionTab/>
         </Tab>
         <Tab eventKey="semantics" title="Semantics">

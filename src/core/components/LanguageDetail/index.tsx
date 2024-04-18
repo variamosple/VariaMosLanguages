@@ -24,6 +24,7 @@ import GraphicalMode from "./GraphicalMode/GraphicalMode";
 import { Comment as CommentType } from "../LanguageReview/index.types";
 import { useComment } from "../../hooks/useComment";
 import { useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
+import { Tab, Tabs } from "react-bootstrap";
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -204,10 +205,10 @@ export default function LanguageDetail({
       isCreatingLanguage
         ? service.createLanguage(handleServiceCallback, currentLanguage)
         : service.updateLanguage(
-            handleServiceCallback,
-            currentLanguage,
-            String(language.id)
-          );
+          handleServiceCallback,
+          currentLanguage,
+          String(language.id)
+        );
 
       setShowSpinner(true);
       setDisableSaveButton(true);
@@ -249,16 +250,95 @@ export default function LanguageDetail({
           <option>Adaptation</option>
         </Form.Select>
       </InputGroup>
-      {creatingMode === config.modeTextualLabel && <TextualMode />}
 
-      {creatingMode === config.modeGraphicalLabel && <GraphicalMode />}
+      <InputGroup className="mb-3">
+        <InputGroup.Text id="inputGroup-sizing-default">Status</InputGroup.Text>
+        <Form.Select
+          aria-label="Default"
+          aria-describedby="inputGroup-sizing-default"
+        >
+          <option>Pending</option>
+          <option>Approved</option>
+        </Form.Select>
+      </InputGroup>
+
+      <Tabs defaultActiveKey="syntax" id="uncontrolled-tab" justify className="mb-3">
+        <Tab eventKey="syntax" title="Syntax">
+          {creatingMode === config.modeTextualLabel && <TextualMode />}
+          {creatingMode === config.modeGraphicalLabel && <GraphicalMode />}
+        </Tab>
+        <Tab eventKey="comments" title="Comments">
+          {/* Add Comment */}
+          <Form className="mb-3">
+            <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+              <Form.Label>New comment</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder={
+                  !review ? "Create a new review in order to enable comments" : ""
+                }
+                disabled={!review}
+                value={commentContent}
+                onChange={(event) => {
+                  setCommentContent(event.target.value);
+                }}
+              />
+            </Form.Group>
+            <Button
+              variant="primary"
+              disabled={!commentContent}
+              onClick={() => {
+                const comment: CommentType = {
+                  content: commentContent,
+                  date: getFormattedDate(),
+                  status: COMMENT_STATUS_OPEN,
+                  authorName: "Julian Murillo",
+                  languageReview: review.id,
+                };
+                setCommentContent(String());
+                saveComment(comment);
+              }}
+            >
+              Add Comment
+            </Button>
+          </Form>
+
+          {/* List Comments */}
+          <ListGroup>
+            {review &&
+              review.comments &&
+              review.comments.length &&
+              review.comments
+                .map((comment, index) => {
+                  return (
+                    <ListGroup.Item key={index}>
+                      <Comment comment={comment} />
+                    </ListGroup.Item>
+                  );
+                })
+                .reverse()}
+
+            {!review || !review?.comments || !review?.comments.length ? (
+              <Alert variant="secondary" className="mb-3 mt-3">
+                There are no comments available.
+              </Alert>
+            ) : (
+              false
+            )}
+          </ListGroup>
+        </Tab>
+      </Tabs>
+
+
+
 
       <Container>
         <Row>
           <Button
             className="mb-3 mt-3"
-            onClick={handleSaveLanguage}
             variant="primary"
+            onClick={handleSaveLanguage}
             disabled={disableSaveButton}
           >
             Save language
@@ -282,78 +362,6 @@ export default function LanguageDetail({
           )}
         </Row>
       </Container>
-      <hr />
-
-      <InputGroup className="mb-3">
-        <InputGroup.Text id="inputGroup-sizing-default">Status</InputGroup.Text>
-        <Form.Select
-          aria-label="Default"
-          aria-describedby="inputGroup-sizing-default"
-        >
-          <option>Pending</option>
-          <option>Approved</option>
-        </Form.Select>
-      </InputGroup>
-
-      {/* Add Comment */}
-      <Form className="mb-3">
-        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-          <Form.Label>New comment</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            placeholder={
-              !review ? "Create a new review in order to enable comments" : ""
-            }
-            disabled={!review}
-            value={commentContent}
-            onChange={(event) => {
-              setCommentContent(event.target.value);
-            }}
-          />
-        </Form.Group>
-        <Button
-          variant="primary"
-          disabled={!commentContent}
-          onClick={() => {
-            const comment: CommentType = {
-              content: commentContent,
-              date: getFormattedDate(),
-              status: COMMENT_STATUS_OPEN,
-              authorName: "Julian Murillo",
-              languageReview: review.id,
-            };
-            setCommentContent(String());
-            saveComment(comment);
-          }}
-        >
-          Add Comment
-        </Button>
-      </Form>
-
-      {/* List Comments */}
-      <ListGroup>
-        {review &&
-          review.comments &&
-          review.comments.length &&
-          review.comments
-            .map((comment, index) => {
-              return (
-                <ListGroup.Item key={index}>
-                  <Comment comment={comment} />
-                </ListGroup.Item>
-              );
-            })
-            .reverse()}
-
-        {!review || !review?.comments || !review?.comments.length ? (
-          <Alert variant="secondary" className="mb-3 mt-3">
-            There are no comments available.
-          </Alert>
-        ) : (
-          false
-        )}
-      </ListGroup>
     </>
   );
 }

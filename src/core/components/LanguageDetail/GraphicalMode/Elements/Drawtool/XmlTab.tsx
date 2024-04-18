@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import XMLInput from './XMLInput';
 import ShapeRenderer from './ShapeRenderer';
@@ -6,8 +6,17 @@ import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlSer
 import GenericFileUploadButton from '../../Utils/FormUtils/UploadButton';
 
 
-export default function XmlTab({previewXml, setPreviewXml, xml, onXmlChange }) {
+export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) {
   const svgToXmlService = new SvgToXmlService();
+
+  // Este efecto se ejecutará cada vez que el estado "data" cambie
+  useEffect(() => {
+    setPreviewXml(xml);
+  }, [xml]);
+
+  useEffect(() => {
+    setPreviewXml(xml);
+  }, [previewXml]);
 
   const handleFileChange = async (file) => {
     if (file) {
@@ -22,25 +31,23 @@ export default function XmlTab({previewXml, setPreviewXml, xml, onXmlChange }) {
     }
   };
 
-  const handlePreview = () => {
-    setPreviewXml(xml);
+  const XMLInput_onXmlChange = (xml) => {
+    onXmlChange(xml);
+    return;
   };
 
 
 
   return (
-        <Row className="mb-5">
-          <Col sm={6}>
-            <XMLInput xml={xml} onXmlChange={onXmlChange} />
-            <Button variant="secondary" onClick={handlePreview}>
-              Preview
-            </Button>
-          </Col>
-          <Col sm={6}>
-            <ShapeRenderer shapeXml={previewXml} />
-            <GenericFileUploadButton onFileChange={handleFileChange} fileExtensionAccepted={".svg"} />
-          </Col>
-        </Row>
+    <Row className="mb-5">
+      <Col sm={6}>
+        <XMLInput xml={xml} onXmlChange={XMLInput_onXmlChange} />
+        <GenericFileUploadButton onFileChange={handleFileChange} fileExtensionAccepted={".svg"} /> 
+      </Col>
+      <Col sm={6}>
+        <ShapeRenderer shapeXml={previewXml} />
+      </Col>
+    </Row>
   );
 };
 

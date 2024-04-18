@@ -113,7 +113,7 @@ export default function RelationshipForm() {
               onChange={handleChange}
               aria-label="Select a property"
               >
-              <option value="" className="text-muted">Select a property</option>
+              <option value="" className="text-muted">Name</option>
               <option value="None" >None</option>
               {formValues.properties && formValues.properties.map((property, index) => (
                   <option key={index} value={property.name}>
