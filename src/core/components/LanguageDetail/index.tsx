@@ -25,7 +25,7 @@ import { Comment as CommentType } from "../LanguageReview/index.types";
 import { useComment } from "../../hooks/useComment";
 import { useLanguageContext, CreatingMode } from "../../context/LanguageContext/LanguageContextProvider";
 import { Tab, Tabs } from "react-bootstrap";
-import CreationModeButton from "../LanguageManager/CreationModeButton/CreationModeButton"; 
+import CreationModeButton from "../LanguageManager/CreationModeButton/CreationModeButton";
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -237,41 +237,43 @@ export default function LanguageDetail({
 
   return (
     <>
-      <InputGroup className="mb-3 mt-3">
-        <InputGroup.Text id="inputGroup-sizing-default">Name</InputGroup.Text>
-        <Form.Control
-          aria-label="Default"
-          aria-describedby="inputGroup-sizing-default"
-          value={languageName}
-          onChange={handleNameChange}
-        />
-        <Form.Select
-          aria-label="Default"
-          aria-describedby="inputGroup-sizing-default"
-          value={languageType}
-          onChange={handleLanguageTypeChange}
-        >
-          <option>Domain</option>
-          <option>Application</option>
-          <option>Adaptation</option>
-        </Form.Select>
-      </InputGroup>
+      <br/>
+      <Tabs defaultActiveKey="information" id="uncontrolled-tab" justify className="mb-3">
+        <Tab eventKey="information" title="Information">
+          <InputGroup className="mb-3 mt-3">
+            <InputGroup.Text id="inputGroup-sizing-default">Name</InputGroup.Text>
+            <Form.Control
+              aria-label="Default"
+              aria-describedby="inputGroup-sizing-default"
+              value={languageName}
+              onChange={handleNameChange}
+            />
+            <Form.Select
+              aria-label="Default"
+              aria-describedby="inputGroup-sizing-default"
+              value={languageType}
+              onChange={handleLanguageTypeChange}
+            >
+              <option>Domain</option>
+              <option>Application</option>
+              <option>Adaptation</option>
+            </Form.Select>
+          </InputGroup>
 
-      <InputGroup className="mb-3">
-        <InputGroup.Text id="inputGroup-sizing-default">Status</InputGroup.Text>
-        <Form.Select
-          aria-label="Default"
-          aria-describedby="inputGroup-sizing-default"
-        >
-          <option>Pending</option>
-          <option>Approved</option>
-        </Form.Select>
-      </InputGroup>
-
-      <Tabs defaultActiveKey="syntax" id="uncontrolled-tab" justify className="mb-3">
+          <InputGroup className="mb-3">
+            <InputGroup.Text id="inputGroup-sizing-default">Status</InputGroup.Text>
+            <Form.Select
+              aria-label="Default"
+              aria-describedby="inputGroup-sizing-default"
+            >
+              <option>Pending</option>
+              <option>Approved</option>
+            </Form.Select>
+          </InputGroup>
+        </Tab>
         <Tab eventKey="syntax" title="Syntax">
           <CreationModeButton handleModeClick={handleModeClick} />
-          <br/>
+          <br />
           {creatingMode === config.modeTextualLabel && <TextualMode />}
           {creatingMode === config.modeGraphicalLabel && <GraphicalMode />}
         </Tab>
