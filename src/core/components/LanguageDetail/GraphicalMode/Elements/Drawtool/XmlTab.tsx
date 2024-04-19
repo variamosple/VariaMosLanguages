@@ -37,32 +37,34 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
   };
 
   const handleRectangleShape = (e) => {
-    let xml = `<shape aspect="variable" strokewidth="7">
-        <background>
-          <strokecolor color="#333333"/>
-          <fillcolor color="#ffffff"/>
-          <path>
-            <move x="0" y="0"/>
-            <line x="100" y="0"/>
-            <line x="100" y="100"/>
-            <line x="0" y="100"/>
-            <line x="0" y="0"/>
-            <close/> 
-          </path>		
-        </background>
-        <foreground>
-          <fillstroke/>
-        </foreground>
-      </shape>`;
+    let xml = `<shape aspect="variable" strokewidth="inherit">
+    <background>
+      <strokecolor color="#333333"/>
+      <fillcolor color="#ffffff"/>
+      <strokewidth width="3" fixed="1"/>
+      <path>
+              <move x="0" y="0"/>
+              <line x="100" y="0"/>
+              <line x="100" y="100"/>
+              <line x="0" y="100"/>
+              <line x="0" y="0"/>
+              <close/> 
+          </path>	 
+    </background>
+    <foreground>
+      <fillstroke/>
+    </foreground>
+  </shape>`;
     onXmlChange(xml);
     return;
   };
 
   const handleCircleShape = (e) => {
-    let xml = `<shape aspect="variable" strokewidth="7" >
+    let xml = `<shape aspect="variable" strokewidth="inherit" >
         <background>
           <strokecolor color="#333333"/>
           <fillcolor color="#ffffff"/>
+          <strokewidth width="3" fixed="1"/>
           <ellipse x="0" y="0" w="100" h="100" />	
           <fillstroke/>
         </background>
