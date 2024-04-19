@@ -6,4 +6,5 @@ export interface LanguageDetailProps {
   setRequestLanguages: (value) => void;
   setComment?: React.Dispatch<React.SetStateAction<Comment>>;
   review: Review;
+  setEditLanguage: (edit) => void;
 }

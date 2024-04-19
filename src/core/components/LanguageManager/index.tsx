@@ -17,6 +17,7 @@ export default function LanguageManager({
   setCreatingLanguage,
   requestLanguages,
   setRequestLanguages,
+  setEditLanguage
 }: LanguageManagerProps) {
   const [showSpinner, setShowSpinner] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
@@ -25,6 +26,7 @@ export default function LanguageManager({
 
   const handleCreateClick = () => {
     setCreatingLanguage(true);
+    setEditLanguage(true);
   };
 
   const handleModeClick = (mode: CreatingMode) => {
@@ -61,6 +63,7 @@ export default function LanguageManager({
   const handleClick = (language) => () => {
     setLanguage(language);
     setCreatingLanguage(false);
+    setEditLanguage(true);
   };
 
   const handleSearchChange = (event) => {
@@ -81,9 +84,6 @@ export default function LanguageManager({
         <Col sm={6}>
           <CreateLanguageButton handleCreateClick={handleCreateClick} />
         </Col>
-        {/* <Col>
-          <CreationModeButton handleModeClick={handleModeClick} />
-        </Col> */}
       </Col>
       <Form.Group controlId="searchLanguages">
         <Form.Control

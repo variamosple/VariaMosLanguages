@@ -8,6 +8,7 @@ import {
   Spinner,
   Container,
   Row,
+  Col,
 } from "react-bootstrap";
 import Comment from "./Comment/Comment";
 import { capitalize, formatCode, getFormattedDate } from "./index.utils";
@@ -47,6 +48,7 @@ export default function LanguageDetail({
   setRequestLanguages,
   review,
   setComment,
+  setEditLanguage
 }: LanguageDetailProps) {
   const [showSpinner, setShowSpinner] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -165,6 +167,7 @@ export default function LanguageDetail({
     setShowSuccessfulMessage(true);
     setErrorMessage("");
     setRequestLanguages(true);
+    setEditLanguage(false);
   };
 
   const handleNameChange = (event) => {
@@ -222,6 +225,10 @@ export default function LanguageDetail({
     }
   };
 
+  const handleCancel = () => {
+    setEditLanguage(false);
+  };
+
   const handleModeClick = (mode: CreatingMode) => {
     setCreatingMode(mode);
   };
@@ -237,8 +244,47 @@ export default function LanguageDetail({
 
   return (
     <>
-      <br/>
-      <Tabs defaultActiveKey="information" id="uncontrolled-tab" justify className="mb-3">
+      <br />
+      <div>
+        <Button
+          variant="primary"
+          onClick={handleSaveLanguage}
+          disabled={disableSaveButton}
+        >
+          Save
+        </Button>
+        {" "}
+        <Button
+          variant="secondary"
+          onClick={handleCancel}
+          disabled={disableSaveButton}
+        >
+          Cancel
+        </Button>
+      </div>
+      <br />
+      <Container>
+        <Row>
+          {showSpinner && (
+            <Container className="mb-3 mt-3 center">
+              <Spinner animation="border" role="status" variant="primary">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </Container>
+          )}
+          {showErrorMessage && (
+            <Alert variant="danger" className="mb-3 mt-3">
+              {errorMessage}
+            </Alert>
+          )}
+          {showSuccessfulMessage && (
+            <Alert variant="success" className="mb-3 mt-3">
+              Language saved successfuly.
+            </Alert>
+          )}
+        </Row>
+      </Container>
+      <Tabs defaultActiveKey="information" id="uncontrolled-tab">
         <Tab eventKey="information" title="Information">
           <InputGroup className="mb-3 mt-3">
             <InputGroup.Text id="inputGroup-sizing-default">Name</InputGroup.Text>
@@ -272,6 +318,7 @@ export default function LanguageDetail({
           </InputGroup>
         </Tab>
         <Tab eventKey="syntax" title="Syntax">
+          <br />
           <CreationModeButton handleModeClick={handleModeClick} />
           <br />
           {creatingMode === config.modeTextualLabel && <TextualMode />}
@@ -343,35 +390,7 @@ export default function LanguageDetail({
 
 
 
-      <Container>
-        <Row>
-          <Button
-            className="mb-3 mt-3"
-            variant="primary"
-            onClick={handleSaveLanguage}
-            disabled={disableSaveButton}
-          >
-            Save language
-          </Button>
-          {showSpinner && (
-            <Container className="mb-3 mt-3 center">
-              <Spinner animation="border" role="status" variant="primary">
-                <span className="visually-hidden">Loading...</span>
-              </Spinner>
-            </Container>
-          )}
-          {showErrorMessage && (
-            <Alert variant="danger" className="mb-3 mt-3">
-              {errorMessage}
-            </Alert>
-          )}
-          {showSuccessfulMessage && (
-            <Alert variant="success" className="mb-3 mt-3">
-              Language saved successfuly.
-            </Alert>
-          )}
-        </Row>
-      </Container>
+
     </>
   );
 }

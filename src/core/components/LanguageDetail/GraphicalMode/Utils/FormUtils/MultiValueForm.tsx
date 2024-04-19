@@ -4,7 +4,7 @@ import "../../GraphicalMode.css";
 import { Trash } from "react-bootstrap-icons";
 
 
-export default function MultiValueForm ({selectedItems, setSelectedItems}) {
+export default function MultiValueForm({ selectedItems, setSelectedItems }) {
   const [inputValue, setInputValue] = useState<string>("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,36 +26,36 @@ export default function MultiValueForm ({selectedItems, setSelectedItems}) {
   return (
     <div>
       <Form.Group as={Row}>
-        <Col sm={2}>
-          <Button className="secondary-btn" onClick={handleAddItem} variant="outline-secondary">Add</Button>
-        </Col>
         <Col sm={10}>
-        <Form.Control
+          <Form.Control
             type="text"
             value={inputValue}
             onChange={handleInputChange}
             placeholder="Enter value"
           />
         </Col>
+        <Col sm={2}>
+          <Button className="secondary-btn" onClick={handleAddItem} variant="outline-secondary">Add</Button>
+        </Col>
       </Form.Group>
       <Row>
-        <Col sm={2}></Col>
         <Col sm={10}>
           <ListGroup>
             {selectedItems.map((item, index) => (
               <ListGroup.Item key={index} className="d-flex justify-content-between">
                 {item}{" "}
                 <Button
-                variant="outline-secondary"
-                onClick={() => handleRemoveItem(item)}
-                className="flex-grow-0 trash-btn btn-sm"
-              >
-                <Trash className="trash" />
-              </Button>
+                  variant="outline-secondary"
+                  onClick={() => handleRemoveItem(item)}
+                  className="flex-grow-0 trash-btn btn-sm"
+                >
+                  <Trash className="trash" />
+                </Button>
               </ListGroup.Item>
             ))}
           </ListGroup>
-        </Col>  
+        </Col>
+        <Col sm={2}></Col>
       </Row>
     </div>
   );

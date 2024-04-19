@@ -10,11 +10,12 @@ function LanguagePageLayout({
 
   return (
     <Layout>
+      {left}
       <Container>
-        <Row>
-          <Col>{left}</Col>
-          <Col xs={6}>{center}</Col>
-          <Col>{right}</Col>
+        <Row> 
+          <Col></Col>
+          <Col xs={12}>{center}</Col>
+          <Col>{right}</Col>  
         </Row>
       </Container>
     </Layout>

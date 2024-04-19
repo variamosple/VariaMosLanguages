@@ -8,8 +8,8 @@ export default function ElementTab() {
   const { relationships, setRelationships } = useLanguageContext();
   const defaultNewRelationship = {
     name: `Relationship ${relationships.length + 1}`,
-    min: "",
-    max: "",
+    min: "0",
+    max: "999999",
     source: "",
     target: "",
     label_property: "",

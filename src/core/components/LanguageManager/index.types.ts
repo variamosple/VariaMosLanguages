@@ -25,6 +25,7 @@ export interface LanguageManagerProps {
   setCreatingLanguage: (value) => void;
   requestLanguages: boolean;
   setRequestLanguages: (value) => void;
+  setEditLanguage: (edit) => void;
 }
 
 
