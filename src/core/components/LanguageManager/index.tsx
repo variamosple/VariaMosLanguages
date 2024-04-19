@@ -81,9 +81,9 @@ export default function LanguageManager({
         <Col sm={6}>
           <CreateLanguageButton handleCreateClick={handleCreateClick} />
         </Col>
-        <Col>
+        {/* <Col>
           <CreationModeButton handleModeClick={handleModeClick} />
-        </Col>
+        </Col> */}
       </Col>
       <Form.Group controlId="searchLanguages">
         <Form.Control

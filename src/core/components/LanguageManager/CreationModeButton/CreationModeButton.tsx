@@ -1,4 +1,4 @@
-import { Dropdown } from "react-bootstrap";
+import { Dropdown, DropdownButton } from "react-bootstrap";
 import config from '../CreateLanguageButton/CreateLanguageButton.json';
 import { useLanguageContext } from "../../../context/LanguageContext/LanguageContextProvider";
 import { graphicalToTextual, textualToGraphical } from "../../LanguageDetail/GraphicalMode/SyntaxCompiler";
@@ -41,20 +41,13 @@ export default function CreationModeButton({handleModeClick}) {
   }}
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle variant="primary" id="createLanguageDropdown">
-          Mode
-        </Dropdown.Toggle>
-  
-        <Dropdown.Menu>
+      <DropdownButton size="sm" title="Mode" variant="primary" id="createLanguageDropdown">
           <Dropdown.Item onClick={() => {handleSwitchModeToGraphical(); handleModeClick(config.modeGraphicalLabel)}}>
             {config.modeGraphicalLabel}
           </Dropdown.Item>
-          <Dropdown.Divider />
           <Dropdown.Item onClick={() => {handleSwitchModeToTexual(); handleModeClick(config.modeTextualLabel)}}>
             {config.modeTextualLabel}
           </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
+      </DropdownButton>
     );
   }

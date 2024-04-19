@@ -23,8 +23,9 @@ import TextualMode from "./TextualMode/TextualMode";
 import GraphicalMode from "./GraphicalMode/GraphicalMode";
 import { Comment as CommentType } from "../LanguageReview/index.types";
 import { useComment } from "../../hooks/useComment";
-import { useLanguageContext } from "../../context/LanguageContext/LanguageContextProvider";
+import { useLanguageContext, CreatingMode } from "../../context/LanguageContext/LanguageContextProvider";
 import { Tab, Tabs } from "react-bootstrap";
+import CreationModeButton from "../LanguageManager/CreationModeButton/CreationModeButton"; 
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -56,6 +57,7 @@ export default function LanguageDetail({
   const [languageType, setLanguageType] = useState(String());
   const [commentContent, setCommentContent] = useState(String());
   const { saveComment } = useComment({ setComment });
+  const { setCreatingMode } = useLanguageContext();
 
   const {
     abstractSyntax,
@@ -220,6 +222,10 @@ export default function LanguageDetail({
     }
   };
 
+  const handleModeClick = (mode: CreatingMode) => {
+    setCreatingMode(mode);
+  };
+
   if (!language && !isCreatingLanguage) {
     return (
       <Alert variant="primary" className="mb-3 mt-3">
@@ -264,6 +270,8 @@ export default function LanguageDetail({
 
       <Tabs defaultActiveKey="syntax" id="uncontrolled-tab" justify className="mb-3">
         <Tab eventKey="syntax" title="Syntax">
+          <CreationModeButton handleModeClick={handleModeClick} />
+          <br/>
           {creatingMode === config.modeTextualLabel && <TextualMode />}
           {creatingMode === config.modeGraphicalLabel && <GraphicalMode />}
         </Tab>

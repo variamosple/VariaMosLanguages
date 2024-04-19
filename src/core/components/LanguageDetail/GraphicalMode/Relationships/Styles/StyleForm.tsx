@@ -24,7 +24,9 @@ export default function StyleForm({
   
 
   useEffect(()=>{
-    setLinkedProperty(properties.find((property)=>property.name === formValues.linked_property));
+    if (properties) {
+      setLinkedProperty(properties.find((property)=>property.name === formValues.linked_property));
+    }
   }, [formValues.linked_property, properties]);
 
   const handleOpenStyleTool=() => {setShowStyleTool(true)};
