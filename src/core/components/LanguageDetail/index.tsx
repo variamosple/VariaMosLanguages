@@ -27,6 +27,7 @@ import { useComment } from "../../hooks/useComment";
 import { useLanguageContext, CreatingMode } from "../../context/LanguageContext/LanguageContextProvider";
 import { Tab, Tabs } from "react-bootstrap";
 import CreationModeButton from "../LanguageManager/CreationModeButton/CreationModeButton";
+import Semantics from "./Semantics";
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -323,6 +324,9 @@ export default function LanguageDetail({
           <br />
           {creatingMode === config.modeTextualLabel && <TextualMode />}
           {creatingMode === config.modeGraphicalLabel && <GraphicalMode />}
+        </Tab>
+        <Tab eventKey="semantics" title="Semantics" id="uncontrolled-tab" className="my-3">
+          <Semantics />
         </Tab>
         <Tab eventKey="comments" title="Comments">
           {/* Add Comment */}
