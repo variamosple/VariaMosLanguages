@@ -34,6 +34,9 @@ export default function StyleTool({show, handleClose}) {
             </Row>
                 
         <Modal.Footer>
+            <Button variant='secondary' onClick={handleClose}>
+                Cancel
+            </Button>
             <Button onClick={handleFormSubmit}>
                 Save
             </Button>

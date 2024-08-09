@@ -269,21 +269,20 @@ export default function LanguageDetail({
   return (
     <>
       <br />
-      <div>
-        <Button
-          variant="primary"
-          onClick={confirmSave}
-          disabled={disableSaveButton}
-        >
-          Save
-        </Button>
-        {" "}
+      <div className='d-flex gap-1'>
         <Button
           variant="secondary"
           onClick={confirmCancel}
           disabled={disableSaveButton}
         >
           Cancel
+        </Button>
+        <Button
+          variant="primary"
+          onClick={confirmSave}
+          disabled={disableSaveButton}
+        >
+          Save
         </Button>
       </div>
       <br />
