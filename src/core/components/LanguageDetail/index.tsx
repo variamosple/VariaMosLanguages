@@ -47,7 +47,6 @@ const COMMENT_STATUS_OPEN = "open";
 export default function LanguageDetail({
   language,
   isCreatingLanguage,
-  setRequestLanguages,
   review,
   setComment,
   setEditLanguage
@@ -166,7 +165,6 @@ export default function LanguageDetail({
     alertify.success("Language saved successfuly.");
     setShowErrorMessage(false);    
     setErrorMessage("");
-    setRequestLanguages(true);
     setEditLanguage(false);
   };
 

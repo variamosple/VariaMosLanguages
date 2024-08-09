@@ -24,20 +24,20 @@ export default function ConfirmationModal({
   onCancel,
   onConfirm,
   message,
-  confirmLabel = 'Yes',
+  confirmLabel = 'Accept',
   confirmButtonVariant = 'primary',
   cancelButtonVariant = 'secondary',
-  cancelLabel = 'No',
+  cancelLabel = 'Cancel',
 }: ConfirmationModalProps) {
   return (
     <Modal show={show} onHide={onCancel}>
       <Modal.Body>{message}</Modal.Body>
       <Modal.Footer>
-        <Button variant={confirmButtonVariant} onClick={onConfirm}>
-          {confirmLabel}
-        </Button>
         <Button variant={cancelButtonVariant} onClick={onCancel}>
           {cancelLabel}
+        </Button>
+        <Button variant={confirmButtonVariant} onClick={onConfirm}>
+          {confirmLabel}
         </Button>
       </Modal.Footer>
     </Modal>
