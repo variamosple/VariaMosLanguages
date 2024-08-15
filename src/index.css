@@ -1,0 +1,21 @@
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.alertify-notifier .ajs-message.ajs-info {
+  background: #cff4fc !important;
+  color: #055160 !important;
+  border-color: #9eeaf9 !important;
+}
+
+.alertify-notifier .ajs-message.ajs-error {
+  background: #f8d7da !important;
+  color: #58151c !important;
+  border-color: #f1aeb5 !important;
+}
+
+.alertify-notifier .ajs-message.ajs-success {
+  background: #d1e7dd !important;
+  color: #0a3622 !important;
+  border-color: #a3cfbb !important;
+}

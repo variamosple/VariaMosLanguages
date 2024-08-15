@@ -13,14 +13,14 @@ export default function ItemSaveButton() {
     }
   };
  
-  
   const handleFormSubmit = () => {
       handleUpdateItem(formValues);
       setSelectedItem({});
     };
     
     return(
-      <div className="d-flex justify-content-end">
+      <div className="d-flex justify-content-end gap-1">
+        <Button variant='secondary' onClick={() => setSelectedItem({})}>Cancel</Button>
         <Button variant="primary" onClick={handleFormSubmit}>
           Apply
         </Button>
