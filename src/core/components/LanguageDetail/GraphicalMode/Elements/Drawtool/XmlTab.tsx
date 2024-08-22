@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import XMLInput from './XMLInput';
-import ShapeRenderer from './ShapeRenderer';
+import Canvas from './Canvas';
 import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
 import GenericFileUploadButton from '../../Utils/FormUtils/UploadButton';
 
@@ -95,7 +95,7 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
         </div>
       </Col>
       <Col sm={6}>
-        <ShapeRenderer shapeXml={previewXml} />
+        <Canvas />
       </Col>
     </Row>
   );
