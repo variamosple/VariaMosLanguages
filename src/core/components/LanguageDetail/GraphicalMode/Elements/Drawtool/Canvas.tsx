@@ -12,9 +12,22 @@ export default function Canvas() {
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const [startX, setStartX] = useState<number | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
+  const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
-    shapes.forEach(shape => shape.draw(ctx));
+    shapes.forEach(shape => {
+
+      if (shape === selectedShape) {
+        ctx.save();
+        shape.draw(ctx);
+        ctx.strokeStyle = '#FF0000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+        ctx.restore();
+      } else {
+        shape.draw(ctx);
+      }
+    });
   };
 
   useEffect(() => {
@@ -22,6 +35,7 @@ export default function Canvas() {
     if (canvas) {
       const context = canvas.getContext('2d');
       if (context) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
         context.fillStyle = '#ffffff';
         context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -37,17 +51,30 @@ export default function Canvas() {
         canvas.style.cursor = 'default';
       }
     }
-  }, [shapes, selectedTool]);
+  }, [shapes, selectedTool, selectedShape]);
 
   const handleSelectTool = (tool: string) => {
     setSelectedTool(tool);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (['rectangle', 'ellipse', 'triangle'].includes(selectedTool)) {
+    const clickX = e.nativeEvent.offsetX;
+    const clickY = e.nativeEvent.offsetY;
+
+    if (selectedTool === 'select') {
+      for (let i = shapes.length - 1; i >= 0; i--) {
+        if (shapes[i].contains(clickX, clickY)) {
+          setSelectedShape(shapes[i]);
+          console.log('Figure selected:', shapes[i]);
+          return;
+        }
+      }
+      // Si no se selecciona ninguna figura, deselecciona la actual
+      setSelectedShape(null);
+    } else if (['rectangle', 'ellipse', 'triangle'].includes(selectedTool)) {
       setIsDrawing(true);
-      setStartX(e.nativeEvent.offsetX);
-      setStartY(e.nativeEvent.offsetY);
+      setStartX(clickX);
+      setStartY(clickY);
     }
   };
 
