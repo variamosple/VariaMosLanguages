@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState } from 'react';
 import ToolBar from './ToolBar';
 import { Shape } from './Shapes/Shape';
 import { Rectangle } from "./Shapes/Rectangle";
+import { Ellipse } from "./Shapes/Ellipse";
+import { Triangle } from "./Shapes/Triangle";
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -42,7 +44,7 @@ export default function Canvas() {
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (selectedTool === 'rectangle') {
+    if (['rectangle', 'ellipse', 'triangle'].includes(selectedTool)) {
       setIsDrawing(true);
       setStartX(e.nativeEvent.offsetX);
       setStartY(e.nativeEvent.offsetY);
@@ -62,8 +64,22 @@ export default function Canvas() {
 
         const currentX = e.nativeEvent.offsetX;
         const currentY = e.nativeEvent.offsetY;
-        const rect = new Rectangle(startX, startY, currentX - startX, currentY - startY, '#000000');
-        rect.draw(context);
+        let shape: Shape;
+
+        switch (selectedTool) {
+          case 'rectangle':
+            shape = new Rectangle(startX, startY, currentX - startX, currentY - startY, '#000000');
+            break;
+          case 'ellipse':
+            shape = new Ellipse(startX, startY, currentX - startX, currentY - startY, '#000000');
+            break;
+          case 'triangle':
+            shape = new Triangle(startX, startY, currentX - startX, currentY - startY, '#000000');
+            break;
+          default:
+            return;
+        }
+        shape.draw(context);
       }
     }
   };
@@ -76,9 +92,22 @@ export default function Canvas() {
       const endY = e.nativeEvent.offsetY;
 
       if (startX !== null && startY !== null) {
-        const newRect = new Rectangle(startX, startY, endX - startX, endY - startY, '#000000');
-        setShapes([...shapes, newRect]);
-        console.log(shapes)
+        let newShape: Shape;
+
+        switch (selectedTool) {
+          case 'rectangle':
+            newShape = new Rectangle(startX, startY, endX - startX, endY - startY, '#000000');
+            break;
+          case 'ellipse':
+            newShape = new Ellipse(startX, startY, endX - startX, endY - startY, '#000000');
+            break;
+          case 'triangle':
+            newShape = new Triangle(startX, startY, endX - startX, endY - startY, '#000000');
+            break;
+          default:
+            return;
+        }
+        setShapes([...shapes, newShape]);
       }
     }
   };
