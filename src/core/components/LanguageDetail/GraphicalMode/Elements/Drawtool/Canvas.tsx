@@ -4,18 +4,19 @@ import { Shape } from './Shapes/Shape';
 import { Rectangle } from "./Shapes/Rectangle";
 import { Ellipse } from "./Shapes/Ellipse";
 import { Triangle } from "./Shapes/Triangle";
+import { ShapeCollection } from './Shapes/ShapeCollection';
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedTool, setSelectedTool] = useState<string>('select');
-  const [shapes, setShapes] = useState<Shape[]>([]);
+  const [shapeCollection, setShapeCollection] = useState<ShapeCollection>(new ShapeCollection());
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const [startX, setStartX] = useState<number | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
-    shapes.forEach(shape => {
+    shapeCollection.shapes.forEach(shape => {
 
       if (shape === selectedShape) {
         ctx.save();
@@ -51,7 +52,7 @@ export default function Canvas() {
         canvas.style.cursor = 'default';
       }
     }
-  }, [shapes, selectedTool, selectedShape]);
+  }, [shapeCollection, selectedTool, selectedShape]);
 
   const handleSelectTool = (tool: string) => {
     setSelectedTool(tool);
@@ -62,10 +63,10 @@ export default function Canvas() {
     const clickY = e.nativeEvent.offsetY;
 
     if (selectedTool === 'select') {
-      for (let i = shapes.length - 1; i >= 0; i--) {
-        if (shapes[i].contains(clickX, clickY)) {
-          setSelectedShape(shapes[i]);
-          console.log('Figure selected:', shapes[i]);
+      for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
+        if (shapeCollection.shapes[i].contains(clickX, clickY)) {
+          setSelectedShape(shapeCollection.shapes[i]);
+          console.log('Figure selected:', shapeCollection.shapes[i]);
           return;
         }
       }
@@ -95,13 +96,13 @@ export default function Canvas() {
 
         switch (selectedTool) {
           case 'rectangle':
-            shape = new Rectangle(startX, startY, currentX - startX, currentY - startY, '#000000');
+            shape = new Rectangle(startX, startY, currentX - startX, currentY - startY);
             break;
           case 'ellipse':
-            shape = new Ellipse(startX, startY, currentX - startX, currentY - startY, '#000000');
+            shape = new Ellipse(startX, startY, currentX - startX, currentY - startY);
             break;
           case 'triangle':
-            shape = new Triangle(startX, startY, currentX - startX, currentY - startY, '#000000');
+            shape = new Triangle(startX, startY, currentX - startX, currentY - startY);
             break;
           default:
             return;
@@ -119,24 +120,44 @@ export default function Canvas() {
       const endY = e.nativeEvent.offsetY;
 
       if (startX !== null && startY !== null) {
+        let x = Math.min(startX, endX);
+        let y = Math.min(startY, endY);
+        let width = Math.abs(endX - startX);
+        let height = Math.abs(endY - startY);
         let newShape: Shape;
 
         switch (selectedTool) {
           case 'rectangle':
-            newShape = new Rectangle(startX, startY, endX - startX, endY - startY, '#000000');
+            newShape = new Rectangle(x, y, width, height);
             break;
           case 'ellipse':
-            newShape = new Ellipse(startX, startY, endX - startX, endY - startY, '#000000');
+            newShape = new Ellipse(x, y, width, height);
             break;
           case 'triangle':
-            newShape = new Triangle(startX, startY, endX - startX, endY - startY, '#000000');
+            newShape = new Triangle(x, y, width, height);
             break;
           default:
             return;
         }
-        setShapes([...shapes, newShape]);
+        
+        const updatedShapeCollection = shapeCollection;
+        updatedShapeCollection.addShape(newShape);
+
+        // Actualizar el estado con la misma instancia
+        setShapeCollection(updatedShapeCollection);
+        setSelectedShape(newShape);
       }
     }
+  };
+
+  const saveToJSON = () => {
+    const json = shapeCollection.toJSON();
+    console.log("Saved JSON:", json);
+  };
+
+  const saveToXML = () => {
+    const xml = shapeCollection.toXML();
+    console.log("Saved XML:", xml);
   };
 
   return (
@@ -151,6 +172,8 @@ export default function Canvas() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       />
+      <button onClick={saveToJSON}>Save to JSON</button>
+      <button onClick={saveToXML}>Save to XML</button>
     </div>
   );
 }

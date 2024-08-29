@@ -12,8 +12,12 @@ export class Ellipse extends Shape {
       0,
       2 * Math.PI
     );
-    ctx.fillStyle = this.color;
+    ctx.fillStyle = this.fillColor;
     ctx.fill();
     ctx.stroke();
+  }
+
+  getType(): string {
+    return 'ellipse';
   }
 }

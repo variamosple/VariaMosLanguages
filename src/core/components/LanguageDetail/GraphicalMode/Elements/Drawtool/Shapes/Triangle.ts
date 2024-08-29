@@ -7,8 +7,12 @@ export class Triangle extends Shape {
     ctx.lineTo(this.x + this.width / 2, this.y);
     ctx.lineTo(this.x + this.width, this.y + this.height);
     ctx.closePath();
-    ctx.fillStyle = this.color;
+    ctx.fillStyle = this.fillColor;
     ctx.fill();
     ctx.stroke();
+  }
+
+  getType(): string {
+    return 'triangle';
   }
 }

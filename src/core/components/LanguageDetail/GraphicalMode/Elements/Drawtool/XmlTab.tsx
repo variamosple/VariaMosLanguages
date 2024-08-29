@@ -4,6 +4,7 @@ import XMLInput from './XMLInput';
 import Canvas from './Canvas';
 import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
 import GenericFileUploadButton from '../../Utils/FormUtils/UploadButton';
+import ShapeRenderer from "./ShapeRenderer";
 
 
 export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) {
@@ -96,6 +97,7 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
       </Col>
       <Col sm={6}>
         <Canvas />
+        {/* <ShapeRenderer shapeXml={xml} /> */}
       </Col>
     </Row>
   );

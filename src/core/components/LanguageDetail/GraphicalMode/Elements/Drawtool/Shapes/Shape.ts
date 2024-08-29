@@ -3,14 +3,23 @@ export class Shape {
     y: number;
     width: number;
     height: number;
-    color: string;
+    fillColor: string;
+    lineColor: string;
   
-    constructor(x: number, y: number, width: number, height: number, color: string) {
+    constructor(
+      x: number, 
+      y: number, 
+      width: number, 
+      height: number, 
+      fillColor: string = "#ffffff",
+      lineColor: string = "000000"
+    ) {
       this.x = x;
       this.y = y;
       this.width = width;
       this.height = height;
-      this.color = color;
+      this.fillColor = fillColor;
+      this.lineColor = lineColor;
     }
   
     draw(ctx: CanvasRenderingContext2D): void {}
@@ -22,5 +31,9 @@ export class Shape {
         y >= this.y &&
         y <= this.y + this.height
       );
+    }
+
+    getType(): string {
+      return 'shape';
     }
 }
