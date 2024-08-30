@@ -11,8 +11,11 @@ export default function Canvas() {
   const [selectedTool, setSelectedTool] = useState<string>('select');
   const [shapeCollection, setShapeCollection] = useState<ShapeCollection>(new ShapeCollection());
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startX, setStartX] = useState<number | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
+  const [dragOffsetX, setDragOffsetX] = useState<number>(0);
+  const [dragOffsetY, setDragOffsetY] = useState<number>(0);
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
@@ -66,6 +69,13 @@ export default function Canvas() {
       for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
         if (shapeCollection.shapes[i].contains(clickX, clickY)) {
           setSelectedShape(shapeCollection.shapes[i]);
+          setIsDragging(true);
+
+          setStartX(clickX); 
+          setStartY(clickY);
+
+          setDragOffsetX(clickX - shapeCollection.shapes[i].x);
+          setDragOffsetY(clickY - shapeCollection.shapes[i].y);
           console.log('Figure selected:', shapeCollection.shapes[i]);
           return;
         }
@@ -80,35 +90,49 @@ export default function Canvas() {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDrawing || startX === null || startY === null) return;
-
     const canvas = canvasRef.current;
-    if (canvas) {
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        drawShapes(context);
-
-        const currentX = e.nativeEvent.offsetX;
-        const currentY = e.nativeEvent.offsetY;
-        let shape: Shape;
-
-        switch (selectedTool) {
-          case 'rectangle':
-            shape = new Rectangle(startX, startY, currentX - startX, currentY - startY);
-            break;
-          case 'ellipse':
-            shape = new Ellipse(startX, startY, currentX - startX, currentY - startY);
-            break;
-          case 'triangle':
-            shape = new Triangle(startX, startY, currentX - startX, currentY - startY);
-            break;
-          default:
-            return;
-        }
-        shape.draw(context);
+    if (!canvas) return;
+  
+    const context = canvas.getContext('2d');
+    if (!context) return;
+  
+    const currentX = e.nativeEvent.offsetX;
+    const currentY = e.nativeEvent.offsetY;
+  
+    if (isDrawing && startX !== null && startY !== null) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      drawShapes(context);
+  
+      let shape: Shape;
+  
+      switch (selectedTool) {
+        case 'rectangle':
+          shape = new Rectangle(startX, startY, currentX - startX, currentY - startY);
+          break;
+        case 'ellipse':
+          shape = new Ellipse(startX, startY, currentX - startX, currentY - startY);
+          break;
+        case 'triangle':
+          shape = new Triangle(startX, startY, currentX - startX, currentY - startY);
+          break;
+        default:
+          return;
       }
+      shape.draw(context);
+  
+    } else if (selectedTool === 'select' && isDragging && selectedShape) {
+      // Movimiento de figuras
+      const dx = currentX - startX!;
+      const dy = currentY - startY!;
+  
+      selectedShape.x += dx;
+      selectedShape.y += dy;
+  
+      setStartX(currentX);
+      setStartY(currentY);
+  
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      drawShapes(context);
     }
   };
 
@@ -145,8 +169,14 @@ export default function Canvas() {
 
         // Actualizar el estado con la misma instancia
         setShapeCollection(updatedShapeCollection);
-        setSelectedShape(newShape);
+        setSelectedShape(null);
       }
+    }
+
+    if (isDragging) {
+      setIsDragging(false); // Terminar el arrastre
+      setStartX(null); // Resetear coordenadas de arrastre
+      setStartY(null);
     }
   };
 
