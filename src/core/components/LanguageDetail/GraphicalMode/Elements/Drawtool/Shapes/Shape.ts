@@ -9,8 +9,8 @@ export class Shape {
     constructor(
       x: number, 
       y: number, 
-      width: number, 
-      height: number, 
+      width?: number, 
+      height?: number, 
       fillColor: string = "#ffffff",
       lineColor: string = "000000"
     ) {

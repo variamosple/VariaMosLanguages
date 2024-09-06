@@ -4,6 +4,7 @@ import { Shape } from './Shapes/Shape';
 import { Rectangle } from "./Shapes/Rectangle";
 import { Ellipse } from "./Shapes/Ellipse";
 import { Triangle } from "./Shapes/Triangle";
+import { Line } from "./Shapes/Line";
 import { ShapeCollection } from './Shapes/ShapeCollection';
 
 export default function Canvas() {
@@ -24,9 +25,10 @@ export default function Canvas() {
       if (shape === selectedShape) {
         ctx.save();
         shape.draw(ctx);
-        ctx.strokeStyle = '#FF0000';
         ctx.lineWidth = 2;
-        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+        ctx.strokeStyle = '#00BFFF';
+        shape.draw(ctx);
+        ctx.stroke(); 
         ctx.restore();
       } else {
         shape.draw(ctx);
@@ -48,7 +50,8 @@ export default function Canvas() {
 
       if (selectedTool === 'rectangle' || 
           selectedTool === 'ellipse'  || 
-          selectedTool === 'triangle') 
+          selectedTool === 'triangle' ||
+          selectedTool === 'line') 
       {
         canvas.style.cursor = 'crosshair';
       } else {
@@ -76,13 +79,12 @@ export default function Canvas() {
 
           setDragOffsetX(clickX - shapeCollection.shapes[i].x);
           setDragOffsetY(clickY - shapeCollection.shapes[i].y);
-          console.log('Figure selected:', shapeCollection.shapes[i]);
           return;
         }
       }
       // Si no se selecciona ninguna figura, deselecciona la actual
       setSelectedShape(null);
-    } else if (['rectangle', 'ellipse', 'triangle'].includes(selectedTool)) {
+    } else if (['rectangle', 'ellipse', 'triangle', 'line'].includes(selectedTool)) {
       setIsDrawing(true);
       setStartX(clickX);
       setStartY(clickY);
@@ -115,6 +117,9 @@ export default function Canvas() {
         case 'triangle':
           shape = new Triangle(startX, startY, currentX - startX, currentY - startY);
           break;
+        case 'line':
+          shape = new Line(startX, startY, currentX, currentY);
+          break;
         default:
           return;
       }
@@ -125,8 +130,15 @@ export default function Canvas() {
       const dx = currentX - startX!;
       const dy = currentY - startY!;
   
-      selectedShape.x += dx;
-      selectedShape.y += dy;
+      if (selectedShape instanceof Line) {
+        selectedShape.x += dx;
+        selectedShape.y += dy;
+        selectedShape.x2 += dx;
+        selectedShape.y2 += dy;
+      } else {
+        selectedShape.x += dx;
+        selectedShape.y += dy;
+      }
   
       setStartX(currentX);
       setStartY(currentY);
@@ -159,6 +171,9 @@ export default function Canvas() {
             break;
           case 'triangle':
             newShape = new Triangle(x, y, width, height);
+            break;
+          case 'line':
+            newShape = new Line(startX, startY, endX, endY); // Crear una línea final
             break;
           default:
             return;

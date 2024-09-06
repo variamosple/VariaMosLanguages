@@ -41,6 +41,12 @@ export default function ToolBar({ onSelectTool }: ToolBarProps) {
         >
           Triangle
         </Button>
+        <Button
+          variant={selectedTool === 'line' ? 'primary' : 'secondary'}
+          onClick={() => handleToolClick('line')}
+        >
+          Line
+        </Button>
       </ButtonGroup>
     </div>
   );
