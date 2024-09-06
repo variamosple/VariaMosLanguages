@@ -36,4 +36,23 @@ export class Shape {
     getType(): string {
       return 'shape';
     }
+
+    // Agregar un nuevo método para obtener los "handles" de redimensionamiento
+  getResizeHandles(): { x: number, y: number }[] {
+    return [
+      { x: this.x, y: this.y },  // Top-left
+      { x: this.x + this.width, y: this.y },  // Top-right
+      { x: this.x, y: this.y + this.height },  // Bottom-left
+      { x: this.x + this.width, y: this.y + this.height }  // Bottom-right
+    ];
+  }
+
+  // Agregar un método para verificar si el mouse está sobre un "handle"
+  isOverHandle(mouseX: number, mouseY: number): boolean {
+    const handles = this.getResizeHandles();
+    return handles.some(handle => 
+      mouseX >= handle.x - 5 && mouseX <= handle.x + 5 && 
+      mouseY >= handle.y - 5 && mouseY <= handle.y + 5
+    );
+  }
 }

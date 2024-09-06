@@ -96,8 +96,8 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
         </div>
       </Col>
       <Col sm={6}>
-        {/* <Canvas /> */}
-        <ShapeRenderer shapeXml={xml} />
+        <Canvas />
+        {/* <ShapeRenderer shapeXml={xml} /> */}
       </Col>
     </Row>
   );

@@ -18,12 +18,27 @@ export class Line extends Shape {
   }
 
   contains(x: number, y: number): boolean {
-    // Implementar lógica simple para detectar clics cercanos a la línea (opcional).
     const distance = Math.abs((y - this.y) * (this.x2 - this.x) - (x - this.x) * (this.y2 - this.y)) / Math.sqrt(Math.pow(this.x2 - this.x, 2) + Math.pow(this.y2 - this.y, 2));
-    return distance < 5; // margen de 5 píxeles
+    return distance < 5;
   }
 
   getType(): string {
     return 'line';
+  }
+
+  // Sobreescribir el método para obtener "handles" específicos de una línea
+  getResizeHandles(): { x: number, y: number }[] {
+    return [
+      { x: this.x, y: this.y },
+      { x: this.x2, y: this.y2 }
+    ];
+  }
+
+  // Sobreescribir el método para verificar si el mouse está sobre un "handle" de la línea
+  isOverHandle(mouseX: number, mouseY: number): boolean {
+    const handles = this.getResizeHandles();
+    return handles.some(handle =>
+      Math.abs(mouseX - handle.x) <= 5 && Math.abs(mouseY - handle.y) <= 5
+    );
   }
 }

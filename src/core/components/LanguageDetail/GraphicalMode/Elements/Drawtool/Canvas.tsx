@@ -18,6 +18,8 @@ export default function Canvas() {
   const [dragOffsetX, setDragOffsetX] = useState<number>(0);
   const [dragOffsetY, setDragOffsetY] = useState<number>(0);
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
+  const [isResizing, setIsResizing] = useState<boolean>(false);
+  const [resizeHandleIndex, setResizeHandleIndex] = useState<number | null>(null);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     shapeCollection.shapes.forEach(shape => {
@@ -28,7 +30,14 @@ export default function Canvas() {
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#00BFFF';
         shape.draw(ctx);
-        ctx.stroke(); 
+        ctx.stroke();
+
+        // Dibujar "handles" para redimensionar
+      shape.getResizeHandles().forEach(handle => {
+        ctx.fillStyle = '#00BFFF';
+        ctx.fillRect(handle.x - 5, handle.y - 5, 10, 10);
+      });
+
         ctx.restore();
       } else {
         shape.draw(ctx);
@@ -69,6 +78,15 @@ export default function Canvas() {
     const clickY = e.nativeEvent.offsetY;
 
     if (selectedTool === 'select') {
+      if (selectedShape && selectedShape.isOverHandle(clickX, clickY)) {
+        setIsResizing(true);
+        // Determinar qué "handle" se está arrastrando (puede ser 0-3)
+        setResizeHandleIndex(selectedShape.getResizeHandles().findIndex(handle =>
+          clickX >= handle.x - 5 && clickX <= handle.x + 5 &&
+          clickY >= handle.y - 5 && clickY <= handle.y + 5
+        ));
+        return;
+      }
       for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
         if (shapeCollection.shapes[i].contains(clickX, clickY)) {
           setSelectedShape(shapeCollection.shapes[i]);
@@ -100,6 +118,47 @@ export default function Canvas() {
   
     const currentX = e.nativeEvent.offsetX;
     const currentY = e.nativeEvent.offsetY;
+
+     // Si se está redimensionando
+  if (isResizing && selectedShape && resizeHandleIndex !== null) {
+    if (selectedShape instanceof Line) {
+      // Lógica específica para redimensionar una línea
+      if (resizeHandleIndex === 0) {
+        selectedShape.x = currentX;
+        selectedShape.y = currentY;
+      } else if (resizeHandleIndex === 1) {
+        selectedShape.x2 = currentX;
+        selectedShape.y2 = currentY;
+      }
+    } else {
+      switch (resizeHandleIndex) {
+        case 0:  // Top-left
+          selectedShape.width += selectedShape.x - currentX;
+          selectedShape.height += selectedShape.y - currentY;
+          selectedShape.x = currentX;
+          selectedShape.y = currentY;
+          break;
+        case 1:  // Top-right
+          selectedShape.width = currentX - selectedShape.x;
+          selectedShape.height += selectedShape.y - currentY;
+          selectedShape.y = currentY;
+          break;
+        case 2:  // Bottom-left
+          selectedShape.width += selectedShape.x - currentX;
+          selectedShape.height = currentY - selectedShape.y;
+          selectedShape.x = currentX;
+          break;
+        case 3:  // Bottom-right
+          selectedShape.width = currentX - selectedShape.x;
+          selectedShape.height = currentY - selectedShape.y;
+          break;
+      }
+    }
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawShapes(context);
+    return;
+  }
   
     if (isDrawing && startX !== null && startY !== null) {
       context.clearRect(0, 0, canvas.width, canvas.height);
@@ -149,6 +208,13 @@ export default function Canvas() {
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
+
+    if (isResizing) {
+      setIsResizing(false);  // Terminar el redimensionamiento
+      setResizeHandleIndex(null);
+      return;
+    }
+    
     if (isDrawing) {
       setIsDrawing(false);
 
