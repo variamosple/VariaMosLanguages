@@ -6,6 +6,7 @@ import { Ellipse } from "./Shapes/Ellipse";
 import { Triangle } from "./Shapes/Triangle";
 import { Line } from "./Shapes/Line";
 import { ShapeCollection } from './Shapes/ShapeCollection';
+import { GeometryUtils } from './GeometryUtils';
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -82,8 +83,7 @@ export default function Canvas() {
         setIsResizing(true);
         // Determinar qué "handle" se está arrastrando (puede ser 0-3)
         setResizeHandleIndex(selectedShape.getResizeHandles().findIndex(handle =>
-          clickX >= handle.x - 5 && clickX <= handle.x + 5 &&
-          clickY >= handle.y - 5 && clickY <= handle.y + 5
+          GeometryUtils.pointInRectangle(clickX, clickY, handle.x - 5, handle.y - 5, 10, 10)
         ));
         return;
       }
@@ -120,45 +120,12 @@ export default function Canvas() {
     const currentY = e.nativeEvent.offsetY;
 
      // Si se está redimensionando
-  if (isResizing && selectedShape && resizeHandleIndex !== null) {
-    if (selectedShape instanceof Line) {
-      // Lógica específica para redimensionar una línea
-      if (resizeHandleIndex === 0) {
-        selectedShape.x = currentX;
-        selectedShape.y = currentY;
-      } else if (resizeHandleIndex === 1) {
-        selectedShape.x2 = currentX;
-        selectedShape.y2 = currentY;
-      }
-    } else {
-      switch (resizeHandleIndex) {
-        case 0:  // Top-left
-          selectedShape.width += selectedShape.x - currentX;
-          selectedShape.height += selectedShape.y - currentY;
-          selectedShape.x = currentX;
-          selectedShape.y = currentY;
-          break;
-        case 1:  // Top-right
-          selectedShape.width = currentX - selectedShape.x;
-          selectedShape.height += selectedShape.y - currentY;
-          selectedShape.y = currentY;
-          break;
-        case 2:  // Bottom-left
-          selectedShape.width += selectedShape.x - currentX;
-          selectedShape.height = currentY - selectedShape.y;
-          selectedShape.x = currentX;
-          break;
-        case 3:  // Bottom-right
-          selectedShape.width = currentX - selectedShape.x;
-          selectedShape.height = currentY - selectedShape.y;
-          break;
-      }
+     if (isResizing && selectedShape && resizeHandleIndex !== null) {
+      GeometryUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      drawShapes(context);
+      return;
     }
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    drawShapes(context);
-    return;
-  }
   
     if (isDrawing && startX !== null && startY !== null) {
       context.clearRect(0, 0, canvas.width, canvas.height);
@@ -189,15 +156,7 @@ export default function Canvas() {
       const dx = currentX - startX!;
       const dy = currentY - startY!;
   
-      if (selectedShape instanceof Line) {
-        selectedShape.x += dx;
-        selectedShape.y += dy;
-        selectedShape.x2 += dx;
-        selectedShape.y2 += dy;
-      } else {
-        selectedShape.x += dx;
-        selectedShape.y += dy;
-      }
+      GeometryUtils.translateShape(selectedShape, dx, dy);
   
       setStartX(currentX);
       setStartY(currentY);
