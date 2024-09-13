@@ -6,7 +6,7 @@ export class Line extends Shape {
     super(x, y, undefined, undefined, undefined, lineColor);
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
+  protected drawShape(ctx: CanvasRenderingContext2D): void {
     ctx.save(); // Guardar el contexto actual
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);

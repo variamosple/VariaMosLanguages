@@ -21,25 +21,19 @@ export default function Canvas() {
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [resizeHandleIndex, setResizeHandleIndex] = useState<number | null>(null);
+  const [isRotating, setIsRotating] = useState<boolean>(false);
+  const [rotationStartAngle, setRotationStartAngle] = useState<number>(0);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     shapeCollection.shapes.forEach(shape => {
 
       if (shape === selectedShape) {
         ctx.save();
-        shape.draw(ctx);
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#00BFFF';
-        shape.draw(ctx);
-        ctx.stroke();
-
-        // Dibujar "handles" para redimensionar
-      shape.getResizeHandles().forEach(handle => {
-        ctx.fillStyle = '#00BFFF';
-        ctx.fillRect(handle.x - 5, handle.y - 5, 10, 10);
-      });
-
+        shape.drawSelection(ctx); // Dibuja la figura seleccionada con borde resaltado
+        shape.drawResizeHandles(ctx); // Dibuja los "handles" de redimensionamiento
+        shape.drawRotationHandle(ctx); // Dibuja el "handle" de rotación
         ctx.restore();
+
       } else {
         shape.draw(ctx);
       }
@@ -87,6 +81,15 @@ export default function Canvas() {
         ));
         return;
       }
+      if (selectedShape && selectedShape.isOverRotationHandle(clickX, clickY)) {
+        setIsRotating(true);
+        const center = { 
+          x: selectedShape.x + selectedShape.width / 2, 
+          y: selectedShape.y + selectedShape.height / 2 
+        };
+        setRotationStartAngle(Math.atan2(clickY - center.y, clickX - center.x));
+        return;
+      }
       for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
         if (shapeCollection.shapes[i].contains(clickX, clickY)) {
           setSelectedShape(shapeCollection.shapes[i]);
@@ -124,6 +127,27 @@ export default function Canvas() {
       GeometryUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
       context.clearRect(0, 0, canvas.width, canvas.height);
       drawShapes(context);
+      return;
+    }
+
+    if (isRotating && selectedShape) {
+      const center = { 
+        x: selectedShape.x + selectedShape.width / 2, 
+        y: selectedShape.y + selectedShape.height / 2 
+      };
+      const angle = Math.atan2(currentY - center.y, currentX - center.x);
+      const newRotation = angle - rotationStartAngle;
+      selectedShape.rotation = (selectedShape.rotation + newRotation) % (2 * Math.PI);
+      setRotationStartAngle(angle);
+
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          drawShapes(context);
+        }
+      }
       return;
     }
   
@@ -171,6 +195,11 @@ export default function Canvas() {
     if (isResizing) {
       setIsResizing(false);  // Terminar el redimensionamiento
       setResizeHandleIndex(null);
+      return;
+    }
+
+    if (isRotating) {
+      setIsRotating(false);
       return;
     }
     

@@ -1,7 +1,7 @@
 import { Shape } from './Shape';
 
 export class Ellipse extends Shape {
-  draw(ctx: CanvasRenderingContext2D): void {
+  protected drawShape(ctx: CanvasRenderingContext2D): void {
     ctx.beginPath();
     ctx.ellipse(
       this.x + this.width / 2,

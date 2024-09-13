@@ -21,6 +21,15 @@ export class GeometryUtils {
       };
     }
 
+    static rotatePoint(x: number, y: number, cx: number, cy: number, angle: number): { x: number, y: number } {
+      const radians = (Math.PI / 180) * angle,
+            cos = Math.cos(radians),
+            sin = Math.sin(radians),
+            nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+            ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+      return { x: nx, y: ny };
+    }
+
     static resizeShape(
       shape: Shape,
       resizeHandleIndex: number,
@@ -36,14 +45,21 @@ export class GeometryUtils {
           shape.y2 = currentY;
         }
       } else {
+        const center = {
+          x: shape.x + shape.width / 2,
+          y: shape.y + shape.height / 2
+        };
+        const rotatedPoint = this.rotatePoint(currentX, currentY, center.x, center.y, -shape.rotation);
         const { x, y, width, height } = GeometryUtils.resizeRectangle(
           shape.x,
           shape.y,
           shape.width,
           shape.height,
           resizeHandleIndex,
-          currentX,
-          currentY
+          rotatedPoint.x,
+          rotatedPoint.y
+          // currentX,
+          // currentY
         );
         shape.x = x;
         shape.y = y;
