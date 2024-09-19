@@ -7,6 +7,7 @@ import { Triangle } from "./Shapes/Triangle";
 import { Line } from "./Shapes/Line";
 import { ShapeCollection } from './Shapes/ShapeCollection';
 import { GeometryUtils } from './GeometryUtils';
+import { ShapeUtils } from './Shapes/ShapeUtils';
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -72,43 +73,63 @@ export default function Canvas() {
     const clickX = e.nativeEvent.offsetX;
     const clickY = e.nativeEvent.offsetY;
 
-    if (selectedTool === 'select') {
-      if (selectedShape && selectedShape.isOverHandle(clickX, clickY)) {
-        setIsResizing(true);
-        // Determinar qué "handle" se está arrastrando (puede ser 0-3)
-        setResizeHandleIndex(selectedShape.getResizeHandles().findIndex(handle =>
-          GeometryUtils.pointInRectangle(clickX, clickY, handle.x - 5, handle.y - 5, 10, 10)
-        ));
-        return;
-      }
-      if (selectedShape && selectedShape.isOverRotationHandle(clickX, clickY)) {
-        setIsRotating(true);
-        const center = { 
-          x: selectedShape.x + selectedShape.width / 2, 
-          y: selectedShape.y + selectedShape.height / 2 
-        };
-        setRotationStartAngle(Math.atan2(clickY - center.y, clickX - center.x));
-        return;
-      }
-      for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
-        if (shapeCollection.shapes[i].contains(clickX, clickY)) {
-          setSelectedShape(shapeCollection.shapes[i]);
-          setIsDragging(true);
-
-          setStartX(clickX); 
-          setStartY(clickY);
-
-          setDragOffsetX(clickX - shapeCollection.shapes[i].x);
-          setDragOffsetY(clickY - shapeCollection.shapes[i].y);
-          return;
+    // Función auxiliar para manejar la selección de figuras
+    const handleShapeSelection = (x: number, y: number) => {
+        for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
+            if (shapeCollection.shapes[i].contains(x, y)) {
+                setSelectedShape(shapeCollection.shapes[i]);
+                setIsDragging(true);
+                setStartX(x);
+                setStartY(y);
+                setDragOffsetX(x - shapeCollection.shapes[i].x);
+                setDragOffsetY(y - shapeCollection.shapes[i].y);
+                return true; // Figuras seleccionada
+            }
         }
-      }
-      // Si no se selecciona ninguna figura, deselecciona la actual
-      setSelectedShape(null);
+        return false; // Ninguna figura seleccionada
+    };
+
+    if (selectedTool === 'select') {
+        if (selectedShape) {
+          
+            if (selectedShape.isOverHandle(clickX, clickY)) {
+                // Manejando el redimensionamiento
+                setIsResizing(true);
+                const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
+                  const rotatedHandle = GeometryUtils.rotatePoint(
+                      handle.x,
+                      handle.y,
+                      selectedShape.x + selectedShape.width / 2,
+                      selectedShape.y + selectedShape.height / 2,
+                      selectedShape.rotation
+                  );
+                  return GeometryUtils.pointInRectangle(clickX, clickY, rotatedHandle.x - 5, rotatedHandle.y - 5, 10, 10, 0);
+              });
+                setResizeHandleIndex(handleIndex);
+                return;
+            } else if (selectedShape.isOverRotationHandle(clickX, clickY)) {
+                // Manejando la rotación
+                setIsRotating(true);
+                const center = { 
+                    x: selectedShape.x + selectedShape.width / 2, 
+                    y: selectedShape.y + selectedShape.height / 2 
+                };
+                setRotationStartAngle(Math.atan2(clickY - center.y, clickX - center.x));
+                return;
+            }
+        }
+
+        // Selección de figuras
+        const shapeSelected = handleShapeSelection(clickX, clickY);
+        if (!shapeSelected) {
+            setSelectedShape(null); // Deseleccionar figura si no se selecciona ninguna
+        }
+
     } else if (['rectangle', 'ellipse', 'triangle', 'line'].includes(selectedTool)) {
-      setIsDrawing(true);
-      setStartX(clickX);
-      setStartY(clickY);
+        // Comenzar a dibujar una nueva figura
+        setIsDrawing(true);
+        setStartX(clickX);
+        setStartY(clickY);
     }
   };
 
@@ -124,7 +145,7 @@ export default function Canvas() {
 
      // Si se está redimensionando
      if (isResizing && selectedShape && resizeHandleIndex !== null) {
-      GeometryUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
+      ShapeUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
       context.clearRect(0, 0, canvas.width, canvas.height);
       drawShapes(context);
       return;
@@ -180,7 +201,7 @@ export default function Canvas() {
       const dx = currentX - startX!;
       const dy = currentY - startY!;
   
-      GeometryUtils.translateShape(selectedShape, dx, dy);
+      ShapeUtils.translateShape(selectedShape, dx, dy);
   
       setStartX(currentX);
       setStartY(currentY);

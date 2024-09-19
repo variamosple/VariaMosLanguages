@@ -1,3 +1,5 @@
+import { GeometryUtils } from "../GeometryUtils";
+
 export abstract class Shape {
     x: number;
     y: number;
@@ -51,17 +53,28 @@ export abstract class Shape {
 
     // Método para dibujar los handles de redimensionamiento
     drawResizeHandles(ctx: CanvasRenderingContext2D): void {
-      this.getResizeHandles().forEach(handle => {
+      const resizeHandles = this.getResizeHandles();
+      const centerX = this.x + this.width / 2;
+      const centerY = this.y + this.height / 2;
+    
+      resizeHandles.forEach(handle => {
+        // Calcular la posición del handle rotado
+        const rotatedHandle = GeometryUtils.rotatePoint(handle.x, handle.y, centerX, centerY, this.rotation);
         ctx.fillStyle = '#00BFFF';
-        ctx.fillRect(handle.x - 5, handle.y - 5, 10, 10);
+        ctx.fillRect(rotatedHandle.x - 5, rotatedHandle.y - 5, 10, 10);
       });
     }
 
     // Método para dibujar el handle de rotación
     drawRotationHandle(ctx: CanvasRenderingContext2D): void {
-      const handle = this.getRotationHandle();
+      const centerX = this.x + this.width / 2;
+      const centerY = this.y + this.height / 2;
+      const rotationHandle = this.getRotationHandle();
+    
+      // Calcular la posición del handle rotado
+      const rotatedHandle = GeometryUtils.rotatePoint(rotationHandle.x, rotationHandle.y, centerX, centerY, this.rotation);
       ctx.beginPath();
-      ctx.arc(handle.x, handle.y, 5, 0, 2 * Math.PI);
+      ctx.arc(rotatedHandle.x, rotatedHandle.y, 5, 0, 2 * Math.PI);
       ctx.fillStyle = '#00BFFF';
       ctx.fill();
     }
@@ -79,7 +92,7 @@ export abstract class Shape {
       return 'shape';
     }
 
-    // Agregar un nuevo método para obtener los "handles" de redimensionamiento
+    // Método para obtener los "handles" de redimensionamiento
     getResizeHandles(): { x: number, y: number }[] {
       return [
         { x: this.x, y: this.y },  // Top-left
@@ -92,11 +105,20 @@ export abstract class Shape {
     // Agregar un método para verificar si el mouse está sobre un "handle"
     isOverHandle(mouseX: number, mouseY: number): boolean {
       const handles = this.getResizeHandles();
-      return handles.some(handle => 
-        mouseX >= handle.x - 5 && mouseX <= handle.x + 5 && 
-        mouseY >= handle.y - 5 && mouseY <= handle.y + 5
-      );
-    }
+      const centerX = this.x + this.width / 2;
+      const centerY = this.y + this.height / 2;
+      
+      return handles.some(handle => {
+        // Calcular la posición rotada del handle
+        const rotatedHandle = GeometryUtils.rotatePoint(handle.x, handle.y, centerX, centerY, this.rotation);
+        
+        // Verificar si el mouse está sobre el handle rotado
+        return (
+          mouseX >= rotatedHandle.x - 5 && mouseX <= rotatedHandle.x + 5 &&
+          mouseY >= rotatedHandle.y - 5 && mouseY <= rotatedHandle.y + 5
+        );
+      });
+    }    
 
     getRotationHandle(): { x: number, y: number } {
       return { x: this.x + this.width / 2, y: this.y - 20 };
