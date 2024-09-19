@@ -3,9 +3,11 @@ import { ButtonGroup, Button } from 'react-bootstrap';
 
 interface ToolBarProps {
   onSelectTool: (tool: string) => void;
+  onDelete: () => void;
+  hasSelectedShape: boolean;
 }
 
-export default function ToolBar({ onSelectTool }: ToolBarProps) {
+export default function ToolBar({ onSelectTool,  onDelete, hasSelectedShape }: ToolBarProps) {
 
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
 
@@ -46,6 +48,13 @@ export default function ToolBar({ onSelectTool }: ToolBarProps) {
           onClick={() => handleToolClick('line')}
         >
           Line
+        </Button>
+        <Button
+          variant={hasSelectedShape ? 'danger' : 'secondary'}
+          onClick={onDelete}
+          disabled={!hasSelectedShape}
+        >
+          Delete
         </Button>
       </ButtonGroup>
     </div>

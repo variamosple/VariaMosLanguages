@@ -270,6 +270,26 @@ export default function Canvas() {
     }
   };
 
+  const handleDelete = () => {
+    if (selectedShape) {
+      const updatedShapeCollection = new ShapeCollection();
+      updatedShapeCollection.shapes = shapeCollection.shapes.filter(shape => shape !== selectedShape);
+
+      setShapeCollection(updatedShapeCollection);
+      setSelectedShape(null);
+
+      // Redibujar el canvas
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          drawShapes(context);
+        }
+      }
+    }
+  };
+
   const saveToJSON = () => {
     const json = shapeCollection.toJSON();
     console.log("Saved JSON:", json);
@@ -282,7 +302,11 @@ export default function Canvas() {
 
   return (
     <div>
-      <ToolBar onSelectTool={handleSelectTool} />
+      <ToolBar
+        onSelectTool={handleSelectTool}
+        onDelete={handleDelete}
+        hasSelectedShape={selectedShape !== null}
+      />
       <canvas
         ref={canvasRef}
         width={500}
