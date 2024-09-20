@@ -8,6 +8,7 @@ import { Line } from "./Shapes/Line";
 import { ShapeCollection } from './Shapes/ShapeCollection';
 import { GeometryUtils } from './GeometryUtils';
 import { ShapeUtils } from './Shapes/ShapeUtils';
+import EditionToolbar from './EditionToolbar';
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -272,13 +273,57 @@ export default function Canvas() {
 
   const handleDelete = () => {
     if (selectedShape) {
-      const updatedShapeCollection = new ShapeCollection();
-      updatedShapeCollection.shapes = shapeCollection.shapes.filter(shape => shape !== selectedShape);
-
-      setShapeCollection(updatedShapeCollection);
-      setSelectedShape(null);
+      if (selectedShape) {
+        const updatedShapes = shapeCollection.deleteShape(selectedShape);
+        setShapeCollection(updatedShapes);
+        setSelectedShape(null);
+      }
+    };
+    
 
       // Redibujar el canvas
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          drawShapes(context);
+        }
+      }
+    };
+
+  const handleFillColorChange = (color: string) => {
+    if (selectedShape) {
+      selectedShape.setFillColor(color);
+
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          drawShapes(context);
+        }
+      }
+    }
+  };
+  
+  const handleLineColorChange = (color: string) => {
+    if (selectedShape) {
+      selectedShape.setLineColor(color);
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          drawShapes(context);
+        }
+      }
+    }
+  };
+  
+  const handleLineStyleChange = (style: string) => {
+    if (selectedShape) {
+      selectedShape.setLineStyle(style);
       const canvas = canvasRef.current;
       if (canvas) {
         const context = canvas.getContext('2d');
@@ -301,23 +346,43 @@ export default function Canvas() {
   };
 
   return (
-    <div>
-      <ToolBar
-        onSelectTool={handleSelectTool}
-        onDelete={handleDelete}
-        hasSelectedShape={selectedShape !== null}
-      />
-      <canvas
-        ref={canvasRef}
-        width={500}
-        height={500}
-        style={{ border: '1px solid #000' }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      />
-      <button onClick={saveToJSON}>Save to JSON</button>
-      <button onClick={saveToXML}>Save to XML</button>
+    <div className="container-fluid">
+      {/* Usamos flexbox para organizar la toolbar y el canvas en filas */}
+      <div className="d-flex flex-column">
+        {/* ToolBar arriba, ocupando todo el ancho */}
+        <div className="mb-2">
+          <ToolBar
+            onSelectTool={handleSelectTool}
+            onDelete={handleDelete}
+            hasSelectedShape={selectedShape !== null}
+          />
+        </div>
+        
+        {/* Row para el canvas y la edición */}
+        <div className="d-flex">
+          {/* Canvas en su columna con ancho fijo */}
+          <div style={{ width: '400px' }}>
+            <canvas
+              ref={canvasRef}
+              width={400}
+              height={400}
+              style={{ border: '1px solid #000' }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+            />
+          </div>
+          
+          {/* Edición en el espacio restante */}
+          <div className="flex-grow-1">
+            <EditionToolbar
+              onFillColorChange={handleFillColorChange}
+              onLineColorChange={handleLineColorChange}
+              onLineStyleChange={handleLineStyleChange}
+            />
+          </div>
+        </div>
+      </div>
     </div>
-  );
+  );  
 }

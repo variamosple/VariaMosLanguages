@@ -9,6 +9,11 @@ export class ShapeCollection {
         this.shapes.push(shape);
     }
 
+    deleteShape(shape: Shape){
+        this.shapes = this.shapes.filter(s => s !== shape);
+        return this;
+    }
+
     toJSON(): any {
         return this.shapes.map(shape => ({
             type: shape.getType(),

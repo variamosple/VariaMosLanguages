@@ -8,6 +8,7 @@ export abstract class Shape {
     fillColor: string;
     lineColor: string;
     rotation: number;
+    lineStyle: number[];
   
     constructor(
       x: number, 
@@ -16,7 +17,8 @@ export abstract class Shape {
       height?: number, 
       fillColor: string = "#ffffff",
       lineColor: string = "000000",
-      rotation: number = 0
+      rotation: number = 0,
+      lineStyle: number[] = []
     ) {
       this.x = x;
       this.y = y;
@@ -25,6 +27,7 @@ export abstract class Shape {
       this.fillColor = fillColor;
       this.lineColor = lineColor;
       this.rotation = rotation;
+      this.lineStyle = lineStyle;
     }
   
     protected abstract drawShape(ctx: CanvasRenderingContext2D): void;
@@ -35,6 +38,7 @@ export abstract class Shape {
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
       ctx.rotate(this.rotation);
       ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2));
+      ctx.setLineDash(this.lineStyle);
       
       this.drawShape(ctx);
       
@@ -128,4 +132,28 @@ export abstract class Shape {
       const handle = this.getRotationHandle();
       return Math.sqrt((mouseX - handle.x)**2 + (mouseY - handle.y)**2) <= 5;
     }
+
+    setFillColor(color: string): void {
+      this.fillColor = color;
+    }
+
+    setLineColor(color: string): void {
+      this.lineColor = color;
+    }
+
+    setLineStyle(style: string): void {
+      switch (style) {
+        case 'dashed':
+          this.lineStyle = [5, 5]
+          break;
+        case 'dotted':
+          this.lineStyle = [2, 2];
+          break;
+        case 'solid':
+        default:
+          this.lineStyle = [];
+          break;
+      }
+    }    
+    
 }
