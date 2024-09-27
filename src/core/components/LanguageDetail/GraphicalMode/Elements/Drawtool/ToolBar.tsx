@@ -50,6 +50,12 @@ export default function ToolBar({ onSelectTool,  onDelete, hasSelectedShape }: T
           Line
         </Button>
         <Button
+          variant={selectedTool === 'polygon' ? 'primary' : 'secondary'}
+          onClick={() => handleToolClick('polygon')}
+        >
+          Polygon
+        </Button>
+        <Button
           variant={hasSelectedShape ? 'danger' : 'secondary'}
           onClick={onDelete}
           disabled={!hasSelectedShape}

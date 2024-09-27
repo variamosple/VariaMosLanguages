@@ -8,7 +8,9 @@ import { Line } from "./Shapes/Line";
 import { ShapeCollection } from './Shapes/ShapeCollection';
 import { GeometryUtils } from './GeometryUtils';
 import { ShapeUtils } from './Shapes/ShapeUtils';
+import { Polygon } from "./Shapes/Polygon";
 import EditionToolbar from './EditionToolbar';
+import { log } from 'console';
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -25,6 +27,7 @@ export default function Canvas() {
   const [resizeHandleIndex, setResizeHandleIndex] = useState<number | null>(null);
   const [isRotating, setIsRotating] = useState<boolean>(false);
   const [rotationStartAngle, setRotationStartAngle] = useState<number>(0);
+  const [currentPolygon, setCurrentPolygon] = useState<Polygon | null>(null);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     shapeCollection.shapes.forEach(shape => {
@@ -57,6 +60,7 @@ export default function Canvas() {
       if (selectedTool === 'rectangle' || 
           selectedTool === 'ellipse'  || 
           selectedTool === 'triangle' ||
+          selectedTool === 'polygon' ||
           selectedTool === 'line') 
       {
         canvas.style.cursor = 'crosshair';
@@ -131,6 +135,25 @@ export default function Canvas() {
         setIsDrawing(true);
         setStartX(clickX);
         setStartY(clickY);
+    } else if(selectedTool === 'polygon'){
+      if (!currentPolygon) {
+        setIsDrawing(true);
+        setStartX(clickX);
+        setStartY(clickY);
+        const newPolygon = new Polygon(clickX, clickY);
+        setCurrentPolygon(newPolygon); // Iniciar nuevo polígono
+      } else {
+        currentPolygon.addPoint(clickX, clickY);
+        currentPolygon.closePolygon();
+  
+        // Si el usuario hace clic cerca del primer punto, cerrar el polígono
+        if (currentPolygon.isClosed) {
+          const updatedShapeCollection = shapeCollection;
+          updatedShapeCollection.addShape(currentPolygon);
+          setShapeCollection(updatedShapeCollection);
+          setCurrentPolygon(null); // Terminar el dibujo
+        }
+      }
     }
   };
 
@@ -201,14 +224,34 @@ export default function Canvas() {
       // Movimiento de figuras
       const dx = currentX - startX!;
       const dy = currentY - startY!;
-  
-      ShapeUtils.translateShape(selectedShape, dx, dy);
+
+      if (selectedShape instanceof Polygon) {
+        // Traslación de polígonos
+        ShapeUtils.translatePolygon(selectedShape, dx, dy);
+      } else {
+        // Traslación de otras figuras
+        ShapeUtils.translateShape(selectedShape, dx, dy);
+      }
   
       setStartX(currentX);
       setStartY(currentY);
   
       context.clearRect(0, 0, canvas.width, canvas.height);
       drawShapes(context);
+    }
+
+    if (selectedTool === 'polygon' && currentPolygon) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      drawShapes(context);
+  
+      currentPolygon.draw(context); // Dibujar el polígono actual
+  
+      // Dibujar la línea dinámica entre el último punto y el cursor
+      const lastPoint = currentPolygon.points[currentPolygon.points.length - 1];
+      context.beginPath();
+      context.moveTo(lastPoint.x, lastPoint.y);
+      context.lineTo(currentX, currentY);
+      context.stroke();
     }
   };
 

@@ -1,5 +1,6 @@
 import { Line } from "./Line";
 import type { Shape } from "./Shape";
+import { Polygon } from "./Polygon"
 import { GeometryUtils } from "../GeometryUtils";
 
 export class ShapeUtils {
@@ -54,5 +55,12 @@ export class ShapeUtils {
       shape.x += deltaX;
       shape.y += deltaY;
     }
+  }
+
+  static translatePolygon(polygon: Polygon, deltaX: number, deltaY: number): void {
+    polygon.points = polygon.points.map(point => ({
+      x: point.x + deltaX,
+      y: point.y + deltaY
+    }));
   }
 }

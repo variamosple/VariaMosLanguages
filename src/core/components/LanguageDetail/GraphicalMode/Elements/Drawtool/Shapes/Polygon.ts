@@ -73,5 +73,19 @@ export class Polygon extends Shape{
 
     updateTempPoint(x: number, y: number) {
         this.tempPoint = { x, y };
+    }
+
+    contains(x: number, y: number): boolean {
+      // Algoritmo de ray-casting para determinar si el punto está dentro del polígono
+      let inside = false;
+      for (let i = 0, j = this.points.length - 1; i < this.points.length; j = i++) {
+        const xi = this.points[i].x, yi = this.points[i].y;
+        const xj = this.points[j].x, yj = this.points[j].y;
+    
+        const intersect = ((yi > y) !== (yj > y)) &&
+                          (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
       }
+      return inside;
+    }
 }
