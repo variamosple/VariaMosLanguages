@@ -97,31 +97,43 @@ export default function Canvas() {
     if (selectedTool === 'select') {
         if (selectedShape) {
           
-            if (selectedShape.isOverHandle(clickX, clickY)) {
-                // Manejando el redimensionamiento
-                setIsResizing(true);
+          if (selectedShape.isOverHandle(clickX, clickY)) {
+            setIsResizing(true);
+        
+            if (selectedShape instanceof Polygon) {
+                // Obtener el índice del vértice en el polígono
                 const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
-                  const rotatedHandle = GeometryUtils.rotatePoint(
-                      handle.x,
-                      handle.y,
-                      selectedShape.x + selectedShape.width / 2,
-                      selectedShape.y + selectedShape.height / 2,
-                      selectedShape.rotation
-                  );
-                  return GeometryUtils.pointInRectangle(clickX, clickY, rotatedHandle.x - 5, rotatedHandle.y - 5, 10, 10, 0);
-              });
+                    // Comparar directamente sin rotación
+                    return (
+                        clickX >= handle.x - 5 && clickX <= handle.x + 5 &&
+                        clickY >= handle.y - 5 && clickY <= handle.y + 5
+                    );
+                });
                 setResizeHandleIndex(handleIndex);
-                return;
-            } else if (selectedShape.isOverRotationHandle(clickX, clickY)) {
-                // Manejando la rotación
-                setIsRotating(true);
-                const center = { 
-                    x: selectedShape.x + selectedShape.width / 2, 
-                    y: selectedShape.y + selectedShape.height / 2 
-                };
-                setRotationStartAngle(Math.atan2(clickY - center.y, clickX - center.x));
-                return;
+            } else {
+                // Mantener la lógica de rotación para figuras normales
+                const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
+                    const rotatedHandle = GeometryUtils.rotatePoint(
+                        handle.x,
+                        handle.y,
+                        selectedShape.x + selectedShape.width / 2,
+                        selectedShape.y + selectedShape.height / 2,
+                        selectedShape.rotation
+                    );
+                    return GeometryUtils.pointInRectangle(
+                        clickX,
+                        clickY,
+                        rotatedHandle.x - 5,
+                        rotatedHandle.y - 5,
+                        10,
+                        10,
+                        0
+                    );
+                });
+                setResizeHandleIndex(handleIndex);
             }
+            return;
+          }        
         }
 
         // Selección de figuras
@@ -169,9 +181,15 @@ export default function Canvas() {
 
      // Si se está redimensionando
      if (isResizing && selectedShape && resizeHandleIndex !== null) {
-      ShapeUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      drawShapes(context);
+      if (selectedShape instanceof Polygon) {
+        ShapeUtils.resizePolygon(selectedShape as Polygon, resizeHandleIndex, currentX, currentY);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawShapes(context);
+      } else{
+        ShapeUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawShapes(context);
+      }
       return;
     }
 

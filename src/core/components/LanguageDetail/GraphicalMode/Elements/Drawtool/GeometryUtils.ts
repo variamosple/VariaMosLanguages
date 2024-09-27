@@ -94,4 +94,16 @@ export class GeometryUtils {
 
     return { x: rotatedX, y: rotatedY, width: newWidth, height: newHeight };
   }
+
+  static calculateCentroid(points: { x: number, y: number }[]): { x: number, y: number } {
+    const centroid = { x: 0, y: 0 };
+    points.forEach(point => {
+        centroid.x += point.x;
+        centroid.y += point.y;
+    });
+    centroid.x /= points.length;
+    centroid.y /= points.length;
+    return centroid;
+  }
+
 }
