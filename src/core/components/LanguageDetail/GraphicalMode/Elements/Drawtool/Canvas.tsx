@@ -10,7 +10,6 @@ import { GeometryUtils } from './GeometryUtils';
 import { ShapeUtils } from './Shapes/ShapeUtils';
 import { Polygon } from "./Shapes/Polygon";
 import EditionToolbar from './EditionToolbar';
-import { log } from 'console';
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

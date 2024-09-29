@@ -1,6 +1,7 @@
 import { Line } from "./Line";
 import { Triangle } from "./Triangle";
 import { Shape } from "./Shape";
+import { Polygon } from "./Polygon";
 
 export class ShapeCollection {
     shapes: Shape[] = [];
@@ -91,6 +92,33 @@ export class ShapeCollection {
             <close/>
         </path>
         <fillstroke/>\n`;
+                    break;
+                case 'polygon':
+                    const polygon = shape as Polygon;
+                    xml += `   
+            <strokecolor color="${strokeColor}"/>
+            <fillcolor color="${fillColor}"/>
+            <strokewidth width="1"/> <!-- Fixed strokeWidth -->
+            <dashed dashed="${dashed}"/>
+            ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
+            <path>\n`;
+    
+                    // Mueve el "lápiz" al primer punto del polígono
+                    xml += `            <move x="${polygon.points[0].x}" y="${polygon.points[0].y}"/>\n`;
+    
+                    // Dibuja líneas entre los puntos
+                    for (let i = 1; i < polygon.points.length; i++) {
+                        const point = polygon.points[i];
+                        xml += `            <line x="${point.x}" y="${point.y}"/>\n`;
+                    }
+    
+                    // Si el polígono está cerrado, se agrega la etiqueta <close/>
+                    if (polygon.isClosed) {
+                        xml += `            <close/>\n`;
+                    }
+    
+                    xml += `        </path>\n`;
+                    xml += `        <fillstroke/>\n`;
                     break;
             }
         });

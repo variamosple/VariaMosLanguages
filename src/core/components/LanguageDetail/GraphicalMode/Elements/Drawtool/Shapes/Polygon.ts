@@ -90,7 +90,7 @@ export class Polygon extends Shape{
     }
 
     drawResizeHandles(ctx: CanvasRenderingContext2D) {
-      this.points.forEach(point => {
+      this.points.forEach(point => {  
         ctx.beginPath();
         ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI); // Handle en cada vértice
         ctx.fillStyle = '#00BFFF';
@@ -104,14 +104,18 @@ export class Polygon extends Shape{
       return this.points;
   }
 
-  isOverHandle(mouseX: number, mouseY: number): boolean {
-    // Verifica si el mouse está cerca de alguno de los vértices (handles)
-    return this.points.some(point => {
-        return (
-            mouseX >= point.x - 5 && mouseX <= point.x + 5 &&
-            mouseY >= point.y - 5 && mouseY <= point.y + 5
-        );
-    });
-}
+    isOverHandle(mouseX: number, mouseY: number): boolean {
+      // Verifica si el mouse está cerca de alguno de los vértices (handles)
+      return this.points.some(point => {
+          return (
+              mouseX >= point.x - 5 && mouseX <= point.x + 5 &&
+              mouseY >= point.y - 5 && mouseY <= point.y + 5
+          );
+      });
+  }
+
+    getType(): string {
+      return 'polygon';
+  }
     
 }
