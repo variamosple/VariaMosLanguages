@@ -9,7 +9,6 @@ import { ShapeCollection } from './Shapes/ShapeCollection';
 import { GeometryUtils } from './GeometryUtils';
 import { ShapeUtils } from './Shapes/ShapeUtils';
 import { Polygon } from "./Shapes/Polygon";
-import EditionToolbar from './EditionToolbar';
 
 export default function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -415,32 +414,23 @@ export default function Canvas() {
             onSelectTool={handleSelectTool}
             onDelete={handleDelete}
             hasSelectedShape={selectedShape !== null}
+            onFillColorChange={handleFillColorChange}
+            onLineColorChange={handleLineColorChange}
+            onLineStyleChange={handleLineStyleChange}
           />
         </div>
-        
-        {/* Row para el canvas y la edición */}
-        <div className="d-flex">
-          {/* Canvas en su columna con ancho fijo */}
-          <div style={{ width: '400px' }}>
-            <canvas
-              ref={canvasRef}
-              width={400}
-              height={400}
-              style={{ border: '1px solid #000' }}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-            />
-          </div>
-          
-          {/* Edición en el espacio restante */}
-          <div className="flex-grow-1">
-            <EditionToolbar
-              onFillColorChange={handleFillColorChange}
-              onLineColorChange={handleLineColorChange}
-              onLineStyleChange={handleLineStyleChange}
-            />
-          </div>
+
+        {/* Canvas en la fila debajo del toolbar */}
+        <div className="d-flex justify-content-center">
+          <canvas
+            ref={canvasRef}
+            width={400}
+            height={400}
+            style={{ border: '1px solid #000' }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+          />
         </div>
       </div>
     </div>

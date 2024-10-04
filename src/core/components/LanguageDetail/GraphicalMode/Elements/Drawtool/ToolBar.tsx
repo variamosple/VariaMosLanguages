@@ -1,28 +1,59 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 import { MdOutlineRectangle } from "react-icons/md";
-import { IoEllipseOutline, IoTriangleOutline  } from "react-icons/io5";
+import { IoEllipseOutline, IoTriangleOutline, IoColorFill, IoColorPaletteOutline  } from "react-icons/io5";
 import { FaMinus } from "react-icons/fa6";
-import { TbPolygon } from "react-icons/tb";
+import { TbPolygon, TbBorderStyle2  } from "react-icons/tb";
+import { SketchPicker } from 'react-color';
 
 interface ToolBarProps {
   onSelectTool: (tool: string) => void;
   onDelete: () => void;
   hasSelectedShape: boolean;
+  onFillColorChange: (color: string) => void;
+  onLineColorChange: (color: string) => void;
+  onLineStyleChange: (style: string) => void;
 }
 
-export default function ToolBar({ onSelectTool,  onDelete, hasSelectedShape }: ToolBarProps) {
-
+export default function ToolBar({
+  onSelectTool,
+  onDelete,
+  hasSelectedShape,
+  onFillColorChange,
+  onLineColorChange,
+  onLineStyleChange
+}: ToolBarProps) {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [fillColor, setFillColor] = useState<string>('#000000');
+  const [lineColor, setLineColor] = useState<string>('#000000');
+  const [lineStyle, setLineStyle] = useState<string>('solid');
+  const [showFillColorPicker, setShowFillColorPicker] = useState<boolean>(false);
+  const [showLineColorPicker, setShowLineColorPicker] = useState<boolean>(false);
 
   const handleToolClick = (tool: string) => {
     setSelectedTool(tool);
     onSelectTool(tool);
   };
 
+  const handleFillColorChange = (color: any) => {
+    setFillColor(color.hex);
+    onFillColorChange(color.hex);
+  };
+
+  const handleLineColorChange = (color: any) => {
+    setLineColor(color.hex);
+    onLineColorChange(color.hex);
+  };
+
+  const handleLineStyleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setLineStyle(event.target.value);
+    onLineStyleChange(event.target.value);
+  };
+
   return (
     <div className="mb-3">
-      <ButtonGroup aria-label="Basic example">
+      {/* Primera fila: herramientas de formas */}
+      <ButtonGroup aria-label="Shape tools">
         <Button
           variant={selectedTool === 'select' ? 'primary' : 'secondary'}
           onClick={() => handleToolClick('select')}
@@ -67,6 +98,51 @@ export default function ToolBar({ onSelectTool,  onDelete, hasSelectedShape }: T
           Delete
         </Button>
       </ButtonGroup>
+
+      {/* Segunda fila: opciones de edición */}
+      <div className="d-flex mt-3 align-items-center">
+        {/* Botón y picker de color de relleno */}
+        <ButtonGroup>
+          <Button
+            variant={showFillColorPicker ? 'primary' : 'secondary'}
+            onClick={() => setShowFillColorPicker(!showFillColorPicker)}
+          >
+            <IoColorFill />
+          </Button>
+          {showFillColorPicker && (
+            <div style={{ marginTop: '80px', position: 'absolute', zIndex: 1000 }}>
+              <SketchPicker color={fillColor} onChangeComplete={handleFillColorChange} />
+            </div>
+          )}
+          {/* Botón y picker de color de borde */}
+          <Button
+            variant={showLineColorPicker ? 'primary' : 'secondary'}
+            onClick={() => setShowLineColorPicker(!showLineColorPicker)}
+          >
+            <IoColorPaletteOutline  />
+          </Button>
+          {showLineColorPicker && (
+            <div style={{ marginTop: '80px', position: 'absolute', zIndex: 1000 }}>
+              <SketchPicker color={lineColor} onChangeComplete={handleLineColorChange} />
+            </div>
+          )}
+        </ButtonGroup>
+
+        {/* Dropdown de estilo de línea */}
+        <div className="ms-3">
+          <TbBorderStyle2 size={24} />
+          <select
+            className="form-select d-inline-block ms-2"
+            style={{ width: '120px' }}
+            value={lineStyle}
+            onChange={handleLineStyleChange}
+          >
+            <option value="solid">Solid</option>
+            <option value="dashed">Dashed</option>
+            <option value="dotted">Dotted</option>
+          </select>
+        </div>
+      </div>
     </div>
   );
 }
