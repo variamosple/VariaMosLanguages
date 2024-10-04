@@ -331,6 +331,7 @@ export default function Canvas() {
   };
 
   const handleDelete = () => {
+    saveToXML();
     if (selectedShape) {
       if (selectedShape) {
         const updatedShapes = shapeCollection.deleteShape(selectedShape);

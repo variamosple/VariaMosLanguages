@@ -16,7 +16,7 @@ export abstract class Shape {
       width?: number, 
       height?: number, 
       fillColor: string = "#ffffff",
-      lineColor: string = "000000",
+      lineColor: string = "#000000",
       rotation: number = 0,
       lineStyle: number[] = []
     ) {

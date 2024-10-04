@@ -4,7 +4,7 @@ import XMLInput from './XMLInput';
 import Canvas from './Canvas';
 import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
 import GenericFileUploadButton from '../../Utils/FormUtils/UploadButton';
-import ShapeRenderer from "./ShapeRenderer";
+// import ShapeRenderer from "./ShapeRenderer";
 
 
 export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) {
@@ -101,18 +101,11 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
       {viewMode === 'canvas' ? (
         <div>
           <Canvas />
-          <div>
-            <Button variant="secondary" onClick={handleRectangleShape} size='sm'>
-              Rectangle
-            </Button>{" "}
-            <Button variant="secondary" onClick={handleCircleShape} size='sm'>
-              Circle
-            </Button>
-          </div>
         </div>
       ) : (
         <div>
           <XMLInput xml={xml} onXmlChange={XMLInput_onXmlChange} />
+          {/* <ShapeRenderer shapeXml={xml} /> */}
           <GenericFileUploadButton onFileChange={handleFileChange} fileExtensionAccepted={".svg"} />
         </div>
       )}
