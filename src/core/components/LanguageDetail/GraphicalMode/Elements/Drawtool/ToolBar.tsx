@@ -1,5 +1,9 @@
 import React, {useState} from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
+import { MdOutlineRectangle } from "react-icons/md";
+import { IoEllipseOutline, IoTriangleOutline  } from "react-icons/io5";
+import { FaMinus } from "react-icons/fa6";
+import { TbPolygon } from "react-icons/tb";
 
 interface ToolBarProps {
   onSelectTool: (tool: string) => void;
@@ -29,31 +33,31 @@ export default function ToolBar({ onSelectTool,  onDelete, hasSelectedShape }: T
           variant={selectedTool === 'rectangle' ? 'primary' : 'secondary'}
           onClick={() => handleToolClick('rectangle')}
         >
-          Rectangle
+          <MdOutlineRectangle />
         </Button>
         <Button
           variant={selectedTool === 'ellipse' ? 'primary' : 'secondary'}
           onClick={() => handleToolClick('ellipse')}
         >
-          Ellipse
+          <IoEllipseOutline />
         </Button>
         <Button
           variant={selectedTool === 'triangle' ? 'primary' : 'secondary'}
           onClick={() => handleToolClick('triangle')}
         >
-          Triangle
+          <IoTriangleOutline />
         </Button>
         <Button
           variant={selectedTool === 'line' ? 'primary' : 'secondary'}
           onClick={() => handleToolClick('line')}
         >
-          Line
+          <FaMinus />
         </Button>
         <Button
           variant={selectedTool === 'polygon' ? 'primary' : 'secondary'}
           onClick={() => handleToolClick('polygon')}
         >
-          Polygon
+          <TbPolygon />
         </Button>
         <Button
           variant={hasSelectedShape ? 'danger' : 'secondary'}

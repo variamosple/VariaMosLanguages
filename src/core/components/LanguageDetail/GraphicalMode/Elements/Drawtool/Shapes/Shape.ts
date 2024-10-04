@@ -70,18 +70,18 @@ export abstract class Shape {
     }
 
     // Método para dibujar el handle de rotación
-    drawRotationHandle(ctx: CanvasRenderingContext2D): void {
-      const centerX = this.x + this.width / 2;
-      const centerY = this.y + this.height / 2;
-      const rotationHandle = this.getRotationHandle();
+    // drawRotationHandle(ctx: CanvasRenderingContext2D): void {
+    //   const centerX = this.x + this.width / 2;
+    //   const centerY = this.y + this.height / 2;
+    //   const rotationHandle = this.getRotationHandle();
     
-      // Calcular la posición del handle rotado
-      const rotatedHandle = GeometryUtils.rotatePoint(rotationHandle.x, rotationHandle.y, centerX, centerY, this.rotation);
-      ctx.beginPath();
-      ctx.arc(rotatedHandle.x, rotatedHandle.y, 5, 0, 2 * Math.PI);
-      ctx.fillStyle = '#00BFFF';
-      ctx.fill();
-    }
+    //   // Calcular la posición del handle rotado
+    //   const rotatedHandle = GeometryUtils.rotatePoint(rotationHandle.x, rotationHandle.y, centerX, centerY, this.rotation);
+    //   ctx.beginPath();
+    //   ctx.arc(rotatedHandle.x, rotatedHandle.y, 5, 0, 2 * Math.PI);
+    //   ctx.fillStyle = '#00BFFF';
+    //   ctx.fill();
+    // }
 
     contains(x: number, y: number): boolean {
       return (
@@ -124,14 +124,14 @@ export abstract class Shape {
       });
     }    
 
-    getRotationHandle(): { x: number, y: number } {
-      return { x: this.x + this.width / 2, y: this.y - 20 };
-    }
+    // getRotationHandle(): { x: number, y: number } {
+    //   return { x: this.x + this.width / 2, y: this.y - 20 };
+    // }
   
-    isOverRotationHandle(mouseX: number, mouseY: number): boolean {
-      const handle = this.getRotationHandle();
-      return Math.sqrt((mouseX - handle.x)**2 + (mouseY - handle.y)**2) <= 5;
-    }
+    // isOverRotationHandle(mouseX: number, mouseY: number): boolean {
+    //   const handle = this.getRotationHandle();
+    //   return Math.sqrt((mouseX - handle.x)**2 + (mouseY - handle.y)**2) <= 5;
+    // }
 
     setFillColor(color: string): void {
       this.fillColor = color;

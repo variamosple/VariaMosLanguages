@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Button, Col, Row } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Button, Row, DropdownButton, Dropdown  } from 'react-bootstrap';
 import XMLInput from './XMLInput';
 import Canvas from './Canvas';
 import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
@@ -9,6 +9,12 @@ import ShapeRenderer from "./ShapeRenderer";
 
 export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) {
   const svgToXmlService = new SvgToXmlService();
+
+  const [viewMode, setViewMode] = useState<'canvas' | 'xml'>('canvas');
+
+  // Manejar el cambio de modo de vista
+  const handleSwitchToCanvas = () => setViewMode('canvas');
+  const handleSwitchToXml = () => setViewMode('xml');
 
   // Este efecto se ejecutará cada vez que el estado "data" cambie
   useEffect(() => {
@@ -81,24 +87,35 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
 
   return (
     <Row className="mb-5">
-      <Col sm={6}>
-        <XMLInput xml={xml} onXmlChange={XMLInput_onXmlChange} />
-        <GenericFileUploadButton onFileChange={handleFileChange} fileExtensionAccepted={".svg"} />
-        <br />
-        <div> {/* Align Save Button to the Right */}
-          <Button variant="secondary" onClick={handleRectangleShape} size='sm'>
-            Rectangle
-          </Button>
-          {" "}
-          <Button variant="secondary" onClick={handleCircleShape} size='sm'>
-            Circle
-          </Button>
+      {/* Dropdown para elegir entre Canvas o XML */}
+      <DropdownButton size="sm" title="Mode" variant="primary" id="modeDropdown" className="mb-3">
+        <Dropdown.Item onClick={handleSwitchToCanvas}>
+          Editor Canvas
+        </Dropdown.Item>
+        <Dropdown.Item onClick={handleSwitchToXml}>
+          Ver XML
+        </Dropdown.Item>
+      </DropdownButton>
+
+      {/* Renderizar dinámicamente el Canvas o el XML */}
+      {viewMode === 'canvas' ? (
+        <div>
+          <Canvas />
+          <div>
+            <Button variant="secondary" onClick={handleRectangleShape} size='sm'>
+              Rectangle
+            </Button>{" "}
+            <Button variant="secondary" onClick={handleCircleShape} size='sm'>
+              Circle
+            </Button>
+          </div>
         </div>
-      </Col>
-      <Col sm={6}>
-        <Canvas />
-        {/* <ShapeRenderer shapeXml={xml} /> */}
-      </Col>
+      ) : (
+        <div>
+          <XMLInput xml={xml} onXmlChange={XMLInput_onXmlChange} />
+          <GenericFileUploadButton onFileChange={handleFileChange} fileExtensionAccepted={".svg"} />
+        </div>
+      )}
     </Row>
   );
 };

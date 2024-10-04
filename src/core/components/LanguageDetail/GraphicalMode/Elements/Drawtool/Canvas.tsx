@@ -24,9 +24,9 @@ export default function Canvas() {
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [resizeHandleIndex, setResizeHandleIndex] = useState<number | null>(null);
-  const [isRotating, setIsRotating] = useState<boolean>(false);
-  const [rotationStartAngle, setRotationStartAngle] = useState<number>(0);
   const [currentPolygon, setCurrentPolygon] = useState<Polygon | null>(null);
+  // const [isRotating, setIsRotating] = useState<boolean>(false);
+  // const [rotationStartAngle, setRotationStartAngle] = useState<number>(0);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     shapeCollection.shapes.forEach(shape => {
@@ -35,7 +35,7 @@ export default function Canvas() {
         ctx.save();
         shape.drawSelection(ctx); // Dibuja la figura seleccionada con borde resaltado
         shape.drawResizeHandles(ctx); // Dibuja los "handles" de redimensionamiento
-        shape.drawRotationHandle(ctx); // Dibuja el "handle" de rotación
+        // shape.drawRotationHandle(ctx); // Dibuja el "handle" de rotación
         ctx.restore();
 
       } else {
@@ -192,26 +192,26 @@ export default function Canvas() {
       return;
     }
 
-    if (isRotating && selectedShape) {
-      const center = { 
-        x: selectedShape.x + selectedShape.width / 2, 
-        y: selectedShape.y + selectedShape.height / 2 
-      };
-      const angle = Math.atan2(currentY - center.y, currentX - center.x);
-      const newRotation = angle - rotationStartAngle;
-      selectedShape.rotation = (selectedShape.rotation + newRotation) % (2 * Math.PI);
-      setRotationStartAngle(angle);
+    // if (isRotating && selectedShape) {
+    //   const center = { 
+    //     x: selectedShape.x + selectedShape.width / 2, 
+    //     y: selectedShape.y + selectedShape.height / 2 
+    //   };
+    //   const angle = Math.atan2(currentY - center.y, currentX - center.x);
+    //   const newRotation = angle - rotationStartAngle;
+    //   selectedShape.rotation = (selectedShape.rotation + newRotation) % (2 * Math.PI);
+    //   setRotationStartAngle(angle);
 
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawShapes(context);
-        }
-      }
-      return;
-    }
+    //   const canvas = canvasRef.current;
+    //   if (canvas) {
+    //     const context = canvas.getContext('2d');
+    //     if (context) {
+    //       context.clearRect(0, 0, canvas.width, canvas.height);
+    //       drawShapes(context);
+    //     }
+    //   }
+    //   return;
+    // }
   
     if (isDrawing && startX !== null && startY !== null) {
       context.clearRect(0, 0, canvas.width, canvas.height);
@@ -280,10 +280,10 @@ export default function Canvas() {
       return;
     }
 
-    if (isRotating) {
-      setIsRotating(false);
-      return;
-    }
+    // if (isRotating) {
+    //   setIsRotating(false);
+    //   return;
+    // }
     
     if (isDrawing) {
       setIsDrawing(false);
