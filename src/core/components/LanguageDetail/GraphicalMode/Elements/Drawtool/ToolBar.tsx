@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 import { MdOutlineRectangle } from "react-icons/md";
 import { IoEllipseOutline, IoTriangleOutline, IoColorFill, IoColorPaletteOutline  } from "react-icons/io5";
@@ -30,6 +30,25 @@ export default function ToolBar({
   const [showFillColorPicker, setShowFillColorPicker] = useState<boolean>(false);
   const [showLineColorPicker, setShowLineColorPicker] = useState<boolean>(false);
 
+  const fillColorPickerRef = useRef<HTMLDivElement | null>(null);
+  const lineColorPickerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        (fillColorPickerRef.current && !fillColorPickerRef.current.contains(event.target as Node)) ||
+        (lineColorPickerRef.current && !lineColorPickerRef.current.contains(event.target as Node))
+      ) {
+        setShowFillColorPicker(false);
+        setShowLineColorPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleToolClick = (tool: string) => {
     setSelectedTool(tool);
     onSelectTool(tool);
@@ -49,6 +68,27 @@ export default function ToolBar({
     setLineStyle(event.target.value);
     onLineStyleChange(event.target.value);
   };
+
+  const toggleFillColorPicker = () => {
+    setShowFillColorPicker((prevShowFillColorPicker) => {
+      if (prevShowFillColorPicker) {
+        return false;
+      }
+      setShowLineColorPicker(false);
+      return true;
+    });
+  };
+
+  const toggleLineColorPicker = () => {
+    setShowLineColorPicker((prevShowLineColorPicker) => {
+      if (prevShowLineColorPicker) {
+        return false;
+      }
+      setShowFillColorPicker(false);
+      return true;
+    });
+  };
+  
 
   return (
     <div className="mb-3">
@@ -105,24 +145,24 @@ export default function ToolBar({
         <ButtonGroup>
           <Button
             variant={showFillColorPicker ? 'primary' : 'secondary'}
-            onClick={() => setShowFillColorPicker(!showFillColorPicker)}
+            onClick={toggleFillColorPicker}
           >
             <IoColorFill />
           </Button>
           {showFillColorPicker && (
-            <div style={{ marginTop: '80px', position: 'absolute', zIndex: 1000 }}>
+            <div ref={fillColorPickerRef} style={{ marginTop: '80px', position: 'absolute', zIndex: 1000 }}>
               <SketchPicker color={fillColor} onChangeComplete={handleFillColorChange} />
             </div>
           )}
           {/* Botón y picker de color de borde */}
           <Button
             variant={showLineColorPicker ? 'primary' : 'secondary'}
-            onClick={() => setShowLineColorPicker(!showLineColorPicker)}
+            onClick={toggleLineColorPicker}
           >
             <IoColorPaletteOutline  />
           </Button>
           {showLineColorPicker && (
-            <div style={{ marginTop: '80px', position: 'absolute', zIndex: 1000 }}>
+            <div ref={lineColorPickerRef} style={{ marginTop: '80px', position: 'absolute', zIndex: 1000 }}>
               <SketchPicker color={lineColor} onChangeComplete={handleLineColorChange} />
             </div>
           )}

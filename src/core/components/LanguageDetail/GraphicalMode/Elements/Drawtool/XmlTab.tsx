@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Row, DropdownButton, Dropdown  } from 'react-bootstrap';
+import { Button, Row, Col, DropdownButton, Dropdown  } from 'react-bootstrap';
 import XMLInput from './XMLInput';
 import Canvas from './Canvas';
 import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
 import GenericFileUploadButton from '../../Utils/FormUtils/UploadButton';
-// import ShapeRenderer from "./ShapeRenderer";
+import ShapeRenderer from "./ShapeRenderer";
 
 
 export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) {
@@ -40,7 +40,6 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
 
   const XMLInput_onXmlChange = (xml) => {
     onXmlChange(xml);
-    return;
   };
 
   const handleRectangleShape = (e) => {
@@ -87,29 +86,33 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
 
   return (
     <Row className="mb-5">
-      {/* Dropdown para elegir entre Canvas o XML */}
-      <DropdownButton size="sm" title="Mode" variant="primary" id="modeDropdown" className="mb-3">
-        <Dropdown.Item onClick={handleSwitchToCanvas}>
-          Editor Canvas
-        </Dropdown.Item>
-        <Dropdown.Item onClick={handleSwitchToXml}>
-          Ver XML
-        </Dropdown.Item>
-      </DropdownButton>
+    {/* Dropdown para elegir entre Canvas o XML */}
+    <DropdownButton size="sm" title="Mode" variant="primary" id="modeDropdown" className="mb-3">
+      <Dropdown.Item onClick={handleSwitchToCanvas}>
+        Editor Canvas
+      </Dropdown.Item>
+      <Dropdown.Item onClick={handleSwitchToXml}>
+        Ver XML
+      </Dropdown.Item>
+    </DropdownButton>
 
-      {/* Renderizar dinámicamente el Canvas o el XML */}
-      {viewMode === 'canvas' ? (
-        <div>
-          <Canvas />
-        </div>
-      ) : (
-        <div>
+    {/* Renderizar dinámicamente el Canvas o el XML */}
+    {viewMode === 'canvas' ? (
+      <div>
+        <Canvas onXmlChange={XMLInput_onXmlChange} />
+      </div>
+    ) : (
+      <Row>
+        <Col md={6}>
           <XMLInput xml={xml} onXmlChange={XMLInput_onXmlChange} />
-          {/* <ShapeRenderer shapeXml={xml} /> */}
           <GenericFileUploadButton onFileChange={handleFileChange} fileExtensionAccepted={".svg"} />
-        </div>
-      )}
-    </Row>
+        </Col>
+        <Col md={6}>
+          <ShapeRenderer shapeXml={xml} />
+        </Col>
+      </Row>
+    )}
+  </Row>
   );
 };
 

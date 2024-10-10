@@ -10,7 +10,11 @@ import { GeometryUtils } from './GeometryUtils';
 import { ShapeUtils } from './Shapes/ShapeUtils';
 import { Polygon } from "./Shapes/Polygon";
 
-export default function Canvas() {
+interface CanvasProps {
+  onXmlChange: (xml: string) => void; // Prop para manejar los cambios en el XML
+}
+
+export default function Canvas({ onXmlChange }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedTool, setSelectedTool] = useState<string>('select');
   const [shapeCollection, setShapeCollection] = useState<ShapeCollection>(new ShapeCollection());
@@ -40,6 +44,8 @@ export default function Canvas() {
       } else {
         shape.draw(ctx);
       }
+
+      ctx.restore();
     });
   };
 
@@ -70,6 +76,7 @@ export default function Canvas() {
 
   const handleSelectTool = (tool: string) => {
     setSelectedTool(tool);
+    updateXml();
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -165,6 +172,7 @@ export default function Canvas() {
         }
       }
     }
+    updateXml();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -269,6 +277,7 @@ export default function Canvas() {
       context.lineTo(currentX, currentY);
       context.stroke();
     }
+    updateXml();
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -328,10 +337,10 @@ export default function Canvas() {
       setStartX(null); // Resetear coordenadas de arrastre
       setStartY(null);
     }
+    updateXml();
   };
 
   const handleDelete = () => {
-    saveToXML();
     if (selectedShape) {
       if (selectedShape) {
         const updatedShapes = shapeCollection.deleteShape(selectedShape);
@@ -350,7 +359,8 @@ export default function Canvas() {
           drawShapes(context);
         }
       }
-    };
+      updateXml();
+  };
 
   const handleFillColorChange = (color: string) => {
     if (selectedShape) {
@@ -365,6 +375,7 @@ export default function Canvas() {
         }
       }
     }
+    updateXml();
   };
   
   const handleLineColorChange = (color: string) => {
@@ -379,6 +390,7 @@ export default function Canvas() {
         }
       }
     }
+    updateXml();
   };
   
   const handleLineStyleChange = (style: string) => {
@@ -393,6 +405,7 @@ export default function Canvas() {
         }
       }
     }
+    updateXml();
   };
 
   const saveToJSON = () => {
@@ -400,9 +413,9 @@ export default function Canvas() {
     console.log("Saved JSON:", json);
   };
 
-  const saveToXML = () => {
+  const updateXml = () => {
     const xml = shapeCollection.toXML();
-    console.log("Saved XML:", xml);
+    onXmlChange(xml); 
   };
 
   return (
