@@ -39,7 +39,7 @@ export abstract class Shape {
       // ctx.rotate(this.rotation);
       ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2));
       ctx.setLineDash(this.lineStyle);
-      ctx.strokeStyle = this.lineColor;
+      // ctx.strokeStyle = this.lineColor;
       this.drawShape(ctx);
       
       ctx.restore();
@@ -58,14 +58,14 @@ export abstract class Shape {
     // Método para dibujar los handles de redimensionamiento
     drawResizeHandles(ctx: CanvasRenderingContext2D): void {
       const resizeHandles = this.getResizeHandles();
-      const centerX = this.x + this.width / 2;
-      const centerY = this.y + this.height / 2;
+      // const centerX = this.x + this.width / 2;
+      // const centerY = this.y + this.height / 2;
     
       resizeHandles.forEach(handle => {
         // Calcular la posición del handle rotado
-        const rotatedHandle = GeometryUtils.rotatePoint(handle.x, handle.y, centerX, centerY, this.rotation);
+        // const rotatedHandle = GeometryUtils.rotatePoint(handle.x, handle.y, centerX, centerY, this.rotation);
         ctx.fillStyle = '#00BFFF';
-        ctx.fillRect(rotatedHandle.x - 5, rotatedHandle.y - 5, 10, 10);
+        ctx.fillRect(handle.x - 5, handle.y - 5, 10, 10);
       });
     }
 

@@ -116,24 +116,16 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
                 });
                 setResizeHandleIndex(handleIndex);
             } else {
-                // Mantener la lógica de rotación para figuras normales
                 const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
-                    const rotatedHandle = GeometryUtils.rotatePoint(
-                        handle.x,
-                        handle.y,
-                        selectedShape.x + selectedShape.width / 2,
-                        selectedShape.y + selectedShape.height / 2,
-                        selectedShape.rotation
-                    );
-                    return GeometryUtils.pointInRectangle(
-                        clickX,
-                        clickY,
-                        rotatedHandle.x - 5,
-                        rotatedHandle.y - 5,
-                        10,
-                        10,
-                        0
-                    );
+                  return GeometryUtils.pointInRectangle(
+                    clickX,
+                    clickY,
+                    handle.x - 5,
+                    handle.y - 5,
+                    10,
+                    10,
+                    0
+                );
                 });
                 setResizeHandleIndex(handleIndex);
             }
@@ -193,6 +185,7 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
         drawShapes(context);
       } else{
         ShapeUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
+        console.log(selectedShape, resizeHandleIndex, currentX, currentY);
         context.clearRect(0, 0, canvas.width, canvas.height);
         drawShapes(context);
       }
