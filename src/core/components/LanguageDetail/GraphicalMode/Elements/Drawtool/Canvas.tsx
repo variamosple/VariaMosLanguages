@@ -22,23 +22,18 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startX, setStartX] = useState<number | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
-  const [dragOffsetX, setDragOffsetX] = useState<number>(0);
-  const [dragOffsetY, setDragOffsetY] = useState<number>(0);
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [resizeHandleIndex, setResizeHandleIndex] = useState<number | null>(null);
   const [currentPolygon, setCurrentPolygon] = useState<Polygon | null>(null);
-  // const [isRotating, setIsRotating] = useState<boolean>(false);
-  // const [rotationStartAngle, setRotationStartAngle] = useState<number>(0);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     shapeCollection.shapes.forEach(shape => {
 
       if (shape === selectedShape) {
         ctx.save();
-        shape.drawSelection(ctx); // Dibuja la figura seleccionada con borde resaltado
-        shape.drawResizeHandles(ctx); // Dibuja los "handles" de redimensionamiento
-        // shape.drawRotationHandle(ctx); // Dibuja el "handle" de rotación
+        shape.drawSelection(ctx);
+        shape.drawResizeHandles(ctx);
         ctx.restore();
 
       } else {
@@ -91,8 +86,6 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
                 setIsDragging(true);
                 setStartX(x);
                 setStartY(y);
-                setDragOffsetX(x - shapeCollection.shapes[i].x);
-                setDragOffsetY(y - shapeCollection.shapes[i].y);
                 return true; // Figuras seleccionada
             }
         }
@@ -108,7 +101,6 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
             if (selectedShape instanceof Polygon) {
                 // Obtener el índice del vértice en el polígono
                 const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
-                    // Comparar directamente sin rotación
                     return (
                         clickX >= handle.x - 5 && clickX <= handle.x + 5 &&
                         clickY >= handle.y - 5 && clickY <= handle.y + 5
@@ -192,27 +184,6 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
       return;
     }
 
-    // if (isRotating && selectedShape) {
-    //   const center = { 
-    //     x: selectedShape.x + selectedShape.width / 2, 
-    //     y: selectedShape.y + selectedShape.height / 2 
-    //   };
-    //   const angle = Math.atan2(currentY - center.y, currentX - center.x);
-    //   const newRotation = angle - rotationStartAngle;
-    //   selectedShape.rotation = (selectedShape.rotation + newRotation) % (2 * Math.PI);
-    //   setRotationStartAngle(angle);
-
-    //   const canvas = canvasRef.current;
-    //   if (canvas) {
-    //     const context = canvas.getContext('2d');
-    //     if (context) {
-    //       context.clearRect(0, 0, canvas.width, canvas.height);
-    //       drawShapes(context);
-    //     }
-    //   }
-    //   return;
-    // }
-  
     if (isDrawing && startX !== null && startY !== null) {
       context.clearRect(0, 0, canvas.width, canvas.height);
       drawShapes(context);
@@ -261,7 +232,7 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
       context.clearRect(0, 0, canvas.width, canvas.height);
       drawShapes(context);
   
-      currentPolygon.draw(context); // Dibujar el polígono actual
+      currentPolygon.draw(context);
   
       // Dibujar la línea dinámica entre el último punto y el cursor
       const lastPoint = currentPolygon.points[currentPolygon.points.length - 1];
@@ -280,11 +251,6 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
       setResizeHandleIndex(null);
       return;
     }
-
-    // if (isRotating) {
-    //   setIsRotating(false);
-    //   return;
-    // }
     
     if (isDrawing) {
       setIsDrawing(false);
@@ -310,7 +276,7 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
             newShape = new Triangle(x, y, width, height);
             break;
           case 'line':
-            newShape = new Line(startX, startY, endX, endY); // Crear una línea final
+            newShape = new Line(startX, startY, endX, endY);
             break;
           default:
             return;

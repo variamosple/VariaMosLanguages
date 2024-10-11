@@ -3,7 +3,7 @@ import { Shape } from './Shape';
 export class Polygon extends Shape{
     points: { x: number, y: number }[];  // Array de vértices del polígono
     isClosed: boolean;
-    tempPoint: { x: number, y: number } | null = null;  // Punto temporal para la línea provisional
+    tempPoint: { x: number, y: number } | null = null;
 
     constructor(
         x: number, 

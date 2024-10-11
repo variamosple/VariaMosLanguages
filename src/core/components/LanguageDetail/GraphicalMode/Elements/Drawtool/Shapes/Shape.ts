@@ -32,14 +32,12 @@ export abstract class Shape {
   
     protected abstract drawShape(ctx: CanvasRenderingContext2D): void;
 
-    // Método concreto para dibujar con rotación
+    // Método concreto para dibujar
     draw(ctx: CanvasRenderingContext2D): void {
       ctx.save();
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      // ctx.rotate(this.rotation);
       ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2));
       ctx.setLineDash(this.lineStyle);
-      // ctx.strokeStyle = this.lineColor;
       this.drawShape(ctx);
       
       ctx.restore();
@@ -62,26 +60,10 @@ export abstract class Shape {
       // const centerY = this.y + this.height / 2;
     
       resizeHandles.forEach(handle => {
-        // Calcular la posición del handle rotado
-        // const rotatedHandle = GeometryUtils.rotatePoint(handle.x, handle.y, centerX, centerY, this.rotation);
         ctx.fillStyle = '#00BFFF';
         ctx.fillRect(handle.x - 5, handle.y - 5, 10, 10);
       });
     }
-
-    // Método para dibujar el handle de rotación
-    // drawRotationHandle(ctx: CanvasRenderingContext2D): void {
-    //   const centerX = this.x + this.width / 2;
-    //   const centerY = this.y + this.height / 2;
-    //   const rotationHandle = this.getRotationHandle();
-    
-    //   // Calcular la posición del handle rotado
-    //   const rotatedHandle = GeometryUtils.rotatePoint(rotationHandle.x, rotationHandle.y, centerX, centerY, this.rotation);
-    //   ctx.beginPath();
-    //   ctx.arc(rotatedHandle.x, rotatedHandle.y, 5, 0, 2 * Math.PI);
-    //   ctx.fillStyle = '#00BFFF';
-    //   ctx.fill();
-    // }
 
     contains(x: number, y: number): boolean {
       return (
@@ -106,7 +88,7 @@ export abstract class Shape {
       ];
     }
 
-    // Agregar un método para verificar si el mouse está sobre un "handle"
+    // Método para verificar si el mouse está sobre un "handle"
     isOverHandle(mouseX: number, mouseY: number): boolean {
       const handles = this.getResizeHandles();
       const centerX = this.x + this.width / 2;
@@ -122,16 +104,7 @@ export abstract class Shape {
           mouseY >= rotatedHandle.y - 5 && mouseY <= rotatedHandle.y + 5
         );
       });
-    }    
-
-    // getRotationHandle(): { x: number, y: number } {
-    //   return { x: this.x + this.width / 2, y: this.y - 20 };
-    // }
-  
-    // isOverRotationHandle(mouseX: number, mouseY: number): boolean {
-    //   const handle = this.getRotationHandle();
-    //   return Math.sqrt((mouseX - handle.x)**2 + (mouseY - handle.y)**2) <= 5;
-    // }
+    }
 
     setFillColor(color: string): void {
       this.fillColor = color;
