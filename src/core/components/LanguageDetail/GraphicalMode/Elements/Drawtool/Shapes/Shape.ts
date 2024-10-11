@@ -36,10 +36,10 @@ export abstract class Shape {
     draw(ctx: CanvasRenderingContext2D): void {
       ctx.save();
       ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-      ctx.rotate(this.rotation);
+      // ctx.rotate(this.rotation);
       ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2));
       ctx.setLineDash(this.lineStyle);
-      
+      ctx.strokeStyle = this.lineColor;
       this.drawShape(ctx);
       
       ctx.restore();

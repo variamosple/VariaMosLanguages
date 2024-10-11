@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useRef, useState } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 import { MdOutlineRectangle } from "react-icons/md";
 import { IoEllipseOutline, IoTriangleOutline, IoColorFill, IoColorPaletteOutline  } from "react-icons/io5";
@@ -32,22 +32,6 @@ export default function ToolBar({
 
   const fillColorPickerRef = useRef<HTMLDivElement | null>(null);
   const lineColorPickerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        (fillColorPickerRef.current && !fillColorPickerRef.current.contains(event.target as Node)) ||
-        (lineColorPickerRef.current && !lineColorPickerRef.current.contains(event.target as Node))
-      ) {
-        setShowFillColorPicker(false);
-        setShowLineColorPicker(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const handleToolClick = (tool: string) => {
     setSelectedTool(tool);
