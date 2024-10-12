@@ -7,14 +7,18 @@ export class Line extends Shape {
   }
 
   protected drawShape(ctx: CanvasRenderingContext2D): void {
-    ctx.save(); // Guardar el contexto actual
+    ctx.save();  // Guardar el contexto actual
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
     ctx.lineTo(this.x2, this.y2);
+
+    // Aplicar color de línea y estilo
     ctx.strokeStyle = this.lineColor;
+    ctx.setLineDash(this.lineStyle);  // Aplicar estilo de línea
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.restore();
+
+    ctx.restore();  // Restaurar el contexto original
   }
 
   contains(x: number, y: number): boolean {

@@ -32,7 +32,7 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
 
       if (shape === selectedShape) {
         ctx.save();
-        shape.drawSelection(ctx);
+        shape.draw(ctx);
         shape.drawResizeHandles(ctx);
         ctx.restore();
 
@@ -80,16 +80,19 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
 
     // Función auxiliar para manejar la selección de figuras
     const handleShapeSelection = (x: number, y: number) => {
-        for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
-            if (shapeCollection.shapes[i].contains(x, y)) {
-                setSelectedShape(shapeCollection.shapes[i]);
-                setIsDragging(true);
-                setStartX(x);
-                setStartY(y);
-                return true; // Figuras seleccionada
-            }
+      shapeCollection.shapes.forEach(shape => shape.isSelected = false);
+      for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
+        if (shapeCollection.shapes[i].contains(x, y)) {
+          shapeCollection.shapes[i].isSelected = true;
+          setSelectedShape(shapeCollection.shapes[i]);
+          setIsDragging(true);
+          setStartX(x);
+          setStartY(y);
+          return true; // Figuras seleccionada
         }
-        return false; // Ninguna figura seleccionada
+      }
+      setSelectedShape(null);
+      return false; // Ninguna figura seleccionada
     };
 
     if (selectedTool === 'select') {
@@ -125,12 +128,11 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
           }        
         }
 
-        // Selección de figuras
-        const shapeSelected = handleShapeSelection(clickX, clickY);
-        if (!shapeSelected) {
-            setSelectedShape(null); // Deseleccionar figura si no se selecciona ninguna
-        }
-
+    // Selección de figuras
+      const shapeSelected = handleShapeSelection(clickX, clickY);
+      if (!shapeSelected) {
+          setSelectedShape(null); // Deseleccionar figura si no se selecciona ninguna
+      }
     } else if (['rectangle', 'ellipse', 'triangle', 'line'].includes(selectedTool)) {
         // Comenzar a dibujar una nueva figura
         setIsDrawing(true);
