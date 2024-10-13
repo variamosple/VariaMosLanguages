@@ -24,31 +24,32 @@ export class Polygon extends Shape{
       ctx.save();  // Guardar el contexto actual
       ctx.beginPath();
       ctx.moveTo(this.points[0].x, this.points[0].y);
-
+  
       for (let i = 1; i < this.points.length; i++) {
         ctx.lineTo(this.points[i].x, this.points[i].y);
       }
-
+  
       // Si hay un punto temporal (para el movimiento del cursor), dibuja una línea provisional
       if (this.tempPoint) {
         ctx.lineTo(this.tempPoint.x, this.tempPoint.y);
       }
-
+  
       // Si el polígono está cerrado, conectar con el primer punto
       if (this.isClosed) {
         ctx.lineTo(this.points[0].x, this.points[0].y);
       }
-
+  
       // Aplicar colores de línea y relleno
       ctx.strokeStyle = this.lineColor;
       ctx.setLineDash(this.lineStyle); // Aplicar estilo de línea
+      ctx.lineWidth = 2; // Asegurarse de que el grosor de la línea se establece aquí
       ctx.stroke();
-
+  
       if (this.isClosed) {
         ctx.fillStyle = this.fillColor;
         ctx.fill();
       }
-
+  
       ctx.restore();  // Restaurar el contexto original
     }
   }

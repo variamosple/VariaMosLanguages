@@ -23,6 +23,7 @@ export class Ellipse extends Shape {
 
     // Dibujar el borde
     ctx.strokeStyle = this.lineColor;
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     // Cerrar el trazado y restaurar el contexto
