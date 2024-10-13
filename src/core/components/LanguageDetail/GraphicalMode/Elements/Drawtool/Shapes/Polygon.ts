@@ -55,23 +55,24 @@ export class Polygon extends Shape{
   }
 
   addPoint(x: number, y: number){
-      this.points.push({ x, y });
+    this.points.push({ x, y });
   }
 
   closePolygon() {
-      if (this.points.length > 2) {
-          const startPoint = this.points[0];
-          const endPoint = this.points[this.points.length - 1];
+    if (this.points.length > 2) {
+      const startPoint = this.points[0];
+      const endPoint = this.points[this.points.length - 1];
   
-          // Si el último punto está cerca del primero, cierra el polígono
-          const distance = Math.sqrt(
-              Math.pow(startPoint.x - endPoint.x, 2) + Math.pow(startPoint.y - endPoint.y, 2)
-          );
+      // Si el último punto está cerca del primero, cierra el polígono
+      const distance = Math.sqrt(
+        Math.pow(startPoint.x - endPoint.x, 2) + Math.pow(startPoint.y - endPoint.y, 2)
+      );
   
-          if (distance < 10) {  // Umbral de cierre
-              this.isClosed = true;
-        }
+      if (distance < 10) {  // Umbral de cierre
+        this.points.pop();  // Eliminar el último punto añadido
+        this.isClosed = true;
       }
+    }
   }
 
   updateTempPoint(x: number, y: number) {

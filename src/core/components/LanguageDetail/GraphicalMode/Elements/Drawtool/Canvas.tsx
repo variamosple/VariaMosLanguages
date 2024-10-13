@@ -96,37 +96,37 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
     };
 
     if (selectedTool === 'select') {
-        if (selectedShape) {
-          
-          if (selectedShape.isOverHandle(clickX, clickY)) {
-            setIsResizing(true);
+      if (selectedShape) {
         
-            if (selectedShape instanceof Polygon) {
-                // Obtener el índice del vértice en el polígono
-                const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
-                    return (
-                        clickX >= handle.x - 5 && clickX <= handle.x + 5 &&
-                        clickY >= handle.y - 5 && clickY <= handle.y + 5
-                    );
-                });
-                setResizeHandleIndex(handleIndex);
-            } else {
-                const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
-                  return GeometryUtils.pointInRectangle(
-                    clickX,
-                    clickY,
-                    handle.x - 5,
-                    handle.y - 5,
-                    10,
-                    10,
-                    0
-                );
-                });
-                setResizeHandleIndex(handleIndex);
+        if (selectedShape.isOverHandle(clickX, clickY)) {
+          setIsResizing(true);
+      
+          if (selectedShape instanceof Polygon) {
+            // Obtener el índice del vértice en el polígono
+            const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
+              return (
+                  clickX >= handle.x - 5 && clickX <= handle.x + 5 &&
+                  clickY >= handle.y - 5 && clickY <= handle.y + 5
+              );
+            });
+            setResizeHandleIndex(handleIndex);
+          } else {
+              const handleIndex = selectedShape.getResizeHandles().findIndex(handle => {
+                return GeometryUtils.pointInRectangle(
+                  clickX,
+                  clickY,
+                  handle.x - 5,
+                  handle.y - 5,
+                  10,
+                  10,
+                  0
+              );
+              });
+              setResizeHandleIndex(handleIndex);
             }
-            return;
-          }        
+          return;
         }
+      }
 
     // Selección de figuras
       const shapeSelected = handleShapeSelection(clickX, clickY);
