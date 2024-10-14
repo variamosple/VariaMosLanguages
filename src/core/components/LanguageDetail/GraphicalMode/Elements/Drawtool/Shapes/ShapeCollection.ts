@@ -240,10 +240,14 @@ export class ShapeCollection {
     
     // Función para procesar el rectángulo
     createRectangle(shapeNode: Element, fillColor: string, lineColor: string,  lineStyle: number[]): void {
-        const x = parseFloat(shapeNode.getAttribute('x') || "0");
-        const y = parseFloat(shapeNode.getAttribute('y') || "0");
-        const width = parseFloat(shapeNode.getAttribute('w') || "0");
-        const height = parseFloat(shapeNode.getAttribute('h') || "0");
+        const scaleFactor = 2;
+        const offsetX = 50;
+        const offsetY = 50;
+        
+        const x = (parseFloat(shapeNode.getAttribute('x') || "0") * scaleFactor) + offsetX;
+        const y = (parseFloat(shapeNode.getAttribute('y') || "0") * scaleFactor) + offsetY;
+        const width = parseFloat(shapeNode.getAttribute('w') || "0") * scaleFactor;
+        const height = parseFloat(shapeNode.getAttribute('h') || "0") * scaleFactor;
     
         const rectangle = new Rectangle(x, y, width, height, fillColor, lineColor);
         rectangle.setLineStyle(this.parseLineStyle(lineStyle));  // Aplicar el estilo de línea
@@ -252,10 +256,14 @@ export class ShapeCollection {
     
     // Función para procesar la elipse
     createEllipse(shapeNode: Element, fillColor: string, lineColor: string, lineStyle: number[]): void {
-        const x = parseFloat(shapeNode.getAttribute('x') || "0");
-        const y = parseFloat(shapeNode.getAttribute('y') || "0");
-        const width = parseFloat(shapeNode.getAttribute('w') || "0");
-        const height = parseFloat(shapeNode.getAttribute('h') || "0");
+        const scaleFactor = 2;
+        const offsetX = 50;
+        const offsetY = 50;
+
+        const x = (parseFloat(shapeNode.getAttribute('x') || "0") * scaleFactor) + offsetX;
+        const y = (parseFloat(shapeNode.getAttribute('y') || "0") * scaleFactor) + offsetY;
+        const width = parseFloat(shapeNode.getAttribute('w') || "0")  * scaleFactor;
+        const height = parseFloat(shapeNode.getAttribute('h') || "0") * scaleFactor;
     
         const ellipse = new Ellipse(x, y, width, height, fillColor, lineColor);
         ellipse.setLineStyle(this.parseLineStyle(lineStyle));
@@ -263,11 +271,15 @@ export class ShapeCollection {
     }
 
     createPolygon(shapeNode: Element, fillColor: string, lineColor: string, lineStyle: number[]): void {
+        const scaleFactor = 2;
+        const offsetX = 50;
+        const offsetY = 50;
+
         const points = [];
         
         for (let child of Array.from(shapeNode.children)) {
-            const x = parseFloat(child.getAttribute('x') || "0");
-            const y = parseFloat(child.getAttribute('y') || "0");
+            const x = (parseFloat(child.getAttribute('x') || "0") * scaleFactor) + offsetX;
+            const y = (parseFloat(child.getAttribute('y') || "0") * scaleFactor) + offsetY;
             
             switch (child.tagName) {
                 case 'move':
