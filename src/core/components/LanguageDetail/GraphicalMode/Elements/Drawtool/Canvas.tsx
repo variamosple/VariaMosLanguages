@@ -11,10 +11,11 @@ import { ShapeUtils } from './Shapes/ShapeUtils';
 import { Polygon } from "./Shapes/Polygon";
 
 interface CanvasProps {
+  xml: string;
   onXmlChange: (xml: string) => void; // Prop para manejar los cambios en el XML
 }
 
-export default function Canvas({ onXmlChange }: CanvasProps) {
+export default function Canvas({xml, onXmlChange }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedTool, setSelectedTool] = useState<string>('select');
   const [shapeCollection, setShapeCollection] = useState<ShapeCollection>(new ShapeCollection());
@@ -44,7 +45,17 @@ export default function Canvas({ onXmlChange }: CanvasProps) {
     });
   };
 
+   // useEffect para inicializar las figuras desde el XML solo una vez
   useEffect(() => {
+    if (xml && xml !== "<shape></shape>") {
+      const newShapeCollection = new ShapeCollection();
+      newShapeCollection.fromXML(xml); // Convertir XML a formas
+      setShapeCollection(newShapeCollection); // Actualizar colección de figuras
+      console.log(newShapeCollection);
+    }
+  }, []);
+
+  useEffect(() => {    
     const canvas = canvasRef.current;
     if (canvas) {
       const context = canvas.getContext('2d');

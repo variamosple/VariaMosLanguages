@@ -1,4 +1,6 @@
 import { Line } from "./Line";
+import { Rectangle } from "./Rectangle";
+import { Ellipse } from "./Ellipse";
 import { Triangle } from "./Triangle";
 import { Shape } from "./Shape";
 import { Polygon } from "./Polygon";
@@ -171,5 +173,98 @@ export class ShapeCollection {
         xml += `  </foreground>\n</shape>`;
         return xml;
     }
+
+    // Método para obtener y crear figuras a partir de un XML
+    fromXML(xml: string): void {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xml, "text/xml");
+    
+        // Obtener la etiqueta shape
+        const shapeNode = xmlDoc.getElementsByTagName("shape")[0];
+    
+        if (shapeNode) {
+            const foreground = shapeNode.getElementsByTagName("foreground")[0];
+            if (foreground) {
+                this.parseShapes(foreground); // Función auxiliar para procesar las formas
+            }
+        }
+    }
+    
+    parseShapes(foreground: Element): void {
+        const shapes = foreground.children;
+    
+        // Variables para almacenar temporalmente los estilos
+        let fillColor = "#FFFFFF";
+        let strokeColor = "#000000";
+        // let strokeWidth = 1;
+        let lineStyle = [];
+    
+        for (let shape of Array.from(shapes)) {
+            // Detectar si es un elemento de estilo
+            switch (shape.tagName) {
+                case 'strokecolor':
+                    strokeColor = shape.getAttribute('color') || "#000000";
+                    break;
+                case 'fillcolor':
+                    fillColor = shape.getAttribute('color') || "#FFFFFF";
+                    break;
+                case 'strokewidth':
+                    // strokeWidth = parseFloat(shape.getAttribute('width') || "1");
+                    break;
+                case 'dashed':
+                    lineStyle = shape.getAttribute('dashed') === "1" ? [5, 5] : [];
+                    break;
+                case 'dashpattern':
+                    lineStyle = shape.getAttribute('pattern')?.split(" ").map(Number) || [5, 5];
+                    break;
+                case 'fillstroke': 
+                    // Ignorar
+                    break;
+    
+                // Detectar si es una figura
+                case 'rect':
+                    this.createRectangle(shape, fillColor, strokeColor, lineStyle);
+                    break;
+                case 'ellipse':
+                    this.createEllipse(shape, fillColor, strokeColor, lineStyle);
+                    break;
+                // case 'line':
+                //     this.createLine(shape, strokeColor, lineStyle);
+                //     break;
+            }
+        }
+    }    
+    
+    // Función para procesar el rectángulo
+    createRectangle(shapeNode: Element, fillColor: string, lineColor: string,  lineStyle: number[]): void {
+        const x = parseFloat(shapeNode.getAttribute('x') || "0");
+        const y = parseFloat(shapeNode.getAttribute('y') || "0");
+        const width = parseFloat(shapeNode.getAttribute('w') || "0");
+        const height = parseFloat(shapeNode.getAttribute('h') || "0");
+    
+        const rectangle = new Rectangle(x, y, width, height, fillColor, lineColor);
+        rectangle.setLineStyle(this.parseLineStyle(lineStyle));  // Aplicar el estilo de línea
+        this.addShape(rectangle);
+    }
+    
+    // Función para procesar la elipse
+    createEllipse(shapeNode: Element, fillColor: string, lineColor: string, lineStyle: number[]): void {
+        const x = parseFloat(shapeNode.getAttribute('x') || "0");
+        const y = parseFloat(shapeNode.getAttribute('y') || "0");
+        const width = parseFloat(shapeNode.getAttribute('w') || "0");
+        const height = parseFloat(shapeNode.getAttribute('h') || "0");
+    
+        const ellipse = new Ellipse(x, y, width, height, fillColor, lineColor);
+        ellipse.setLineStyle(this.parseLineStyle(lineStyle));
+        this.addShape(ellipse);
+    }
+    
+    // Función para convertir el estilo de línea a un formato que el canvas entienda
+    parseLineStyle(lineStyle: number[]): string {
+        if (lineStyle.length > 0) {
+            return 'dashed';
+        }
+        return 'solid';
+    }    
     
 }

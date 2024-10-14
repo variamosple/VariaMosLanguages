@@ -128,6 +128,5 @@ export abstract class Shape {
           this.lineStyle = [];
           break;
       }
-    }    
-    
+    }
 }

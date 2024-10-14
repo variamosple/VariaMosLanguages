@@ -99,7 +99,7 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
     {/* Renderizar dinámicamente el Canvas o el XML */}
     {viewMode === 'canvas' ? (
       <div>
-        <Canvas onXmlChange={XMLInput_onXmlChange} />
+        <Canvas xml={xml} onXmlChange={XMLInput_onXmlChange} />
       </div>
     ) : (
       <Row>
@@ -115,4 +115,3 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
   </Row>
   );
 };
-

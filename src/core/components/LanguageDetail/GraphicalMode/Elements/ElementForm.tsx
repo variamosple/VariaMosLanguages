@@ -21,7 +21,7 @@ export default function ElementForm() {
       try { setXml(atob(formValues.draw)) }
       catch (e) { }
     }
-    setShowDrawTool(true);
+    setTimeout(() => setShowDrawTool(true), 100);
   }
 
   const onFileChange = (file) => {
