@@ -284,12 +284,19 @@ export class ShapeCollection {
             }
         }
     
-        // Crear el polígono con los vértices extraídos
-        const polygon = new Polygon(points[0].x, points[0].y, fillColor, lineColor);
-        polygon.points = points;
-        polygon.isClosed = true;
-        polygon.setLineStyle(this.parseLineStyle(lineStyle));
-        this.addShape(polygon);
+        if (points.length === 2) {
+            // Crear una línea en lugar de un polígono
+            const line = new Line(points[0].x, points[0].y, points[1].x, points[1].y, lineColor);
+            line.setLineStyle(this.parseLineStyle(lineStyle));
+            this.addShape(line);
+        } else {
+            // Crear un polígono con los vértices extraídos
+            const polygon = new Polygon(points[0].x, points[0].y, fillColor, lineColor);
+            polygon.points = points;
+            polygon.isClosed = true;
+            polygon.setLineStyle(this.parseLineStyle(lineStyle));
+            this.addShape(polygon);
+        }
     }
     
     // Función para convertir el estilo de línea a un formato que el canvas entienda
