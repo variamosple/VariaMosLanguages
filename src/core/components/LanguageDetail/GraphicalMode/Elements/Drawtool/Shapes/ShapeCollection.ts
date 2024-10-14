@@ -228,12 +228,15 @@ export class ShapeCollection {
                 case 'ellipse':
                     this.createEllipse(shape, fillColor, strokeColor, lineStyle);
                     break;
+                case 'path':
+                    this.createPolygon(shape, fillColor, strokeColor, lineStyle);
+                    break;
                 // case 'line':
                 //     this.createLine(shape, strokeColor, lineStyle);
                 //     break;
             }
         }
-    }    
+    }
     
     // Función para procesar el rectángulo
     createRectangle(shapeNode: Element, fillColor: string, lineColor: string,  lineStyle: number[]): void {
@@ -258,6 +261,36 @@ export class ShapeCollection {
         ellipse.setLineStyle(this.parseLineStyle(lineStyle));
         this.addShape(ellipse);
     }
+
+    createPolygon(shapeNode: Element, fillColor: string, lineColor: string, lineStyle: number[]): void {
+        const points = [];
+        
+        for (let child of Array.from(shapeNode.children)) {
+            const x = parseFloat(child.getAttribute('x') || "0");
+            const y = parseFloat(child.getAttribute('y') || "0");
+            
+            switch (child.tagName) {
+                case 'move':
+                    // Inicia el polígono en este punto
+                    points.push({ x, y });
+                    break;
+                case 'line':
+                    // Añade un nuevo vértice al polígono
+                    points.push({ x, y });
+                    break;
+                case 'close':
+                    // El polígono se cierra, no se necesita agregar nada
+                    break;
+            }
+        }
+    
+        // Crear el polígono con los vértices extraídos
+        const polygon = new Polygon(points[0].x, points[0].y, fillColor, lineColor);
+        polygon.points = points;
+        polygon.isClosed = true;
+        polygon.setLineStyle(this.parseLineStyle(lineStyle));
+        this.addShape(polygon);
+    }
     
     // Función para convertir el estilo de línea a un formato que el canvas entienda
     parseLineStyle(lineStyle: number[]): string {
@@ -265,6 +298,6 @@ export class ShapeCollection {
             return 'dashed';
         }
         return 'solid';
-    }    
+    }
     
 }
