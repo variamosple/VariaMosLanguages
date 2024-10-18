@@ -183,6 +183,12 @@ export class ShapeCollection {
         const shapeNode = xmlDoc.getElementsByTagName("shape")[0];
     
         if (shapeNode) {
+            // Procesar background si existe
+            const background = shapeNode.getElementsByTagName("background")[0];
+            if (background) {
+                this.parseBackground(background);
+            }
+
             const foreground = shapeNode.getElementsByTagName("foreground")[0];
             if (foreground) {
                 this.parseShapes(foreground); // Función auxiliar para procesar las formas
@@ -231,9 +237,25 @@ export class ShapeCollection {
                 case 'path':
                     this.createPolygon(shape, fillColor, strokeColor, lineStyle);
                     break;
-                // case 'line':
-                //     this.createLine(shape, strokeColor, lineStyle);
-                //     break;
+            }
+        }
+    }
+
+    parseBackground(background: Element): void {
+        const shapes = background.children;
+    
+        // Iterar sobre los elementos de background (puede contener solo uno)
+        for (let shape of Array.from(shapes)) {
+            switch (shape.tagName) {
+                case 'rect':
+                    this.createRectangle(shape, "#FFFFFF", "#000000", []);
+                    break;
+                case 'ellipse':
+                    this.createEllipse(shape, "#FFFFFF", "#000000", []);
+                    break;
+                case 'path':
+                    this.createPolygon(shape, "#FFFFFF", "#000000", []);
+                    break;
             }
         }
     }
@@ -274,42 +296,59 @@ export class ShapeCollection {
         const scaleFactor = 2;
         const offsetX = 50;
         const offsetY = 50;
-
-        const points = [];
-        
+    
+        let points = [];
+        let isClosed = false;
+    
         for (let child of Array.from(shapeNode.children)) {
             const x = (parseFloat(child.getAttribute('x') || "0") * scaleFactor) + offsetX;
             const y = (parseFloat(child.getAttribute('y') || "0") * scaleFactor) + offsetY;
-            
+    
             switch (child.tagName) {
                 case 'move':
-                    // Inicia el polígono en este punto
+                    if (isClosed && points.length > 0) {
+                        // Si el polígono se ha cerrado y hay puntos, crear el polígono anterior
+                        this.createAndAddPolygon(points, fillColor, lineColor, lineStyle);
+                        points = [];  // Reiniciar los puntos para la nueva figura
+                        isClosed = false;
+                    }
+                    // Iniciar el nuevo polígono con el punto de 'move'
                     points.push({ x, y });
                     break;
+    
                 case 'line':
-                    // Añade un nuevo vértice al polígono
+                    // Añadir un nuevo vértice al polígono actual
                     points.push({ x, y });
                     break;
+    
                 case 'close':
-                    // El polígono se cierra, no se necesita agregar nada
+                    // Marcar el polígono actual como cerrado
+                    isClosed = true;
                     break;
             }
         }
     
+        // Crear la última figura (ya sea polígono o línea)
         if (points.length === 2) {
-            // Crear una línea en lugar de un polígono
+            // Si hay solo dos puntos, crear una línea
             const line = new Line(points[0].x, points[0].y, points[1].x, points[1].y, lineColor);
             line.setLineStyle(this.parseLineStyle(lineStyle));
             this.addShape(line);
-        } else {
-            // Crear un polígono con los vértices extraídos
-            const polygon = new Polygon(points[0].x, points[0].y, fillColor, lineColor);
-            polygon.points = points;
-            polygon.isClosed = true;
-            polygon.setLineStyle(this.parseLineStyle(lineStyle));
-            this.addShape(polygon);
+        } else if (points.length > 2) {
+            // Si hay más de dos puntos, crear un polígono
+            this.createAndAddPolygon(points, fillColor, lineColor, lineStyle);
         }
     }
+    
+    // Función auxiliar para crear y añadir un polígono cerrado
+    createAndAddPolygon(points: {x: number, y: number}[], fillColor: string, lineColor: string, lineStyle: number[]): void {
+        const polygon = new Polygon(points[0].x, points[0].y, fillColor, lineColor);
+        polygon.points = points;
+        polygon.isClosed = true;  // Marcar el polígono como cerrado
+        polygon.setLineStyle(this.parseLineStyle(lineStyle));
+        this.addShape(polygon);
+    }
+    
     
     // Función para convertir el estilo de línea a un formato que el canvas entienda
     parseLineStyle(lineStyle: number[]): string {
