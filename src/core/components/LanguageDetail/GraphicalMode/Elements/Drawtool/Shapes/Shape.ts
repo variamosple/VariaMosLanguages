@@ -117,16 +117,16 @@ export abstract class Shape {
 
     setLineStyle(style: string): void {
       switch (style) {
-        case 'dashed':
+          case 'dashed':
           this.lineStyle = [5, 5]
-          break;
-        case 'dotted':
-          this.lineStyle = [2, 2];
-          break;
-        case 'solid':
-        default:
-          this.lineStyle = [];
-          break;
+            break;
+          case 'dotted':
+            this.lineStyle = [2, 2];
+            break;
+          case 'solid':
+          default:
+            this.lineStyle = [];
+            break;
       }
     }
 }

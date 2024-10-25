@@ -236,7 +236,25 @@ export class ShapeCollection {
                     this.createEllipse(shape, fillColor, strokeColor, lineStyle);
                     break;
                 case 'path':
-                    this.createPolygon(shape, fillColor, strokeColor, lineStyle);
+                    this.parsePathElement(shape, fillColor, strokeColor, lineStyle);
+                    break;
+            }
+        }
+    }
+
+    parsePathElement(pathNode: Element, fillColor: string, strokeColor: string, lineStyle: number[]): void {
+        for (let child of Array.from(pathNode.children)) {
+            switch (child.tagName) {
+                case 'move':
+                case 'line':
+                case 'close':
+                    this.createPolygon(pathNode, fillColor, strokeColor, lineStyle);
+                    break;
+                case 'ellipse':
+                    this.createEllipse(child, fillColor, strokeColor, lineStyle);
+                    break;
+                case 'rect':
+                    this.createRectangle(child, fillColor, strokeColor, lineStyle);
                     break;
             }
         }
@@ -322,7 +340,7 @@ export class ShapeCollection {
                 this.createEllipse(shape, styles.fillColor, styles.strokeColor, styles.lineStyle);
                 break;
             case 'path':
-                this.createPolygon(shape, styles.fillColor, styles.strokeColor, styles.lineStyle);
+                this.parsePathElement(shape, styles.fillColor, styles.strokeColor, styles.lineStyle);
                 break;
         }
     }
