@@ -244,22 +244,42 @@ export class ShapeCollection {
     }
 
     parsePathElement(pathNode: Element, fillColor: string, strokeColor: string, strokeWidth: number, lineStyle: number[]): void {
+        let points = [];
+
         for (let child of Array.from(pathNode.children)) {
+            const x = parseFloat(child.getAttribute('x') || "0") * 2 + 50;
+            const y = parseFloat(child.getAttribute('y') || "0") * 2 + 50;
+
             switch (child.tagName) {
                 case 'move':
+                    // Reiniciar puntos al iniciar una nueva figura
+                    if (points.length > 0) {
+                        this.createAndAddPolygon(points, fillColor, strokeColor, strokeWidth, lineStyle);
+                        points = [];
+                    }
+                    points.push({ x, y });
+                    break;
+
                 case 'line':
+                    points.push({ x, y });
+                    break;
+
                 case 'close':
-                    this.createPolygon(pathNode, fillColor, strokeColor, strokeWidth, lineStyle);
-                    break;
-                case 'ellipse':
-                    this.createEllipse(child, fillColor, strokeColor, strokeWidth, lineStyle);
-                    break;
-                case 'rect':
-                    this.createRectangle(child, fillColor, strokeColor, strokeWidth, lineStyle);
                     break;
             }
         }
+
+        // Añadir la figura final, evitando duplicación
+        if (points.length === 2) {
+            const line = new Line(points[0].x, points[0].y, points[1].x, points[1].y, strokeColor);
+            line.setLineStyle(this.parseLineStyle(lineStyle));
+            line.setLineWidth(strokeWidth);
+            this.addShape(line);
+        } else if (points.length > 2) {
+            this.createAndAddPolygon(points, fillColor, strokeColor, strokeWidth, lineStyle);
+        }
     }
+
 
     parseBackground(background: Element): void {
         let backgroundStyles = this.storeStyles(background);
