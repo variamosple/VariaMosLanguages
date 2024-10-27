@@ -10,6 +10,7 @@ export abstract class Shape {
     rotation: number;
     lineStyle: number[];
     isSelected: boolean;
+    lineWidth: number;
   
     constructor(
       x: number, 
@@ -30,6 +31,7 @@ export abstract class Shape {
       this.rotation = rotation;
       this.lineStyle = lineStyle;
       this.isSelected = false;
+      this.lineWidth = 2;
     }
   
     protected abstract drawShape(ctx: CanvasRenderingContext2D): void;
@@ -44,15 +46,6 @@ export abstract class Shape {
       
       ctx.restore();
     }
-
-    // Método para dibujar la selección alrededor de la figura
-    // drawSelection(ctx: CanvasRenderingContext2D): void {
-    //   ctx.save();
-    //   ctx.lineWidth = 2;
-    //   this.draw(ctx);
-    //   ctx.stroke();
-    //   ctx.restore();
-    // }
 
     // Método para dibujar los handles de redimensionamiento
     drawResizeHandles(ctx: CanvasRenderingContext2D): void {
@@ -128,5 +121,9 @@ export abstract class Shape {
             this.lineStyle = [];
             break;
       }
+    }
+
+    setLineWidth(width: number): void {
+      this.lineWidth = width;
     }
 }

@@ -15,7 +15,7 @@ export class Line extends Shape {
     // Aplicar color de línea y estilo
     ctx.strokeStyle = this.lineColor;
     ctx.setLineDash(this.lineStyle);  // Aplicar estilo de línea
-    ctx.lineWidth = 2;
+    ctx.lineWidth = this.lineWidth;
     ctx.stroke();
 
     ctx.restore();  // Restaurar el contexto original

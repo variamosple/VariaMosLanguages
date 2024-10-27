@@ -380,6 +380,21 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
     updateXml();
   };
 
+  const handleLineWidthChange = (width: number) => {
+    if (selectedShape) {
+      selectedShape.setLineWidth(width);
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          drawShapes(context);
+        }
+      }
+    }
+    updateXml();
+  }
+
   const saveToJSON = () => {
     const json = shapeCollection.toJSON();
     console.log("Saved JSON:", json);
@@ -403,6 +418,7 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
             onFillColorChange={handleFillColorChange}
             onLineColorChange={handleLineColorChange}
             onLineStyleChange={handleLineStyleChange}
+            onLineWidthChange={handleLineWidthChange}
           />
         </div>
 

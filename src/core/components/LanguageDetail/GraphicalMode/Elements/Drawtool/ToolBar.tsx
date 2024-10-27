@@ -13,6 +13,7 @@ interface ToolBarProps {
   onFillColorChange: (color: string) => void;
   onLineColorChange: (color: string) => void;
   onLineStyleChange: (style: string) => void;
+  onLineWidthChange: (width: number) => void;
 }
 
 export default function ToolBar({
@@ -21,7 +22,8 @@ export default function ToolBar({
   hasSelectedShape,
   onFillColorChange,
   onLineColorChange,
-  onLineStyleChange
+  onLineStyleChange,
+  onLineWidthChange
 }: ToolBarProps) {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [fillColor, setFillColor] = useState<string>('#000000');
@@ -29,6 +31,8 @@ export default function ToolBar({
   const [lineStyle, setLineStyle] = useState<string>('solid');
   const [showFillColorPicker, setShowFillColorPicker] = useState<boolean>(false);
   const [showLineColorPicker, setShowLineColorPicker] = useState<boolean>(false);
+  const [lineWidth, setLineWidth] = useState<number>(1);
+  
 
   const fillColorPickerRef = useRef<HTMLDivElement | null>(null);
   const lineColorPickerRef = useRef<HTMLDivElement | null>(null);
@@ -52,6 +56,14 @@ export default function ToolBar({
     setLineStyle(event.target.value);
     onLineStyleChange(event.target.value);
   };
+
+  const handleLineWidthChange = (newWidth: number) => {
+    if (newWidth >= 1 && newWidth <= 10) {
+      setLineWidth(newWidth);
+      onLineWidthChange(newWidth);
+    }
+  }
+  
 
   const toggleFillColorPicker = () => {
     setShowFillColorPicker((prevShowFillColorPicker) => {
@@ -166,6 +178,18 @@ export default function ToolBar({
             <option value="dotted">Dotted</option>
           </select>
         </div>
+
+          {/* Stepper Control para el grosor de línea */}
+          <div className="ms-3 d-flex align-items-center">
+            <label className="me-2">Line Width:</label>
+            <input
+              type="number"
+              value={lineWidth}
+              onChange={(e) => handleLineWidthChange(parseInt(e.target.value))}
+              style={{ width: '50px', textAlign: 'center' }}
+              className="mx-2"
+            />
+          </div>
       </div>
     </div>
   );

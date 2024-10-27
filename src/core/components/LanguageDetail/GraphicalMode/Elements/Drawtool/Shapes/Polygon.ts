@@ -41,8 +41,8 @@ export class Polygon extends Shape{
   
       // Aplicar colores de línea y relleno
       ctx.strokeStyle = this.lineColor;
-      ctx.setLineDash(this.lineStyle); // Aplicar estilo de línea
-      ctx.lineWidth = 2; // Asegurarse de que el grosor de la línea se establece aquí
+      ctx.setLineDash(this.lineStyle);
+      ctx.lineWidth = this.lineWidth;
       ctx.stroke();
   
       if (this.isClosed) {
@@ -50,7 +50,7 @@ export class Polygon extends Shape{
         ctx.fill();
       }
   
-      ctx.restore();  // Restaurar el contexto original
+      ctx.restore();
     }
   }
 

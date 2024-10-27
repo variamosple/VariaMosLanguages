@@ -82,6 +82,7 @@ export class ShapeCollection {
             const strokeColor = shape.lineColor || "#333333";
             const fillColor = shape.fillColor || "#ffffff";
             const lineStyle = shape.lineStyle || [];
+            const lineWidth = shape.lineWidth || 1;
             const dashed = lineStyle.length > 0 ? 1 : 0;
             const dashpattern = lineStyle.length > 0 ? lineStyle.join(" ") : "";
     
@@ -90,7 +91,7 @@ export class ShapeCollection {
                     xml += `
             <strokecolor color="${strokeColor}"/>
             <fillcolor color="${fillColor}"/>
-            <strokewidth width="1"/>
+            <strokewidth width="${lineWidth}"/>
             <dashed dashed="${dashed}"/>
             ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
             <rect x="${(shape.x - minX) * scale}" y="${(shape.y - minY) * scale}" w="${shape.width * scale}" h="${shape.height * scale}" />
@@ -100,7 +101,7 @@ export class ShapeCollection {
                     xml += `
             <strokecolor color="${strokeColor}"/>
             <fillcolor color="${fillColor}"/>
-            <strokewidth width="1"/>
+            <strokewidth width="${lineWidth}"/>
             <dashed dashed="${dashed}"/>
             ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
             <ellipse x="${(shape.x - minX) * scale}" y="${(shape.y - minY) * scale}" w="${shape.width * scale}" h="${shape.height * scale}" />
@@ -110,7 +111,7 @@ export class ShapeCollection {
                     const line = shape as Line;
                     xml += `
             <strokecolor color="${strokeColor}"/>
-            <strokewidth width="1"/>
+            <strokewidth width="${lineWidth}"/>
             <dashed dashed="${dashed}"/>
             ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
             <path>
@@ -131,7 +132,7 @@ export class ShapeCollection {
                     xml += `
             <strokecolor color="${strokeColor}"/>
             <fillcolor color="${fillColor}"/>
-            <strokewidth width="1"/>
+            <strokewidth width="${lineWidth}"/>
             <dashed dashed="${dashed}"/>
             ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
             <path>
@@ -147,7 +148,7 @@ export class ShapeCollection {
                     xml += `
             <strokecolor color="${strokeColor}"/>
             <fillcolor color="${fillColor}"/>
-            <strokewidth width="1"/>
+            <strokewidth width="${lineWidth}"/>
             <dashed dashed="${dashed}"/>
             ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
             <path>\n`;
@@ -203,7 +204,7 @@ export class ShapeCollection {
         // Variables para almacenar temporalmente los estilos
         let fillColor = "#FFFFFF";
         let strokeColor = "#000000";
-        // let strokeWidth = 1;
+        let strokeWidth = 2;
         let lineStyle = [];
     
         for (let shape of Array.from(shapes)) {
@@ -216,7 +217,7 @@ export class ShapeCollection {
                     fillColor = shape.getAttribute('color') || "#FFFFFF";
                     break;
                 case 'strokewidth':
-                    // strokeWidth = parseFloat(shape.getAttribute('width') || "1");
+                    strokeWidth = parseFloat(shape.getAttribute('width') || "2");
                     break;
                 case 'dashed':
                     lineStyle = shape.getAttribute('dashed') === "1" ? [5, 5] : [];
@@ -230,31 +231,31 @@ export class ShapeCollection {
     
                 // Detectar si es una figura
                 case 'rect':
-                    this.createRectangle(shape, fillColor, strokeColor, lineStyle);
+                    this.createRectangle(shape, fillColor, strokeColor, strokeWidth, lineStyle);
                     break;
                 case 'ellipse':
-                    this.createEllipse(shape, fillColor, strokeColor, lineStyle);
+                    this.createEllipse(shape, fillColor, strokeColor, strokeWidth, lineStyle);
                     break;
                 case 'path':
-                    this.parsePathElement(shape, fillColor, strokeColor, lineStyle);
+                    this.parsePathElement(shape, fillColor, strokeColor, strokeWidth, lineStyle);
                     break;
             }
         }
     }
 
-    parsePathElement(pathNode: Element, fillColor: string, strokeColor: string, lineStyle: number[]): void {
+    parsePathElement(pathNode: Element, fillColor: string, strokeColor: string, strokeWidth: number, lineStyle: number[]): void {
         for (let child of Array.from(pathNode.children)) {
             switch (child.tagName) {
                 case 'move':
                 case 'line':
                 case 'close':
-                    this.createPolygon(pathNode, fillColor, strokeColor, lineStyle);
+                    this.createPolygon(pathNode, fillColor, strokeColor, strokeWidth, lineStyle);
                     break;
                 case 'ellipse':
-                    this.createEllipse(child, fillColor, strokeColor, lineStyle);
+                    this.createEllipse(child, fillColor, strokeColor, strokeWidth, lineStyle);
                     break;
                 case 'rect':
-                    this.createRectangle(child, fillColor, strokeColor, lineStyle);
+                    this.createRectangle(child, fillColor, strokeColor, strokeWidth, lineStyle);
                     break;
             }
         }
@@ -271,6 +272,7 @@ export class ShapeCollection {
         let styles = {
             fillColor: "#FFFFFF",
             strokeColor: "#000000",
+            strokeWidth: 2,
             lineStyle: [] as number[]
         };
     
@@ -282,6 +284,9 @@ export class ShapeCollection {
                 switch (shape.tagName) {
                     case 'strokecolor':
                         styles.strokeColor = shape.getAttribute('color') || "#000000";
+                        break;
+                    case 'strokewidth':
+                        styles.strokeWidth = parseFloat(shape.getAttribute('width') || "2");
                         break;
                     case 'fillcolor':
                         styles.fillColor = shape.getAttribute('color') || "#FFFFFF";
@@ -295,7 +300,7 @@ export class ShapeCollection {
                 }
     
                 // Salir después de obtener los primeros estilos
-                if (shape.tagName === 'strokecolor' || shape.tagName === 'fillcolor') {
+                if (shape.tagName === 'fillstroke') {
                     break;
                 }
             }
@@ -304,10 +309,11 @@ export class ShapeCollection {
         return styles;
     }
 
-    storeStyles(element: Element): { fillColor: string, strokeColor: string, lineStyle: number[] } {
+    storeStyles(element: Element): { fillColor: string, strokeColor: string, strokeWidth: number, lineStyle: number[] } {
         let styles = {
             fillColor: "#FFFFFF",
             strokeColor: "#000000",
+            strokeWidth: 2,
             lineStyle: [] as number[]
         };
     
@@ -315,6 +321,9 @@ export class ShapeCollection {
             switch (shape.tagName) {
                 case 'strokecolor':
                     styles.strokeColor = shape.getAttribute('color') || "#000000";
+                    break;
+                case 'strokewidth':
+                    styles.strokeWidth = parseFloat(shape.getAttribute('width') || "2");
                     break;
                 case 'fillcolor':
                     styles.fillColor = shape.getAttribute('color') || "#FFFFFF";
@@ -331,22 +340,22 @@ export class ShapeCollection {
         return styles;
     }
 
-    applyStylesAndCreateShape(shape: Element, styles: { fillColor: string, strokeColor: string, lineStyle: number[] }): void {
+    applyStylesAndCreateShape(shape: Element, styles: { fillColor: string, strokeColor: string, strokeWidth: number, lineStyle: number[] }): void {
         switch (shape.tagName) {
             case 'rect':
-                this.createRectangle(shape, styles.fillColor, styles.strokeColor, styles.lineStyle);
+                this.createRectangle(shape, styles.fillColor, styles.strokeColor, styles.strokeWidth, styles.lineStyle);
                 break;
             case 'ellipse':
-                this.createEllipse(shape, styles.fillColor, styles.strokeColor, styles.lineStyle);
+                this.createEllipse(shape, styles.fillColor, styles.strokeColor, styles.strokeWidth, styles.lineStyle);
                 break;
             case 'path':
-                this.parsePathElement(shape, styles.fillColor, styles.strokeColor, styles.lineStyle);
+                this.parsePathElement(shape, styles.fillColor, styles.strokeColor, styles.strokeWidth, styles.lineStyle);
                 break;
         }
     }
     
     // Función para procesar el rectángulo
-    createRectangle(shapeNode: Element, fillColor: string, lineColor: string,  lineStyle: number[]): void {
+    createRectangle(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number,  lineStyle: number[]): void {
         const scaleFactor = 2;
         const offsetX = 50;
         const offsetY = 50;
@@ -357,12 +366,13 @@ export class ShapeCollection {
         const height = parseFloat(shapeNode.getAttribute('h') || "0") * scaleFactor;
     
         const rectangle = new Rectangle(x, y, width, height, fillColor, lineColor);
-        rectangle.setLineStyle(this.parseLineStyle(lineStyle));  // Aplicar el estilo de línea
+        rectangle.setLineStyle(this.parseLineStyle(lineStyle));
+        rectangle.setLineWidth(strokeWidth);
         this.addShape(rectangle);
     }
     
     // Función para procesar la elipse
-    createEllipse(shapeNode: Element, fillColor: string, lineColor: string, lineStyle: number[]): void {
+    createEllipse(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number, lineStyle: number[]): void {
         const scaleFactor = 2;
         const offsetX = 50;
         const offsetY = 50;
@@ -374,10 +384,11 @@ export class ShapeCollection {
     
         const ellipse = new Ellipse(x, y, width, height, fillColor, lineColor);
         ellipse.setLineStyle(this.parseLineStyle(lineStyle));
+        ellipse.setLineWidth(strokeWidth);
         this.addShape(ellipse);
     }
 
-    createPolygon(shapeNode: Element, fillColor: string, lineColor: string, lineStyle: number[]): void {
+    createPolygon(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number, lineStyle: number[]): void {
         const scaleFactor = 2;
         const offsetX = 50;
         const offsetY = 50;
@@ -393,7 +404,7 @@ export class ShapeCollection {
                 case 'move':
                     if (isClosed && points.length > 0) {
                         // Si el polígono se ha cerrado y hay puntos, crear el polígono anterior
-                        this.createAndAddPolygon(points, fillColor, lineColor, lineStyle);
+                        this.createAndAddPolygon(points, fillColor, lineColor, strokeWidth, lineStyle);
                         points = [];  // Reiniciar los puntos para la nueva figura
                         isClosed = false;
                     }
@@ -418,19 +429,21 @@ export class ShapeCollection {
             // Si hay solo dos puntos, crear una línea
             const line = new Line(points[0].x, points[0].y, points[1].x, points[1].y, lineColor);
             line.setLineStyle(this.parseLineStyle(lineStyle));
+            line.setLineWidth(strokeWidth);
             this.addShape(line);
         } else if (points.length > 2) {
             // Si hay más de dos puntos, crear un polígono
-            this.createAndAddPolygon(points, fillColor, lineColor, lineStyle);
+            this.createAndAddPolygon(points, fillColor, lineColor, strokeWidth, lineStyle);
         }
     }
     
     // Función auxiliar para crear y añadir un polígono cerrado
-    createAndAddPolygon(points: {x: number, y: number}[], fillColor: string, lineColor: string, lineStyle: number[]): void {
+    createAndAddPolygon(points: {x: number, y: number}[], fillColor: string, lineColor: string, strokeWidth: number, lineStyle: number[]): void {
         const polygon = new Polygon(points[0].x, points[0].y, fillColor, lineColor);
         polygon.points = points;
         polygon.isClosed = true;
         polygon.setLineStyle(this.parseLineStyle(lineStyle));
+        polygon.setLineWidth(strokeWidth);
         this.addShape(polygon);
     }
     

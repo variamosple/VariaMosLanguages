@@ -20,7 +20,7 @@ export class Triangle extends Shape {
 
     // Dibujar el borde
     ctx.strokeStyle = this.lineColor;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = this.lineWidth;
     ctx.stroke();
 
     // Restaurar el contexto
