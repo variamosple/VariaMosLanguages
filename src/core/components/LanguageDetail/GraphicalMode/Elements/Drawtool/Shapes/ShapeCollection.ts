@@ -7,6 +7,7 @@ import { Polygon } from "./Polygon";
 
 export class ShapeCollection {
     shapes: Shape[] = [];
+    private otherElements: string[] = [];
 
     addShape(shape: Shape) {
         this.shapes.push(shape);
@@ -170,7 +171,10 @@ export class ShapeCollection {
                     break;
             }
         });
-    
+        
+        // Añadir las etiquetas de texto al XML
+        this.otherElements.forEach(element => xml += `          ${element}\n`);
+
         xml += `  </foreground>\n</shape>`;
         return xml;
     }
@@ -239,6 +243,11 @@ export class ShapeCollection {
                 case 'path':
                     this.parsePathElement(shape, fillColor, strokeColor, strokeWidth, lineStyle);
                     break;
+
+                // Detectar si es texto u otra etiqueta
+                default:
+                    this.processElement(shape);
+                    break;
             }
         }
     }
@@ -279,7 +288,6 @@ export class ShapeCollection {
             this.createAndAddPolygon(points, fillColor, strokeColor, strokeWidth, lineStyle);
         }
     }
-
 
     parseBackground(background: Element): void {
         let backgroundStyles = this.storeStyles(background);
@@ -474,5 +482,11 @@ export class ShapeCollection {
         }
         return 'solid';
     }
-    
+
+    // Método para procesar las etiquetas de texto
+    processElement(textNode: Element): void {
+        // Serializa o almacena el texto de la etiqueta
+        this.otherElements.push(textNode.outerHTML);
+    }
+
 }
