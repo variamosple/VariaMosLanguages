@@ -419,6 +419,7 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
             onLineColorChange={handleLineColorChange}
             onLineStyleChange={handleLineStyleChange}
             onLineWidthChange={handleLineWidthChange}
+            lineWidth={selectedShape ? selectedShape.lineWidth : 1}
           />
         </div>
 

@@ -14,6 +14,7 @@ interface ToolBarProps {
   onLineColorChange: (color: string) => void;
   onLineStyleChange: (style: string) => void;
   onLineWidthChange: (width: number) => void;
+  lineWidth: number;
 }
 
 export default function ToolBar({
@@ -23,7 +24,8 @@ export default function ToolBar({
   onFillColorChange,
   onLineColorChange,
   onLineStyleChange,
-  onLineWidthChange
+  onLineWidthChange,
+  lineWidth
 }: ToolBarProps) {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [fillColor, setFillColor] = useState<string>('#000000');
@@ -31,7 +33,6 @@ export default function ToolBar({
   const [lineStyle, setLineStyle] = useState<string>('solid');
   const [showFillColorPicker, setShowFillColorPicker] = useState<boolean>(false);
   const [showLineColorPicker, setShowLineColorPicker] = useState<boolean>(false);
-  const [lineWidth, setLineWidth] = useState<number>(1);
   
 
   const fillColorPickerRef = useRef<HTMLDivElement | null>(null);
@@ -59,7 +60,6 @@ export default function ToolBar({
 
   const handleLineWidthChange = (newWidth: number) => {
     if (newWidth >= 1 && newWidth <= 10) {
-      setLineWidth(newWidth);
       onLineWidthChange(newWidth);
     }
   }
