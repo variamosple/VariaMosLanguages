@@ -5,6 +5,7 @@ import { IoEllipseOutline, IoTriangleOutline, IoColorFill, IoColorPaletteOutline
 import { FaMinus } from "react-icons/fa6";
 import { TbPolygon, TbBorderStyle2  } from "react-icons/tb";
 import { SketchPicker } from 'react-color';
+import CustomPatternModal from './CustomPatternModal';
 
 interface ToolBarProps {
   onSelectTool: (tool: string) => void;
@@ -12,9 +13,10 @@ interface ToolBarProps {
   hasSelectedShape: boolean;
   onFillColorChange: (color: string) => void;
   onLineColorChange: (color: string) => void;
-  onLineStyleChange: (style: string) => void;
+  onLineStyleChange: (style: string | number[]) => void;
   onLineWidthChange: (width: number) => void;
   lineWidth: number;
+  lineStyle: string | number[];
 }
 
 export default function ToolBar({
@@ -25,15 +27,15 @@ export default function ToolBar({
   onLineColorChange,
   onLineStyleChange,
   onLineWidthChange,
-  lineWidth
+  lineWidth,
+  lineStyle
 }: ToolBarProps) {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [fillColor, setFillColor] = useState<string>('#000000');
   const [lineColor, setLineColor] = useState<string>('#000000');
-  const [lineStyle, setLineStyle] = useState<string>('solid');
   const [showFillColorPicker, setShowFillColorPicker] = useState<boolean>(false);
   const [showLineColorPicker, setShowLineColorPicker] = useState<boolean>(false);
-  
+  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
 
   const fillColorPickerRef = useRef<HTMLDivElement | null>(null);
   const lineColorPickerRef = useRef<HTMLDivElement | null>(null);
@@ -54,8 +56,18 @@ export default function ToolBar({
   };
 
   const handleLineStyleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setLineStyle(event.target.value);
-    onLineStyleChange(event.target.value);
+    const selectedStyle = event.target.value;
+    
+    if (selectedStyle === 'custom') {
+      setShowCustomModal(true);
+    } else {
+      onLineStyleChange(selectedStyle);
+    }
+  };
+
+  const handleSaveCustomPattern = (pattern: number[]) => {
+    onLineStyleChange(pattern);
+    setShowCustomModal(false);
   };
 
   const handleLineWidthChange = (newWidth: number) => {
@@ -63,7 +75,6 @@ export default function ToolBar({
       onLineWidthChange(newWidth);
     }
   }
-  
 
   const toggleFillColorPicker = () => {
     setShowFillColorPicker((prevShowFillColorPicker) => {
@@ -84,7 +95,6 @@ export default function ToolBar({
       return true;
     });
   };
-  
 
   return (
     <div className="mb-3">
@@ -169,15 +179,26 @@ export default function ToolBar({
           <TbBorderStyle2 size={24} />
           <select
             className="form-select d-inline-block ms-2"
-            style={{ width: '120px' }}
-            value={lineStyle}
+            style={{ width: '140px' }}
+            value={Array.isArray(lineStyle) ? 'custom' : lineStyle}
             onChange={handleLineStyleChange}
           >
             <option value="solid">Solid</option>
-            <option value="dashed">Dashed</option>
-            <option value="dotted">Dotted</option>
+            <option value="dashed">Dashed (5 5)</option>
+            <option value="dotted">Dotted (2 2)</option>
+            <option value="longDashed">Long Dashed (10 10)</option>
+            <option value="custom">Custom…</option>
           </select>
         </div>
+
+        {/* Modal para mostrar el patrón personalizado */}
+        {showCustomModal && (
+        <CustomPatternModal
+          show={showCustomModal}
+          onSave={handleSaveCustomPattern}
+          onCancel={() => setShowCustomModal(false)}
+          />
+        )}
 
           {/* Stepper Control para el grosor de línea */}
           <div className="ms-3 d-flex align-items-center">

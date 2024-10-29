@@ -108,20 +108,37 @@ export abstract class Shape {
       this.lineColor = color;
     }
 
-    setLineStyle(style: string): void {
-      switch (style) {
-          case 'dashed':
-          this.lineStyle = [5, 5]
+    setLineStyle(style: string | number[]) {
+      if (typeof style === "string") {
+        switch (style) {
+          case "dashed":
+            this.lineStyle = [5, 5];
             break;
-          case 'dotted':
+          case "dotted":
             this.lineStyle = [2, 2];
             break;
-          case 'solid':
+          case "longDashed":
+            this.lineStyle = [10, 10];
+            break;
           default:
             this.lineStyle = [];
             break;
+        }
+      } else if (Array.isArray(style)) {
+        this.lineStyle = style;
       }
     }
+
+    getLineStyle(): string {
+      if (Array.isArray(this.lineStyle)) {
+          const styleStr = JSON.stringify(this.lineStyle);
+          if (styleStr === JSON.stringify([5, 5])) return "dashed";
+          if (styleStr === JSON.stringify([2, 2])) return "dotted";
+          if (styleStr === JSON.stringify([10, 10])) return "longDashed";
+          return this.lineStyle.length === 0 ? "solid" : "custom";
+      }
+      return "solid";
+  }  
 
     setLineWidth(width: number): void {
       this.lineWidth = width;

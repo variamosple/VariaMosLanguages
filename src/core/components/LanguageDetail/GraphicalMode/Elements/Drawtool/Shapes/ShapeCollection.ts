@@ -224,10 +224,12 @@ export class ShapeCollection {
                     strokeWidth = parseFloat(shape.getAttribute('width') || "2");
                     break;
                 case 'dashed':
-                    lineStyle = shape.getAttribute('dashed') === "1" ? [5, 5] : [];
+                    if (shape.getAttribute('dashed') === "1") {
+                        lineStyle = lineStyle.length ? lineStyle : [3, 3];
+                    }
                     break;
                 case 'dashpattern':
-                    lineStyle = shape.getAttribute('pattern')?.split(" ").map(Number) || [5, 5];
+                    lineStyle = shape.getAttribute('pattern')?.split(" ").map(Number) || [3, 3];
                     break;
                 case 'fillstroke': 
                     // Ignorar
@@ -236,12 +238,15 @@ export class ShapeCollection {
                 // Detectar si es una figura
                 case 'rect':
                     this.createRectangle(shape, fillColor, strokeColor, strokeWidth, lineStyle);
+                    lineStyle = [];
                     break;
                 case 'ellipse':
                     this.createEllipse(shape, fillColor, strokeColor, strokeWidth, lineStyle);
+                    lineStyle = [];
                     break;
                 case 'path':
                     this.parsePathElement(shape, fillColor, strokeColor, strokeWidth, lineStyle);
+                    lineStyle = [];
                     break;
 
                 // Detectar si es texto u otra etiqueta
@@ -476,11 +481,12 @@ export class ShapeCollection {
     }
     
     // Función para convertir el estilo de línea a un formato que el canvas entienda
-    parseLineStyle(lineStyle: number[]): string {
-        if (lineStyle.length > 0) {
-            return 'dashed';
-        }
-        return 'solid';
+    parseLineStyle(lineStyle: number[]): string | number[] {
+        if (lineStyle.length === 0) return 'solid';
+        if (lineStyle[0] === 5 && lineStyle[1] === 5) return 'dashed';
+        if (lineStyle[0] === 2 && lineStyle[1] === 2) return 'dotted';
+        if (lineStyle[0] === 10 && lineStyle[1] === 10) return 'longDashed';
+        return lineStyle;
     }
 
     // Método para procesar las etiquetas de texto

@@ -365,7 +365,7 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
     updateXml();
   };
   
-  const handleLineStyleChange = (style: string) => {
+  const handleLineStyleChange = (style: string | number[]) => {
     if (selectedShape) {
       selectedShape.setLineStyle(style);
       const canvas = canvasRef.current;
@@ -420,6 +420,7 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
             onLineStyleChange={handleLineStyleChange}
             onLineWidthChange={handleLineWidthChange}
             lineWidth={selectedShape ? selectedShape.lineWidth : 1}
+            lineStyle={selectedShape ? selectedShape.getLineStyle() : 'solid'}
           />
         </div>
 
