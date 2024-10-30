@@ -29,8 +29,7 @@ export class ShapeUtils {
         shape.height,
         resizeHandleIndex,
         currentX,
-        currentY,
-        shape.rotation || 0
+        currentY
       );
 
       // Asignamos los nuevos valores calculados a la figura.
