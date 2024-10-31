@@ -4,6 +4,7 @@ export class Property {
   value: any; //ConfigurationValue
   type: any; //Domain - String/Integer/Boolean/
   options: any; //PossibleValues
+  defaultValue?: string; 
   linked_property: any;
   linked_value: any;
   custom: boolean;

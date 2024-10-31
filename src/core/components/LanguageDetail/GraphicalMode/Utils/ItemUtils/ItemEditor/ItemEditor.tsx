@@ -24,7 +24,10 @@ export default function ItemEditor({
     useEffect(()=>{setFormValues(selectedItem)},[selectedItem]);
   
     const handleChange = (e) => {
-      const { name, value } = e.target;
+      let { name, value } = e.target;
+      if (name=="Name" || name=="name") {
+        value= value.replace(/ /g, "_");
+      }
       setFormValues((prev) => ({
         ...prev,
         [name]: value,

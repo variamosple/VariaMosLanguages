@@ -87,7 +87,7 @@ function Layout({ children }) {
       <div className="bodyContent">{children}</div>
       <footer>
         <div className="row copyright">
-          <p>© Copyright 2023 VariaMos. Versión 4.24.04.19.09</p>
+          <p>© Copyright 2023 VariaMos. Versión 4.24.10.31.07</p>
         </div>
       </footer>
     </>

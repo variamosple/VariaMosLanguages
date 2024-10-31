@@ -31,8 +31,8 @@ export default function ItemProperties() {
   );
 
   const newProperty = {
-    name: `Property ${properties.length + 1}`,
-    type: "",
+    name: `Property_${properties.length + 1}`,
+    type: "String",
     possibleValues: [],
     linked_property: "",
     linked_value: "",

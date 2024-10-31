@@ -9,6 +9,7 @@ export type propertyType = {
   name: string;
   type: string;
   possibleValues: string[];
+  defaultValue: string;
   comment: string;
   linked_property: string;
   linked_value: string;
@@ -51,7 +52,7 @@ export default function PropertyForm({ show }) {
   }, [formValues.linked_property, properties]);
 
   const handleChangeRange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
     setRange((prev) => ({
       ...prev,
       [name]: value,
@@ -101,7 +102,7 @@ export default function PropertyForm({ show }) {
                 aria-label="Select a type"
               >
                 <option value="" className="text-muted">Select a type</option>
-                {["String", "Integer", "Boolean"].map((type, index) => (
+                {["String", "Integer", "Boolean", "Text", "Date"].map((type, index) => (
                   <option key={index} value={type}>
                     {type}
                   </option>
@@ -146,6 +147,18 @@ export default function PropertyForm({ show }) {
                 />
               </Col>
             </Row>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={3}>
+              Default value
+            </Form.Label>
+            <Col sm={9}>
+              <Form.Control
+                name="defaultValue"
+                value={formValues.defaultValue}
+                onChange={handleChange}
+              />
+            </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={3}>

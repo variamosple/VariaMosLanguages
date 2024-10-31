@@ -7,7 +7,7 @@ import ItemList from "../Utils/ItemUtils/ItemList/ItemList";
 export default function ElementTab() {
   const { relationships, setRelationships } = useLanguageContext();
   const defaultNewRelationship = {
-    name: `Relationship ${relationships.length + 1}`,
+    name: `Relationship_${relationships.length + 1}`,
     min: "0",
     max: "999999",
     source: "",

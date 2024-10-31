@@ -19,3 +19,9 @@
   color: #0a3622 !important;
   border-color: #a3cfbb !important;
 }
+
+.copyright{ 
+  text-align: center;
+  margin-top: 1rem;
+  color: #c0c0c0 !important;
+}
