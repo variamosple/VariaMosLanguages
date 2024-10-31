@@ -265,6 +265,12 @@ export class ShapeCollection {
             const y = parseFloat(child.getAttribute('y') || "0") * 2 + 50;
 
             switch (child.tagName) {
+                case 'ellipse':
+                    this.createEllipse(child, fillColor, strokeColor, strokeWidth, lineStyle);
+                    break;
+                case 'rect':
+                    this.createRectangle(child, fillColor, strokeColor, strokeWidth, lineStyle);
+                    break;
                 case 'move':
                     // Reiniciar puntos al iniciar una nueva figura
                     if (points.length > 0) {
