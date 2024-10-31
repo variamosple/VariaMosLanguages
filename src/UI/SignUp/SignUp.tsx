@@ -122,7 +122,7 @@ function SignInUp() {
           />
         </div>
         <div className="signup__guest">
-          {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+          {/* eslint-disable-next-line jsx-a11y/anchor-is-valid  */}
           <a
             href="#"
             onClick={signUpAsAGuestHandler}
