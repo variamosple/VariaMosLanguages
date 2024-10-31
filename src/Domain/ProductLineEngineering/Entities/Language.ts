@@ -8,6 +8,8 @@ export class Language {
   type: string;
   stateAccept: string;
   semantics: string;
+  userId?: string;
+  ownerName?: string;
 
   constructor(
     id: number,
@@ -17,6 +19,8 @@ export class Language {
     type: string,
     stateAccept?: string,
     semantics?: string,
+    userId?: string,
+    ownerName?: string
   ) {
     this.id = id;
     this.name = name;
@@ -25,5 +29,7 @@ export class Language {
     this.type = type;
     this.stateAccept = stateAccept;
     this.semantics = semantics;
+    this.userId = userId;
+    this.ownerName = ownerName;
   }
 }

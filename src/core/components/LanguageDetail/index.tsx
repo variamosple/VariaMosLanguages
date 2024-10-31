@@ -8,7 +8,6 @@ import {
   Spinner,
   Container,
   Row,
-  Col,
 } from "react-bootstrap";
 import Comment from "./Comment/Comment";
 import { capitalize, formatCode, getFormattedDate } from "./index.utils";
@@ -27,6 +26,9 @@ import { useComment } from "../../hooks/useComment";
 import { useLanguageContext, CreatingMode } from "../../context/LanguageContext/LanguageContextProvider";
 import { Tab, Tabs } from "react-bootstrap";
 import CreationModeButton from "../LanguageManager/CreationModeButton/CreationModeButton";
+import Semantics from "./Semantics";
+import ConfirmationModal, {ConfirmationModalProps, confirmationModalDefaultProps} from "../ConfirmationModal";
+import * as alertify from "alertifyjs";
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -45,14 +47,12 @@ const COMMENT_STATUS_OPEN = "open";
 export default function LanguageDetail({
   language,
   isCreatingLanguage,
-  setRequestLanguages,
   review,
   setComment,
   setEditLanguage
 }: LanguageDetailProps) {
   const [showSpinner, setShowSpinner] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const [showSuccessfulMessage, setShowSuccessfulMessage] = useState(false);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
   const [errorMessage, setErrorMessage] = useState(String());
   const [languageName, setLanguageName] = useState(String());
@@ -60,6 +60,7 @@ export default function LanguageDetail({
   const [commentContent, setCommentContent] = useState(String());
   const { saveComment } = useComment({ setComment });
   const { setCreatingMode } = useLanguageContext();
+  const [confirmModalState, setConfirmModalState] = useState<ConfirmationModalProps>({...confirmationModalDefaultProps});
 
   const {
     abstractSyntax,
@@ -107,7 +108,6 @@ export default function LanguageDetail({
       setSemantics(formatCode(language.semantics || DEFAULT_SYNTAX));
     }
     setShowErrorMessage(false);
-    setShowSuccessfulMessage(false);
   }, [
     language,
     isCreatingLanguage,
@@ -158,15 +158,13 @@ export default function LanguageDetail({
 
     if (messageError) {
       setShowErrorMessage(true);
-      setShowSuccessfulMessage(false);
       setErrorMessage(messageError);
       return;
     }
 
-    setShowErrorMessage(false);
-    setShowSuccessfulMessage(true);
+    alertify.success("Language saved successfuly.");
+    setShowErrorMessage(false);    
     setErrorMessage("");
-    setRequestLanguages(true);
     setEditLanguage(false);
   };
 
@@ -220,7 +218,6 @@ export default function LanguageDetail({
     } catch (e) {
       setErrorMessage((e as Error).message);
       setShowErrorMessage(true);
-      setShowSuccessfulMessage(false);
       setShowSpinner(false);
     }
   };
@@ -232,6 +229,33 @@ export default function LanguageDetail({
   const handleModeClick = (mode: CreatingMode) => {
     setCreatingMode(mode);
   };
+
+  const confirmSave = () => {
+    setConfirmModalState({
+      ...confirmationModalDefaultProps,
+      show: true,
+      message: "Are you sure you want to save the language?",
+      onConfirm: () => {
+        setConfirmModalState((currentState) => ({...currentState, show: false, }));
+        handleSaveLanguage();
+      },
+      onCancel: () => setConfirmModalState((currentState) => ({...currentState, show: false})),
+    });
+  }
+
+  const confirmCancel = () => {
+    setConfirmModalState({
+      ...confirmationModalDefaultProps,
+      show: true,
+      message: "All the changes will be lost. Are you sure you want to cancel?",
+      onConfirm: () => {
+        setConfirmModalState((currentState) => ({...currentState, show: false, }));
+        handleCancel();
+      },
+      confirmButtonVariant: "danger",
+      onCancel: () => setConfirmModalState((currentState) => ({...currentState, show: false, }))
+    });
+  }
 
   if (!language && !isCreatingLanguage) {
     return (
@@ -245,21 +269,20 @@ export default function LanguageDetail({
   return (
     <>
       <br />
-      <div>
-        <Button
-          variant="primary"
-          onClick={handleSaveLanguage}
-          disabled={disableSaveButton}
-        >
-          Save
-        </Button>
-        {" "}
+      <div className='d-flex gap-1'>
         <Button
           variant="secondary"
-          onClick={handleCancel}
+          onClick={confirmCancel}
           disabled={disableSaveButton}
         >
           Cancel
+        </Button>
+        <Button
+          variant="primary"
+          onClick={confirmSave}
+          disabled={disableSaveButton}
+        >
+          Save
         </Button>
       </div>
       <br />
@@ -275,11 +298,6 @@ export default function LanguageDetail({
           {showErrorMessage && (
             <Alert variant="danger" className="mb-3 mt-3">
               {errorMessage}
-            </Alert>
-          )}
-          {showSuccessfulMessage && (
-            <Alert variant="success" className="mb-3 mt-3">
-              Language saved successfuly.
             </Alert>
           )}
         </Row>
@@ -323,6 +341,9 @@ export default function LanguageDetail({
           <br />
           {creatingMode === config.modeTextualLabel && <TextualMode />}
           {creatingMode === config.modeGraphicalLabel && <GraphicalMode />}
+        </Tab>
+        <Tab eventKey="semantics" title="Semantics" id="uncontrolled-tab" className="my-3">
+          <Semantics />
         </Tab>
         <Tab eventKey="comments" title="Comments">
           {/* Add Comment */}
@@ -386,11 +407,7 @@ export default function LanguageDetail({
           </ListGroup>
         </Tab>
       </Tabs>
-
-
-
-
-
+      <ConfirmationModal {...confirmModalState} />
     </>
   );
 }

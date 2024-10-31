@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import LanguageDetail from "../../components/LanguageDetail";
 import LanguageManager from "../../components/LanguageManager";
 import LanguagePageLayout from "../../components/LanguagePageLayout";
@@ -11,7 +11,6 @@ import useLanguageReview from "../../hooks/useLanguageReview";
 export default function LanguagePage() {
   const [language, setLanguage] = useState<Language | null>(null);
   const [isCreatingLanguage, setCreatingLanguage] = useState(false);
-  const [requestLanguages, setRequestLanguages] = useState(false);
   const [showLanguageManager, setShowLanguageManager] = useState(null);
   const [showLanguageDetail, setShowLanguageDetail] = useState({display:"none"}); 
 
@@ -33,20 +32,6 @@ export default function LanguagePage() {
     users,
   });
 
-  useEffect(() => {
-    // if (isCreatingLanguage) {
-    //   setShowLanguageManager({display:"none"});
-    //   setShowLanguageDetail(null); 
-    // }
-  }, [isCreatingLanguage, setCreatingLanguage]);
-
-  useEffect(() => {
-    // if (language) {
-    //   setShowLanguageManager({display:"none"});
-    //   setShowLanguageDetail(null); 
-    // }
-  }, [language, setLanguage]);
-
   const setEditLanguage = (edit) => {
     if (edit) {
       setShowLanguageManager({display:"none"});
@@ -61,13 +46,13 @@ export default function LanguagePage() {
     <LanguageContextProvider>
       <LanguagePageLayout>
         <div style={showLanguageManager}>
-          <LanguageManager
-            setLanguage={setLanguage}
-            setCreatingLanguage={setCreatingLanguage}
-            requestLanguages={requestLanguages}
-            setRequestLanguages={setRequestLanguages}
-            setEditLanguage={setEditLanguage}
-          />
+          {!!showLanguageDetail && (
+            <LanguageManager
+              setLanguage={setLanguage}
+              setCreatingLanguage={setCreatingLanguage}
+              setEditLanguage={setEditLanguage}
+            />
+          )}
         </div>
         <div style={showLanguageDetail}>
           <LanguageDetail
@@ -75,7 +60,6 @@ export default function LanguagePage() {
             review={review}
             setComment={setComment}
             isCreatingLanguage={isCreatingLanguage}
-            setRequestLanguages={setRequestLanguages}
             setEditLanguage={setEditLanguage}
           />
           <LanguageReview

@@ -4,7 +4,7 @@ import {useLanguageContext } from "../../../context/LanguageContext/LanguageCont
 
 
 export default function TextualMode() {
-    const {abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax, semantics, setSemantics} = useLanguageContext()
+    const {abstractSyntax, setAbstractSyntax, concreteSyntax, setConcreteSyntax} = useLanguageContext()
 
     return(
     <Tabs
@@ -17,9 +17,6 @@ export default function TextualMode() {
         </Tab>
         <Tab eventKey="concrete-syntax" title="Concrete Syntax">
           <SourceCode code={concreteSyntax} dispatcher={setConcreteSyntax} />
-        </Tab>
-        <Tab eventKey="semantics" title="Semantics">
-          <SourceCode code={semantics} dispatcher={setSemantics} />
         </Tab>
       </Tabs>
     )

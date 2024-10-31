@@ -18,8 +18,6 @@ export default function GraphicalMode() {
         <Tab eventKey="restrictions" title="Constraints">
           <RestrictionTab/>
         </Tab>
-        <Tab eventKey="semantics" title="Semantics">
-        </Tab>
       </Tabs>
   );
 }
