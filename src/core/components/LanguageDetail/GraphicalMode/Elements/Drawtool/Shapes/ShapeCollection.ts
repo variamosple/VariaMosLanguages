@@ -8,6 +8,7 @@ import { Polygon } from "./Polygon";
 export class ShapeCollection {
     shapes: Shape[] = [];
     private otherElements: string[] = [];
+    shapeAttributes: Record<string, string>;
 
     addShape(shape: Shape) {
         this.shapes.push(shape);
@@ -76,8 +77,18 @@ export class ShapeCollection {
         // Factor de escala para ajustar las figuras dentro del cuadro de 100x100
         const scale = 100 / Math.max(boundingBoxWidth, boundingBoxHeight);
     
+        // Preparar los atributos
+        if (!this.shapeAttributes["name"]) this.shapeAttributes["name"] = "compositeShape";
+        if (!this.shapeAttributes["aspect"]) this.shapeAttributes["aspect"] = "variable";
+        if (!this.shapeAttributes["strokewidth"]) this.shapeAttributes["strokewidth"] = "inherit";
+
+        let shapeAttrString = "";
+        for (const [key, value] of Object.entries(this.shapeAttributes)) {
+            shapeAttrString += ` ${key}="${value}"`;
+        }
+
         // Generamos el XML escalando las coordenadas
-        let xml = `<shape name="compositeShape" aspect="variable" strokewidth="inherit">\n  <foreground>\n`;
+        let xml = `<shape ${shapeAttrString}>\n  <foreground>\n`;
     
         this.shapes.forEach(shape => {
             const strokeColor = shape.lineColor || "#333333";
@@ -188,6 +199,13 @@ export class ShapeCollection {
         const shapeNode = xmlDoc.getElementsByTagName("shape")[0];
     
         if (shapeNode) {
+
+            // Extraer y almacenar atributos de la etiqueta <shape>
+            this.shapeAttributes = {};
+            for (let i = 0; i < shapeNode.attributes.length; i++) {
+                const attr = shapeNode.attributes[i];
+                this.shapeAttributes[attr.name] = attr.value;
+            }
 
             const foreground = shapeNode.getElementsByTagName("foreground")[0];
             const background = shapeNode.getElementsByTagName("background")[0];
