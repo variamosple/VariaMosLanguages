@@ -1,8 +1,11 @@
 import React, {useRef, useState } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 import { MdOutlineRectangle } from "react-icons/md";
-import { IoEllipseOutline, IoTriangleOutline, IoColorFill, IoColorPaletteOutline  } from "react-icons/io5";
+import { IoEllipseOutline, IoTriangleOutline, IoColorFill, IoColorPaletteOutline } from "react-icons/io5";
 import { FaMinus } from "react-icons/fa6";
+import { RxBorderWidth } from "react-icons/rx";
+import { PiCursorFill } from "react-icons/pi";
+import { FaTrashAlt } from "react-icons/fa";
 import { TbPolygon, TbBorderStyle2  } from "react-icons/tb";
 import { SketchPicker } from 'react-color';
 import CustomPatternModal from './CustomPatternModal';
@@ -104,7 +107,7 @@ export default function ToolBar({
           variant={selectedTool === 'select' ? 'primary' : 'secondary'}
           onClick={() => handleToolClick('select')}
         >
-          Select
+          <PiCursorFill />
         </Button>
         <Button
           variant={selectedTool === 'rectangle' ? 'primary' : 'secondary'}
@@ -141,7 +144,7 @@ export default function ToolBar({
           onClick={onDelete}
           disabled={!hasSelectedShape}
         >
-          Delete
+          <FaTrashAlt />
         </Button>
       </ButtonGroup>
 
@@ -202,7 +205,7 @@ export default function ToolBar({
 
           {/* Stepper Control para el grosor de línea */}
           <div className="ms-3 d-flex align-items-center">
-            <label className="me-2">Line Width:</label>
+            <RxBorderWidth />
             <input
               type="number"
               value={lineWidth}
