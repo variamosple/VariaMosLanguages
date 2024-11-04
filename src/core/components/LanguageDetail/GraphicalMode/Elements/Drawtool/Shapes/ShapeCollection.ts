@@ -88,7 +88,7 @@ export class ShapeCollection {
         }
 
         // Generamos el XML escalando las coordenadas
-        let xml = `<shape ${shapeAttrString}>\n  <foreground>\n`;
+        let xml = `<shape ${shapeAttrString}>\n  <background>\n`;
     
         this.shapes.forEach(shape => {
             const strokeColor = shape.lineColor || "#333333";
@@ -183,10 +183,16 @@ export class ShapeCollection {
             }
         });
         
+        xml += `</background>
+        <foreground>
+            <fillstroke/>`;
+
         // Añadir las etiquetas de texto al XML
         this.otherElements.forEach(element => xml += `          ${element}\n`);
 
-        xml += `  </foreground>\n</shape>`;
+        xml += `
+        </foreground>
+        </shape>`;
         return xml;
     }
 
@@ -211,7 +217,7 @@ export class ShapeCollection {
             const background = shapeNode.getElementsByTagName("background")[0];
 
             if (background) {
-                this.parseBackground(background);
+                this.parseShapes(background);
             }
 
             if (foreground) {
@@ -317,99 +323,6 @@ export class ShapeCollection {
             this.createAndAddPolygon(points, fillColor, strokeColor, strokeWidth, lineStyle);
         }
     }
-
-    parseBackground(background: Element): void {
-        let backgroundStyles = this.storeStyles(background);
-        for (let shape of Array.from(background.children)) {
-            this.applyStylesAndCreateShape(shape, backgroundStyles);
-        }
-    }
-
-    getBackgroundStyles(foreground: Element | null): { fillColor: string, strokeColor: string, lineStyle: number[] } {
-        let styles = {
-            fillColor: "#FFFFFF",
-            strokeColor: "#000000",
-            strokeWidth: 2,
-            lineStyle: [] as number[]
-        };
-    
-        if (foreground) {
-            const shapes = foreground.children;
-    
-            // Revisar el primer trazo del foreground para obtener los estilos
-            for (let shape of Array.from(shapes)) {
-                switch (shape.tagName) {
-                    case 'strokecolor':
-                        styles.strokeColor = shape.getAttribute('color') || "#000000";
-                        break;
-                    case 'strokewidth':
-                        styles.strokeWidth = parseFloat(shape.getAttribute('width') || "2");
-                        break;
-                    case 'fillcolor':
-                        styles.fillColor = shape.getAttribute('color') || "#FFFFFF";
-                        break;
-                    case 'dashed':
-                        styles.lineStyle = shape.getAttribute('dashed') === "1" ? [5, 5] : [];
-                        break;
-                    case 'dashpattern':
-                        styles.lineStyle = shape.getAttribute('pattern')?.split(" ").map(Number) || [5, 5];
-                        break;
-                }
-    
-                // Salir después de obtener los primeros estilos
-                if (shape.tagName === 'fillstroke') {
-                    break;
-                }
-            }
-        }
-    
-        return styles;
-    }
-
-    storeStyles(element: Element): { fillColor: string, strokeColor: string, strokeWidth: number, lineStyle: number[] } {
-        let styles = {
-            fillColor: "#FFFFFF",
-            strokeColor: "#000000",
-            strokeWidth: 2,
-            lineStyle: [] as number[]
-        };
-    
-        for (let shape of Array.from(element.children)) {
-            switch (shape.tagName) {
-                case 'strokecolor':
-                    styles.strokeColor = shape.getAttribute('color') || "#000000";
-                    break;
-                case 'strokewidth':
-                    styles.strokeWidth = parseFloat(shape.getAttribute('width') || "2");
-                    break;
-                case 'fillcolor':
-                    styles.fillColor = shape.getAttribute('color') || "#FFFFFF";
-                    break;
-                case 'dashed':
-                    styles.lineStyle = shape.getAttribute('dashed') === "1" ? [5, 5] : [];
-                    break;
-                case 'dashpattern':
-                    styles.lineStyle = shape.getAttribute('pattern')?.split(" ").map(Number) || [5, 5];
-                    break;
-            }
-        }
-    
-        return styles;
-    }
-
-    applyStylesAndCreateShape(shape: Element, styles: { fillColor: string, strokeColor: string, strokeWidth: number, lineStyle: number[] }): void {
-        switch (shape.tagName) {
-            case 'rect':
-                this.createRectangle(shape, styles.fillColor, styles.strokeColor, styles.strokeWidth, styles.lineStyle);
-                break;
-            case 'ellipse':
-                this.createEllipse(shape, styles.fillColor, styles.strokeColor, styles.strokeWidth, styles.lineStyle);
-                break;
-            case 'path':
-                this.parsePathElement(shape, styles.fillColor, styles.strokeColor, styles.strokeWidth, styles.lineStyle);
-                break;
-        }
-    }
     
     // Función para procesar el rectángulo
     createRectangle(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number,  lineStyle: number[]): void {
@@ -443,55 +356,6 @@ export class ShapeCollection {
         ellipse.setLineStyle(this.parseLineStyle(lineStyle));
         ellipse.setLineWidth(strokeWidth);
         this.addShape(ellipse);
-    }
-
-    createPolygon(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number, lineStyle: number[]): void {
-        const scaleFactor = 2;
-        const offsetX = 50;
-        const offsetY = 50;
-    
-        let points = [];
-        let isClosed = false;
-    
-        for (let child of Array.from(shapeNode.children)) {
-            const x = (parseFloat(child.getAttribute('x') || "0") * scaleFactor) + offsetX;
-            const y = (parseFloat(child.getAttribute('y') || "0") * scaleFactor) + offsetY;
-    
-            switch (child.tagName) {
-                case 'move':
-                    if (isClosed && points.length > 0) {
-                        // Si el polígono se ha cerrado y hay puntos, crear el polígono anterior
-                        this.createAndAddPolygon(points, fillColor, lineColor, strokeWidth, lineStyle);
-                        points = [];  // Reiniciar los puntos para la nueva figura
-                        isClosed = false;
-                    }
-                    // Iniciar el nuevo polígono con el punto de 'move'
-                    points.push({ x, y });
-                    break;
-    
-                case 'line':
-                    // Añadir un nuevo vértice al polígono actual
-                    points.push({ x, y });
-                    break;
-    
-                case 'close':
-                    // Marcar el polígono actual como cerrado
-                    isClosed = true;
-                    break;
-            }
-        }
-    
-        // Crear la última figura (ya sea polígono o línea)
-        if (points.length === 2) {
-            // Si hay solo dos puntos, crear una línea
-            const line = new Line(points[0].x, points[0].y, points[1].x, points[1].y, lineColor);
-            line.setLineStyle(this.parseLineStyle(lineStyle));
-            line.setLineWidth(strokeWidth);
-            this.addShape(line);
-        } else if (points.length > 2) {
-            // Si hay más de dos puntos, crear un polígono
-            this.createAndAddPolygon(points, fillColor, lineColor, strokeWidth, lineStyle);
-        }
     }
     
     // Función auxiliar para crear y añadir un polígono cerrado
