@@ -38,8 +38,8 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
     }
   };
 
-  const XMLInput_onXmlChange = (xml) => {
-    onXmlChange(xml);
+  const XMLInput_onXmlChange = (xml, icon) => {
+    onXmlChange(xml, icon);
   };
 
   const handleRectangleShape = (e) => {
@@ -89,10 +89,10 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
     {/* Dropdown para elegir entre Canvas o XML */}
     <DropdownButton size="sm" title="Mode" variant="primary" id="modeDropdown" className="mb-3">
       <Dropdown.Item onClick={handleSwitchToCanvas}>
-        Editor Canvas
+        Canvas Editor
       </Dropdown.Item>
       <Dropdown.Item onClick={handleSwitchToXml}>
-        Ver XML
+        XML textual editor
       </Dropdown.Item>
     </DropdownButton>
 

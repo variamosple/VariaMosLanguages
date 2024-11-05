@@ -30,6 +30,49 @@ export class ShapeCollection {
         }));
     }
 
+    getArea(): { x: number, y: number, width: number, height: number } {
+        // Inicializamos las variables para encontrar el bounding box de todas las figuras
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+        // Primero, recorremos todas las figuras para calcular el bounding box global
+        this.shapes.forEach(shape => {
+            switch (shape.getType()) {
+                case 'rectangle':
+                case 'ellipse':
+                    minX = Math.min(minX, shape.x);
+                    minY = Math.min(minY, shape.y);
+                    maxX = Math.max(maxX, shape.x + shape.width);
+                    maxY = Math.max(maxY, shape.y + shape.height);
+                    break;
+                case 'line':
+                    const line = shape as Line;
+                    minX = Math.min(minX, line.x, line.x2);
+                    minY = Math.min(minY, line.y, line.y2);
+                    maxX = Math.max(maxX, line.x, line.x2);
+                    maxY = Math.max(maxY, line.y, line.y2);
+                    break;
+                case 'triangle':
+                    const triangle = shape as Triangle;
+                    minX = Math.min(minX, triangle.x, triangle.x + triangle.width / 2, triangle.x + triangle.width);
+                    minY = Math.min(minY, triangle.y, triangle.y + triangle.height);
+                    maxX = Math.max(maxX, triangle.x, triangle.x + triangle.width / 2, triangle.x + triangle.width);
+                    maxY = Math.max(maxY, triangle.y, triangle.y + triangle.height);
+                    break;
+                case 'polygon':
+                    const polygon = shape as Polygon;
+                    polygon.points.forEach(point => {
+                        minX = Math.min(minX, point.x);
+                        minY = Math.min(minY, point.y);
+                        maxX = Math.max(maxX, point.x);
+                        maxY = Math.max(maxY, point.y);
+                    });
+                    break;
+            }
+        });
+        
+        return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+    }
+
     toXML(): string {
         // Inicializamos las variables para encontrar el bounding box de todas las figuras
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;

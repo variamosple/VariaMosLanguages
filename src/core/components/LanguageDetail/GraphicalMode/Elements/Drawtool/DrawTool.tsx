@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 export default function Drawtool({ show, handleClose, xml, onXmlChange }) {
   const [previewXml, setPreviewXml] = useState<string | null>(null);
   const [editedXml, setEditedXml] = useState<string | null>(null);
+  const [icon, setIcon] = useState<string | null>(null);
 
   const handleFormSubmit = () => {
-    onXmlChange(editedXml);
+    onXmlChange(editedXml, icon);
     handleClose();
   };
 
@@ -20,6 +21,11 @@ export default function Drawtool({ show, handleClose, xml, onXmlChange }) {
     setEditedXml(xml);
   }, [xml]);
 
+  const xmlTab_onXmlChange =(xml: string, icon?: string) => {
+    setEditedXml(xml);
+    setIcon(icon);
+  }
+
 
   return (
     <Modal show={show} onHide={handleClose} size={"xl"}>
@@ -27,7 +33,7 @@ export default function Drawtool({ show, handleClose, xml, onXmlChange }) {
         <Modal.Title>Draw Tool</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <XmlTab previewXml={previewXml} setPreviewXml={setPreviewXml} xml={editedXml} onXmlChange={setEditedXml} />
+        <XmlTab previewXml={previewXml} setPreviewXml={setPreviewXml} xml={editedXml} onXmlChange={xmlTab_onXmlChange} />
         {/* <Tabs defaultActiveKey="xml" id="uncontrolled-tab" justify className="mb-3">
           <Tab eventKey="xml" title="XML">
             <XmlTab previewXml={previewXml} setPreviewXml={setPreviewXml} xml={xml} onXmlChange={onXmlChange} />

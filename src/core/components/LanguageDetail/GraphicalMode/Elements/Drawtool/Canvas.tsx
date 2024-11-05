@@ -12,7 +12,7 @@ import { Polygon } from "./Shapes/Polygon";
 
 interface CanvasProps {
   xml: string;
-  onXmlChange: (xml: string) => void; // Prop para manejar los cambios en el XML
+  onXmlChange: (xml: string, icon?: string) => void; // Prop para manejar los cambios en el XML
 }
 
 export default function Canvas({xml, onXmlChange }: CanvasProps) {
@@ -402,7 +402,38 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
 
   const updateXml = () => {
     const xml = shapeCollection.toXML();
-    onXmlChange(xml); 
+    const icon = getIcon();
+    onXmlChange(xml, icon);
+  };
+
+  function getIcon() {
+    const dataURL = captureRegion();
+
+    //alert(dataURL);
+    return dataURL;
+  }
+
+  const captureRegion = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    const area = shapeCollection.getArea();
+    //alert("Area: " + JSON.stringify(area));
+
+    // Captura la región especificada
+    const imageData = ctx.getImageData(area.x - 3, area.y - 3, area.width + 6, area.height + 6);
+
+    // Crea un nuevo canvas temporal para dibujar la región capturada
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = area.width + 6;
+    tempCanvas.height = area.height + 6;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.putImageData(imageData, 0, 0);
+
+    // Convierte el contenido del canvas temporal a una URL en base64
+    const dataURL = tempCanvas.toDataURL('image/png');
+    //alert("Base64 PNG de la región:" + dataURL);
+    return dataURL;
   };
 
   return (

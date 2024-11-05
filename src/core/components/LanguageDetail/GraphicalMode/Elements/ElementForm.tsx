@@ -11,9 +11,14 @@ export default function ElementForm() {
   const [showDrawTool, setShowDrawTool] = useState(false);
   const [xml, setXml] = useState(`<shape></shape>`);
 
-  const handleXmlChange = (xml: string) => {
+  const handleXmlChange = (xml: string, icon?: string) => {
     setXml(xml);
     handleChange({ target: { name: "draw", value: btoa(xml) } });
+    //alert(icon);
+    if(icon){
+      const base64WithoutPrefix = icon.split(",")[1];
+      handleChange({ target: { name: "icon", value: base64WithoutPrefix } });
+    }
   };
 
   const handleOpenDrawtool = () => {
