@@ -7,6 +7,8 @@ import { SelectOptionProps } from '../../InfiniteSelect/index.types';
 import { getServiceUrl } from '../../LanguageManager/index.utils';
 import SourceCode from '../TextualMode/SourceCode/SourceCode';
 import { formatCode } from '../index.utils';
+import VisualSemanticEditor from './VisualSemanticEditor';
+import { Dropdown, DropdownButton } from 'react-bootstrap';
 
 const LIMIT = 20;
 
@@ -30,6 +32,13 @@ export default function Sematics() {
   );
   const [isFetchingSemantics, setIsFetchingSemantics] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
+
+  const [viewMode, setViewMode] = useState<'form' | 'json'>('form');
+
+  // Manejar el cambio de modo de vista
+  const handleSwitchToForm = () => setViewMode('form');
+  const handleSwitchToJson = () => setViewMode('json');
+
 
   const handleSelect = (option: SelectOptionProps) => {
     const selectedSemantics =
@@ -142,7 +151,20 @@ export default function Sematics() {
         searchInput={searchInput}
         setSearchInput={onSearchChange}
       />
-      <SourceCode code={semantics} dispatcher={setSemantics} />
+
+      {/* DropDown button para elegir entre el formulario o el modo textual */}
+      <div>
+        <DropdownButton size="sm" title="Mode" variant="primary" id="modeDropdown" className="mb-3">
+          <Dropdown.Item onClick={handleSwitchToForm}>Visual Editor</Dropdown.Item>
+          <Dropdown.Item onClick={handleSwitchToJson}>Textual editor</Dropdown.Item>
+        </DropdownButton>
+
+        {viewMode === "form" ? (
+          <VisualSemanticEditor />
+        ) : (
+          <SourceCode code={semantics} dispatcher={setSemantics} />
+        )}
+      </div>
     </div>
   );
 }
