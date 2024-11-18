@@ -12,8 +12,29 @@ import { Dropdown, DropdownButton } from 'react-bootstrap';
 
 const LIMIT = 20;
 
+interface SemanticsState {
+  isLoading: boolean;
+  isInitialized: boolean;
+  error: string | null;
+}
+
+interface TranslationRule {
+  param: string;
+  constraint: string;
+  selectedConstraint: string;
+  deselectedConstraint: string;
+}
+
 export default function Sematics() {
-  const { semantics, setSemantics } = useLanguageContext();
+  const { semantics, setSemantics, elements, relationships } = useLanguageContext();
+  const [selectedElements, setSelectedElements] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'form' | 'json'>('form');
+
+  const [state, setState] = useState<SemanticsState>({
+    isLoading: true,
+    isInitialized: false,
+    error: null
+  });
 
   const [semanticsMap, setSemanticsMap] = useState<Map<number, string>>(
     new Map()
@@ -33,12 +54,125 @@ export default function Sematics() {
   const [isFetchingSemantics, setIsFetchingSemantics] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
 
-  const [viewMode, setViewMode] = useState<'form' | 'json'>('form');
-
   // Manejar el cambio de modo de vista
   const handleSwitchToForm = () => setViewMode('form');
   const handleSwitchToJson = () => setViewMode('json');
 
+  const isValidSemantics = useCallback((semantics: string | undefined): boolean => {
+    try {
+      if (!semantics) return false;
+      const parsed = JSON.parse(semantics);
+      return (
+        parsed.hasOwnProperty('elementTypes') &&
+        Array.isArray(parsed.elementTypes) &&
+        parsed.hasOwnProperty('elementTranslationRules') &&
+        Array.isArray(parsed.elementTranslationRules) &&
+        parsed.hasOwnProperty('relationTypes') &&
+        Array.isArray(parsed.relationTypes)
+      );
+    } catch (e) {
+      return false;
+    }
+  }, []);
+
+  // Función para precargar la semántica con las propiedades del contexto
+  const preloadSemantics = useCallback(async () => {
+    if (!elements.length || !relationships.length) {
+      setState(prev => ({ ...prev, error: 'Required language elements not loaded' }));
+      return;
+    }
+
+    if (isValidSemantics(semantics)) {
+      setState({ isLoading: false, isInitialized: true, error: null });
+      return;
+    }
+
+    try {
+      const elementTypes = Array.from(new Set(elements.map(element => element.name)));
+      const relationTypes = Array.from(new Set(relationships.map(relationship => relationship.name)));
+
+      const initialSemantics = {
+        elementTypes,
+        relationTypes,
+        elementTranslationRules: {},
+        relationTranslationRules: {},
+        attributeTypes: [],
+        hierarchyTypes: [],
+        typingRelationTypes: ["IndividualCardinality"],
+        relationPropertySchema: {
+          type: {
+            key: "value",
+            index: 0
+          }
+        }
+      };
+
+      setSemantics(JSON.stringify(initialSemantics, null, 2));
+      setState({ isLoading: false, isInitialized: true, error: null });
+
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: 'Error initializing semantics',
+        isLoading: false
+      }));
+      console.error("Error preloading semantics:", error);
+    }
+  }, [elements, relationships, semantics, setSemantics, isValidSemantics]);
+
+  useEffect(() => {
+    if (!state.isInitialized && elements.length > 0 && relationships.length > 0) {
+      preloadSemantics();
+    }
+  }, [state.isInitialized, elements, relationships, preloadSemantics]);
+
+
+  // Función para parsear la semántica actual
+  const parseCurrentSemantics = useCallback(() => {
+    try {
+      const parsedSemantics = semantics ? JSON.parse(semantics) : {};
+      return {
+        elementTypes: parsedSemantics.elementTypes || [],
+        elementTranslationRules: parsedSemantics.elementTranslationRules || {},
+        // Añadir otros campos según sea necesario (Siguiente el relationTypes)
+      };
+    } catch (e) {
+      console.error('Error parsing semantics:', e);
+      return {
+        elementTypes: [],
+        elementTranslationRules: {},
+      };
+    }
+  }, [semantics]);
+  
+  // Sincronizar el estado local con la semántica
+  useEffect(() => {
+    const { elementTypes } = parseCurrentSemantics();
+    setSelectedElements(elementTypes);
+  }, [semantics, parseCurrentSemantics]);
+
+  // Manejar el cambio de elementos seleccionados
+  const handleElementsChange = (elements: string[]) => {
+    const currentSemantics = parseCurrentSemantics();
+    const updatedSemantics = {
+      ...currentSemantics,
+      elementTypes: elements,
+    };
+    setSemantics(JSON.stringify(updatedSemantics, null, 2));
+    setSelectedElements(elements);
+  };
+
+  const handleTranslationRuleChange = (elementName: string, rule: TranslationRule) => {
+    const currentSemantics = parseCurrentSemantics();
+    const updatedSemantics = {
+      ...currentSemantics,
+      elementTranslationRules: {
+        ...currentSemantics.elementTranslationRules,
+        [elementName]: rule,
+      },
+    };
+    setSemantics(JSON.stringify(updatedSemantics, null, 2));
+  };
 
   const handleSelect = (option: SelectOptionProps) => {
     const selectedSemantics =
@@ -140,31 +274,52 @@ export default function Sematics() {
 
   return (
     <div>
-      <Select
-        options={semanticOptions}
-        selected={selectedOption}
-        placeholder='Select a semantic'
-        handleSelect={handleSelect}
-        isFetchingOptions={isFetchingSemantics}
-        lastOptionRef={lastEntryRef}
-        isSearchable={true}
-        searchInput={searchInput}
-        setSearchInput={onSearchChange}
-      />
+      {state.isLoading ? (
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : state.error ? (
+        <div className="alert alert-danger" role="alert">
+          {state.error}
+        </div>
+      ) : (
+        <>
+        
+        <Select
+          options={semanticOptions}
+          selected={selectedOption}
+          placeholder='Select a semantic'
+          handleSelect={handleSelect}
+          isFetchingOptions={isFetchingSemantics}
+          lastOptionRef={lastEntryRef}
+          isSearchable={true}
+          searchInput={searchInput}
+          setSearchInput={onSearchChange}
+        />
 
-      {/* DropDown button para elegir entre el formulario o el modo textual */}
-      <div>
-        <DropdownButton size="sm" title="Mode" variant="primary" id="modeDropdown" className="mb-3">
-          <Dropdown.Item onClick={handleSwitchToForm}>Visual Editor</Dropdown.Item>
-          <Dropdown.Item onClick={handleSwitchToJson}>Textual editor</Dropdown.Item>
-        </DropdownButton>
+        {/* DropDown button para elegir entre el formulario o el modo textual */}
+        <div>
+          <DropdownButton size="sm" title="Mode" variant="primary" id="modeDropdown" className="mb-3">
+            <Dropdown.Item onClick={handleSwitchToForm}>Visual Editor</Dropdown.Item>
+            <Dropdown.Item onClick={handleSwitchToJson}>Textual editor</Dropdown.Item>
+          </DropdownButton>
 
-        {viewMode === "form" ? (
-          <VisualSemanticEditor />
-        ) : (
-          <SourceCode code={semantics} dispatcher={setSemantics} />
-        )}
-      </div>
+          {viewMode === "form" ? (
+            <VisualSemanticEditor
+              elements={elements}
+              selectedElements={selectedElements}
+              elementTranslationRules={parseCurrentSemantics().elementTranslationRules}
+              onElementsChange={handleElementsChange}
+              onTranslationRuleChange={handleTranslationRuleChange}
+            />
+          ) : (
+            <SourceCode code={semantics} dispatcher={setSemantics} />
+          )}
+        </div>
+        </>
+      )}
     </div>
   );
 }
