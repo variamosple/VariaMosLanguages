@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Form, Col, Row, Button } from 'react-bootstrap';
 import Select, { MultiValue } from "react-select";
+import CreatableSelect from "react-select/creatable";
 import TranslationRuleModal from './TranslationRule';
 
 // Interfaces
@@ -25,18 +26,22 @@ interface VisualSemanticEditorProps {
     elements: Element[];
     selectedElements: string[];
     elementTranslationRules: Record<string, TranslationRule>;
+    relationTypes: string[];
     
     // Event handlers
     onElementsChange: (elements: string[]) => void;
     onTranslationRuleChange: (elementName: string, rule: TranslationRule) => void;
+    onRelationsChange: (relations: string[]) => void;
 }
 
 export default function VisualSemanticEditor({
     elements,
     selectedElements,
     elementTranslationRules,
+    relationTypes,
     onElementsChange,
     onTranslationRuleChange,
+    onRelationsChange
 }: VisualSemanticEditorProps) {
 
     const [selectedRuleElement, setSelectedRuleElement] = useState<string | null>(null);
@@ -111,6 +116,36 @@ export default function VisualSemanticEditor({
                         </Col>
                     </Form.Group>
                 )}
+
+            <Form.Group as={Row} className="mb-3">
+                <Form.Label column sm={2}>Relation Types</Form.Label>
+                <Col sm={10}>
+                    <CreatableSelect<SelectOption, true>
+                        options={elements.map(element => ({
+                            value: element.name,
+                            label: element.name,
+                        }))}
+                        value={relationTypes.map(relation => ({
+                            value: relation,
+                            label: relation,
+                        }))}
+                        onChange={(selectedOptions) =>
+                            onRelationsChange(selectedOptions.map(option => option.value))
+                        }
+                        isMulti
+                        closeMenuOnSelect={false}
+                        placeholder="Select or add relation type(s)"
+                        formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
+                        onCreateOption={(inputValue) => {
+                            // Actualiza el estado con la nueva opción personalizada
+                            if (!relationTypes.includes(inputValue)) {
+                                onRelationsChange([...relationTypes, inputValue]);
+                            }
+                        }}
+                    />
+                </Col>
+            </Form.Group>
+
             </Form>
 
             {selectedRuleElement && (

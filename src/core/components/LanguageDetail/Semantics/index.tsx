@@ -28,6 +28,7 @@ interface TranslationRule {
 export default function Sematics() {
   const { semantics, setSemantics, elements, relationships } = useLanguageContext();
   const [selectedElements, setSelectedElements] = useState<string[]>([]);
+  const [relationTypes, setRelationTypes] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'form' | 'json'>('form');
 
   const [state, setState] = useState<SemanticsState>({
@@ -134,7 +135,8 @@ export default function Sematics() {
       return {
         elementTypes: parsedSemantics.elementTypes || [],
         elementTranslationRules: parsedSemantics.elementTranslationRules || {},
-        // Añadir otros campos según sea necesario (Siguiente el relationTypes)
+        relationTypes: parsedSemantics.relationTypes || [],
+        // Añadir otros campos según sea necesario (Siguiente el relationTranslationRules)
       };
     } catch (e) {
       console.error('Error parsing semantics:', e);
@@ -149,6 +151,8 @@ export default function Sematics() {
   useEffect(() => {
     const { elementTypes } = parseCurrentSemantics();
     setSelectedElements(elementTypes);
+    const { relationTypes } = parseCurrentSemantics();
+    setRelationTypes(relationTypes);
   }, [semantics, parseCurrentSemantics]);
 
   // Manejar el cambio de elementos seleccionados
@@ -161,6 +165,17 @@ export default function Sematics() {
     setSemantics(JSON.stringify(updatedSemantics, null, 2));
     setSelectedElements(elements);
   };
+
+  // Manejar el cambio de relationTypes
+  const handleRelationsChange = (relations: string[]) => {
+    const currentSemantics = parseCurrentSemantics();
+    const updatedSemantics = {
+        ...currentSemantics,
+        relationTypes: relations,
+    };
+    setSemantics(JSON.stringify(updatedSemantics, null, 2));
+    setRelationTypes(relations);
+};
 
   const handleTranslationRuleChange = (elementName: string, rule: TranslationRule) => {
     const currentSemantics = parseCurrentSemantics();
@@ -311,8 +326,10 @@ export default function Sematics() {
               elements={elements}
               selectedElements={selectedElements}
               elementTranslationRules={parseCurrentSemantics().elementTranslationRules}
+              relationTypes={relationTypes}
               onElementsChange={handleElementsChange}
               onTranslationRuleChange={handleTranslationRuleChange}
+              onRelationsChange={handleRelationsChange}
             />
           ) : (
             <SourceCode code={semantics} dispatcher={setSemantics} />
