@@ -7,7 +7,7 @@ import { useItemEditorContext } from "../../../../context/LanguageContext/ItemEd
 
 export default function ElementForm() {
 
-  const { formValues, handleChange } = useItemEditorContext()
+  const { formValues, handleChange, handleChecked } = useItemEditorContext()
   const [showDrawTool, setShowDrawTool] = useState(false);
   const [xml, setXml] = useState(`<shape></shape>`);
 
@@ -126,6 +126,18 @@ export default function ElementForm() {
               value={formValues.height || ""}
               type="number"
               onChange={handleChange} />
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row} className="mb-3">
+          <Form.Label column sm={3}>
+            Resizable
+          </Form.Label>
+          <Col sm={9}>
+            <Form.Check
+              name="resizable"
+              checked={((""+formValues.resizable)=="false"?false:true)} 
+              onChange={handleChecked} />
           </Col>
         </Form.Group>
 

@@ -15,6 +15,7 @@ export default function ElementTab() {
     height: "33",
     width: "100",
     label_property:"",
+    resizable:true,
     properties: []
   };
   
