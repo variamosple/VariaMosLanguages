@@ -3,7 +3,7 @@ import { Form, Row, Col } from "react-bootstrap";
 
 interface XMLInputProps {
   xml: string;
-  onXmlChange: (xml: string) => void;
+  onXmlChange: (xml: string, icon?: string) => void;
 }
 
 export default function XMLInput({ xml, onXmlChange }: XMLInputProps) {
