@@ -3,6 +3,7 @@ import { Form, Col, Row, Button } from 'react-bootstrap';
 import Select, { MultiValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import TranslationRuleModal from './TranslationRule';
+import RelationTranslationRuleModal from './RelationTranslationRule';
 
 // Interfaces
 interface TranslationRule {
@@ -10,6 +11,11 @@ interface TranslationRule {
     constraint: string;
     selectedConstraint: string;
     deselectedConstraint: string;
+}
+
+interface RelationTranslationRule {
+    params: string[];
+    constraint: string;
 }
 
 interface Element {
@@ -27,11 +33,13 @@ interface VisualSemanticEditorProps {
     selectedElements: string[];
     elementTranslationRules: Record<string, TranslationRule>;
     relationTypes: string[];
+    relationTranslationRules: Record<string, RelationTranslationRule>;
     
     // Event handlers
     onElementsChange: (elements: string[]) => void;
     onTranslationRuleChange: (elementName: string, rule: TranslationRule) => void;
     onRelationsChange: (relations: string[]) => void;
+    onRelationTranslationRuleChange: (relationName: string, rule: RelationTranslationRule) => void;
 }
 
 export default function VisualSemanticEditor({
@@ -39,13 +47,18 @@ export default function VisualSemanticEditor({
     selectedElements,
     elementTranslationRules,
     relationTypes,
+    relationTranslationRules,
     onElementsChange,
     onTranslationRuleChange,
-    onRelationsChange
+    onRelationsChange,
+    onRelationTranslationRuleChange,
 }: VisualSemanticEditorProps) {
 
     const [selectedRuleElement, setSelectedRuleElement] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
+
+    const [selectedRuleRelation, setSelectedRuleRelation] = useState<string | null>(null);
+    const [showRelationModal, setShowRelationModal] = useState(false);
 
     // Efecto para actualizar el modal cuando cambian las reglas
     useEffect(() => {
@@ -55,7 +68,14 @@ export default function VisualSemanticEditor({
                 // Actualizar el estado del modal
             }
         }
-    }, [elementTranslationRules, selectedRuleElement, showModal]);
+
+        if (selectedRuleRelation && showRelationModal) {
+            const currentRule = relationTranslationRules[selectedRuleRelation];
+            if (currentRule) {
+                // Actualizar el estado del modal de relaciones
+            }
+        }
+    }, [elementTranslationRules, selectedRuleElement, showModal, relationTranslationRules, selectedRuleRelation, showRelationModal]);
 
     // Event handlers
     const handleElementSelection = (
@@ -73,6 +93,17 @@ export default function VisualSemanticEditor({
     const handleSaveRule = (elementName: string, rule: TranslationRule) => {
         onTranslationRuleChange(elementName, rule);
         setShowModal(false);
+    };
+
+    // Event handlers para relaciones
+    const handleOpenRelationModal = (relationName: string) => {
+        setSelectedRuleRelation(relationName);
+        setShowRelationModal(true);
+    };
+
+    const handleSaveRelationRule = (relationName: string, rule: RelationTranslationRule) => {
+        onRelationTranslationRuleChange(relationName, rule);
+        setShowRelationModal(false);
     };
 
     return (
@@ -146,6 +177,27 @@ export default function VisualSemanticEditor({
                 </Col>
             </Form.Group>
 
+            {relationTypes.length > 0 && (
+                    <Form.Group as={Row} className="mb-3 align-items-center">
+                        <Form.Label column sm={2}>Relation Translation Rules</Form.Label>
+                        <Col sm={10}>
+                            <div className="d-flex flex-wrap gap-2">
+                                {relationTypes.map(relation => (
+                                    <Button
+                                        key={relation}
+                                        variant="outline-secondary"
+                                        onClick={() => handleOpenRelationModal(relation)}
+                                    >
+                                        {relation}
+                                        {relationTranslationRules[relation] && (
+                                            <span className="ms-1">✓</span>
+                                        )}
+                                    </Button>
+                                ))}
+                            </div>
+                        </Col>
+                    </Form.Group>
+                )}
             </Form>
 
             {selectedRuleElement && (
@@ -160,6 +212,20 @@ export default function VisualSemanticEditor({
                     }}
                     onSave={(rule) => handleSaveRule(selectedRuleElement, rule)}
                     onClose={() => setShowModal(false)}
+                />
+            )}
+
+            {selectedRuleRelation && (
+                <RelationTranslationRuleModal
+                    show={showRelationModal}
+                    relationName={selectedRuleRelation}
+                    rule={relationTranslationRules[selectedRuleRelation] || {
+                        params: [],
+                        constraint: ''
+                    }}
+                    selectedElements={selectedElements}
+                    onSave={handleSaveRelationRule}
+                    onClose={() => setShowRelationModal(false)}
                 />
             )}
         </>

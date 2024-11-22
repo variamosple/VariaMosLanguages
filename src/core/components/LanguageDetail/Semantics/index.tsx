@@ -25,8 +25,18 @@ interface TranslationRule {
   deselectedConstraint: string;
 }
 
+interface RelationTranslationRule {
+  params: string[];
+  constraint: string;
+}
+
 export default function Sematics() {
-  const { semantics, setSemantics, elements, relationships } = useLanguageContext();
+  const { 
+    semantics, 
+    setSemantics, 
+    elements, 
+    relationships
+  } = useLanguageContext();
   const [selectedElements, setSelectedElements] = useState<string[]>([]);
   const [relationTypes, setRelationTypes] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'form' | 'json'>('form');
@@ -69,7 +79,9 @@ export default function Sematics() {
         parsed.hasOwnProperty('elementTranslationRules') &&
         Array.isArray(parsed.elementTranslationRules) &&
         parsed.hasOwnProperty('relationTypes') &&
-        Array.isArray(parsed.relationTypes)
+        Array.isArray(parsed.relationTypes) &&
+        parsed.hasOwnProperty('relationTranslationRules') &&
+        Array.isArray(parsed.relationTranslationRules)
       );
     } catch (e) {
       return false;
@@ -90,7 +102,17 @@ export default function Sematics() {
 
     try {
       const elementTypes = Array.from(new Set(elements.map(element => element.name)));
-      const relationTypes = Array.from(new Set(relationships.map(relationship => relationship.name)));
+      const relationTypes = Array.from(
+        relationships.reduce((types, relationship) => {
+          const typeProperty = relationship.properties?.find(
+            (prop) => prop.name === "Type"
+          );
+          if (typeProperty && Array.isArray(typeProperty.possibleValues)) {
+            typeProperty.possibleValues.forEach((value) => types.add(value));
+          }
+          return types;
+        }, new Set<string>())
+      );
 
       const initialSemantics = {
         elementTypes,
@@ -136,13 +158,16 @@ export default function Sematics() {
         elementTypes: parsedSemantics.elementTypes || [],
         elementTranslationRules: parsedSemantics.elementTranslationRules || {},
         relationTypes: parsedSemantics.relationTypes || [],
-        // Añadir otros campos según sea necesario (Siguiente el relationTranslationRules)
+        relationTranslationRules: parsedSemantics.relationTranslationRules || {},
+        // Añadir otros campos según sea necesario (Los siguientes puede ser attributeTypes y attributeTranslationRules)
       };
     } catch (e) {
       console.error('Error parsing semantics:', e);
       return {
         elementTypes: [],
         elementTranslationRules: {},
+        relationTypes: [],
+        relationTranslationRules: {},
       };
     }
   }, [semantics]);
@@ -184,6 +209,21 @@ export default function Sematics() {
       elementTranslationRules: {
         ...currentSemantics.elementTranslationRules,
         [elementName]: rule,
+      },
+    };
+    setSemantics(JSON.stringify(updatedSemantics, null, 2));
+  };
+
+  const handleRelationTranslationRuleChange = (
+    relationName: string,
+    rule: RelationTranslationRule
+  ) => {
+    const currentSemantics = parseCurrentSemantics();
+    const updatedSemantics = {
+      ...currentSemantics,
+      relationTranslationRules: {
+        ...currentSemantics.relationTranslationRules,
+        [relationName]: rule,
       },
     };
     setSemantics(JSON.stringify(updatedSemantics, null, 2));
@@ -327,9 +367,11 @@ export default function Sematics() {
               selectedElements={selectedElements}
               elementTranslationRules={parseCurrentSemantics().elementTranslationRules}
               relationTypes={relationTypes}
+              relationTranslationRules={parseCurrentSemantics().relationTranslationRules}
               onElementsChange={handleElementsChange}
               onTranslationRuleChange={handleTranslationRuleChange}
               onRelationsChange={handleRelationsChange}
+              onRelationTranslationRuleChange={handleRelationTranslationRuleChange}
             />
           ) : (
             <SourceCode code={semantics} dispatcher={setSemantics} />
