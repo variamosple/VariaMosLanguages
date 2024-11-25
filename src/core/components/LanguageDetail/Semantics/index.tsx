@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ResponseModel } from '../../../../Domain/Core/Entity/ResponseModel';
 import { useLanguageContext } from '../../../context/LanguageContext/LanguageContextProvider';
 import useIntersectionObserver from '../../../hooks/useIntersectionObserver';
@@ -30,7 +30,11 @@ interface RelationTranslationRule {
   constraint: string;
 }
 
-export default function Sematics() {
+interface SemanticsProps {
+  isActive: boolean;
+}
+
+export default function Semantics({ isActive }: SemanticsProps) {
   const { 
     semantics, 
     setSemantics, 
@@ -64,6 +68,8 @@ export default function Sematics() {
   );
   const [isFetchingSemantics, setIsFetchingSemantics] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
+  
+  const hasProcessedInitialLoad = useRef(false);
 
   // Manejar el cambio de modo de vista
   const handleSwitchToForm = () => setViewMode('form');
@@ -88,35 +94,47 @@ export default function Sematics() {
     }
   }, []);
 
-  // Función para precargar la semántica con las propiedades del contexto
-  const preloadSemantics = useCallback(async () => {
-    if (!elements.length || !relationships.length) {
-      setState(prev => ({ ...prev, error: 'Required language elements not loaded' }));
-      return;
-    }
+  const processSemantics = useCallback(async () => {
+    if (!isActive || hasProcessedInitialLoad.current) return;
 
-    if (isValidSemantics(semantics)) {
-      setState({ isLoading: false, isInitialized: true, error: null });
-      return;
-    }
+    setState(prev => ({ ...prev, isLoading: true }));
 
     try {
-      const elementTypes = Array.from(new Set(elements.map(element => element.name)));
-      const relationTypes = Array.from(
-        relationships.reduce((types, relationship) => {
-          const typeProperty = relationship.properties?.find(
-            (prop) => prop.name === "Type"
-          );
-          if (typeProperty && Array.isArray(typeProperty.possibleValues)) {
-            typeProperty.possibleValues.forEach((value) => types.add(value));
-          }
-          return types;
-        }, new Set<string>())
-      );
+      // Si ya existe una semántica válida, la respetamos
+      if (isValidSemantics(semantics)) {
+        setState({ 
+          isLoading: false, 
+          isInitialized: true, 
+          error: null 
+        });
+        hasProcessedInitialLoad.current = true;
+        return;
+      }
 
+      // Si no hay elementos o relaciones, mostramos error
+      if (!elements.length && !relationships.length) {
+        setState(prev => ({
+          ...prev,
+          error: 'Please define language elements and relationships first',
+          isLoading: false
+        }));
+        return;
+      }
+
+      // Crear nueva semántica basada en elementos actuales
       const initialSemantics = {
-        elementTypes,
-        relationTypes,
+        elementTypes: Array.from(new Set(elements.map(element => element.name))),
+        relationTypes: Array.from(
+          relationships.reduce((types, relationship) => {
+            const typeProperty = relationship.properties?.find(
+              (prop) => prop.name === "Type"
+            );
+            if (typeProperty?.possibleValues) {
+              typeProperty.possibleValues.forEach((value) => types.add(value));
+            }
+            return types;
+          }, new Set<string>())
+        ),
         elementTranslationRules: {},
         relationTranslationRules: {},
         attributeTypes: [],
@@ -131,7 +149,12 @@ export default function Sematics() {
       };
 
       setSemantics(JSON.stringify(initialSemantics, null, 2));
-      setState({ isLoading: false, isInitialized: true, error: null });
+      setState({ 
+        isLoading: false, 
+        isInitialized: true, 
+        error: null 
+      });
+      hasProcessedInitialLoad.current = true;
 
     } catch (error) {
       setState(prev => ({
@@ -139,16 +162,15 @@ export default function Sematics() {
         error: 'Error initializing semantics',
         isLoading: false
       }));
-      console.error("Error preloading semantics:", error);
+      console.error("Error processing semantics:", error);
     }
-  }, [elements, relationships, semantics, setSemantics, isValidSemantics]);
+  }, [isActive, elements, relationships, semantics, setSemantics, isValidSemantics]);
 
   useEffect(() => {
-    if (!state.isInitialized && elements.length > 0 && relationships.length > 0) {
-      preloadSemantics();
+    if (isActive) {
+      processSemantics();
     }
-  }, [state.isInitialized, elements, relationships, preloadSemantics]);
-
+  }, [isActive, processSemantics]);
 
   // Función para parsear la semántica actual
   const parseCurrentSemantics = useCallback(() => {

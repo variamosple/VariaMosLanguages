@@ -62,6 +62,8 @@ export default function LanguageDetail({
   const { setCreatingMode } = useLanguageContext();
   const [confirmModalState, setConfirmModalState] = useState<ConfirmationModalProps>({...confirmationModalDefaultProps});
 
+  const [activeTab, setActiveTab] = useState('information');
+
   const {
     abstractSyntax,
     setAbstractSyntax,
@@ -302,7 +304,12 @@ export default function LanguageDetail({
           )}
         </Row>
       </Container>
-      <Tabs defaultActiveKey="information" id="uncontrolled-tab">
+      <Tabs 
+        defaultActiveKey="information" 
+        id="uncontrolled-tab" 
+        activeKey={activeTab} 
+        onSelect={(key) => setActiveTab(key || 'information')}
+      >
         <Tab eventKey="information" title="Information">
           <InputGroup className="mb-3 mt-3">
             <InputGroup.Text id="inputGroup-sizing-default">Name</InputGroup.Text>
@@ -343,7 +350,7 @@ export default function LanguageDetail({
           {creatingMode === config.modeGraphicalLabel && <GraphicalMode />}
         </Tab>
         <Tab eventKey="semantics" title="Semantics" id="uncontrolled-tab" className="my-3">
-          <Semantics />
+          <Semantics isActive={activeTab === 'semantics'} />
         </Tab>
         <Tab eventKey="comments" title="Comments">
           {/* Add Comment */}

@@ -198,6 +198,7 @@ export default function VisualSemanticEditor({
                         </Col>
                     </Form.Group>
                 )}
+
             </Form>
 
             {selectedRuleElement && (
