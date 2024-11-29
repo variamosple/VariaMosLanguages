@@ -5,6 +5,7 @@ import CreatableSelect from "react-select/creatable";
 import TranslationRuleModal from './TranslationRule';
 import RelationTranslationRuleModal from './RelationTranslationRule';
 import AttributeRuleModal from './AttributeRuleModal';
+import HierarchyRuleModal from './hierarchyRuleModal';
 
 // Interfaces
 interface TranslationRule {
@@ -24,6 +25,22 @@ interface AttributeTranslationRule {
     param: string;
     template: string;
     constraint: string;
+}
+
+interface HierarchyTranslationRule {
+    nodeRule?: {
+        param: string[];
+        paramMapping: {
+            incoming: boolean;
+            var: string;
+            node: string;
+        };
+        constraint: string;
+    };
+    leafRule?: {
+        param: string;
+        constraint: string;
+    };
 }
 
 interface Element {
@@ -47,6 +64,8 @@ interface VisualSemanticEditorProps {
     relationTranslationRules: Record<string, RelationTranslationRule>;
     attributeTypes: string[];
     attributeTranslationRules: Record<string, AttributeTranslationRule>[];
+    hierarchyTypes: string[];
+    hierarchyTranslationRules: Record<string, HierarchyTranslationRule>;
     
     // Event handlers
     onElementsChange: (elements: string[]) => void;
@@ -55,6 +74,8 @@ interface VisualSemanticEditorProps {
     onRelationTranslationRuleChange: (relationName: string, rule: RelationTranslationRule) => void;
     onAttributeTypesChange: (attributeTypes: string[]) => void;
     onAttributeTranslationRuleChange: (attributeName: string, rule: AttributeTranslationRule) => void;
+    onHierarchyTypesChange: (hierarchyTypes: string[]) => void;
+    onHierarchyTranslationRuleChange: (hierarchyType: string, rule: HierarchyTranslationRule) => void;
 }
 
 export default function VisualSemanticEditor({
@@ -65,12 +86,16 @@ export default function VisualSemanticEditor({
     relationTranslationRules,
     attributeTypes,
     attributeTranslationRules,
+    hierarchyTypes,
+    hierarchyTranslationRules,
     onElementsChange,
     onTranslationRuleChange,
     onRelationsChange,
     onRelationTranslationRuleChange,
     onAttributeTypesChange,
     onAttributeTranslationRuleChange,
+    onHierarchyTypesChange,
+    onHierarchyTranslationRuleChange,
 }: VisualSemanticEditorProps) {
 
     const [selectedRuleElement, setSelectedRuleElement] = useState<string | null>(null);
@@ -81,6 +106,9 @@ export default function VisualSemanticEditor({
 
     const [selectedRuleAttribute, setSelectedRuleAttribute] = useState<string | null>(null);
     const [showAttributeModal, setShowAttributeModal] = useState(false);
+
+    const [selectedRuleHierarchy, setSelectedRuleHierarchy] = useState<string | null>(null);
+    const [showHierarchyModal, setShowHierarchyModal] = useState(false);
 
     // Efecto para actualizar el modal cuando cambian las reglas
     useEffect(() => {
@@ -131,6 +159,16 @@ export default function VisualSemanticEditor({
     const handleOpenAttributeModal = (attributeName: string) => {
         setSelectedRuleAttribute(attributeName);
         setShowAttributeModal(true);
+    };
+
+    const handleOpenHierarchyModal = (hierarchyType: string) => {
+        setSelectedRuleHierarchy(hierarchyType);
+        setShowHierarchyModal(true);
+    };
+
+    const handleSaveHierarchyRule = (hierarchyType: string, rule: HierarchyTranslationRule) => {
+        onHierarchyTranslationRuleChange(hierarchyType, rule);
+        setShowHierarchyModal(false);
     };
 
     return (
@@ -272,7 +310,57 @@ export default function VisualSemanticEditor({
                     </div>
                 </Col>
             </Form.Group>
-        )}
+            )}
+
+            <Form.Group as={Row} className="mb-3">
+                <Form.Label column sm={2}>Hierarchy Types</Form.Label>
+                <Col sm={10}>
+                    <CreatableSelect<SelectOption, true>
+                        options={elements.map(element => ({
+                            value: element.name,
+                            label: element.name,
+                        }))}
+                        value={hierarchyTypes.map(type => ({
+                            value: type,
+                            label: type,
+                        }))}
+                        onChange={(selectedOptions) =>
+                            onHierarchyTypesChange(selectedOptions.map(option => option.value))
+                        }
+                        isMulti
+                        closeMenuOnSelect={false}
+                        placeholder="Select or add hierarchy type(s)"
+                        formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
+                        onCreateOption={(inputValue) => {
+                            if (!hierarchyTypes.includes(inputValue)) {
+                                onHierarchyTypesChange([...hierarchyTypes, inputValue]);
+                            }
+                        }}
+                    />
+                </Col>
+            </Form.Group>
+
+            {hierarchyTypes.length > 0 && (
+            <Form.Group as={Row} className="mb-3 align-items-center">
+                <Form.Label column sm={2}>Hierarchy Translation Rules</Form.Label>
+                <Col sm={10}>
+                    <div className="d-flex flex-wrap gap-2">
+                        {hierarchyTypes.map(hierarchyType => (
+                            <Button
+                                key={hierarchyType}
+                                variant="outline-success"
+                                onClick={() => handleOpenHierarchyModal(hierarchyType)}
+                            >
+                                {hierarchyType}
+                                {hierarchyTranslationRules[hierarchyType] && (
+                                    <span className="ms-1">✓</span>
+                                )}
+                            </Button>
+                        ))}
+                    </div>
+                </Col>
+            </Form.Group>
+            )}
 
         </Form>
 
@@ -324,6 +412,31 @@ export default function VisualSemanticEditor({
                     setShowAttributeModal(false);
                 }}
                 onClose={() => setShowAttributeModal(false)}
+            />
+        )}
+
+        {selectedRuleHierarchy && (
+            <HierarchyRuleModal
+                show={showHierarchyModal}
+                hierarchyType={selectedRuleHierarchy}
+                rule={hierarchyTranslationRules[selectedRuleHierarchy] || {
+                    nodeRule: {
+                        param: [],
+                        paramMapping: {
+                            incoming: false,
+                            var: '',
+                            node: '',
+                        },
+                        constraint: '',
+                    },
+                    leafRule: {
+                        param: '',
+                        constraint: '',
+                    },
+                }}
+                elements={elements}
+                onSave={handleSaveHierarchyRule}
+                onClose={() => setShowHierarchyModal(false)}
             />
         )}
 
