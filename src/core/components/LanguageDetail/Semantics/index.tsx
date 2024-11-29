@@ -30,6 +30,13 @@ interface RelationTranslationRule {
   constraint: string;
 }
 
+interface AttributeTranslationRule {
+  parent: string;
+  param: string;
+  template: string;
+  constraint: string;
+}
+
 interface SemanticsProps {
   isActive: boolean;
 }
@@ -43,6 +50,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
   } = useLanguageContext();
   const [selectedElements, setSelectedElements] = useState<string[]>([]);
   const [relationTypes, setRelationTypes] = useState<string[]>([]);
+  const [attributeTypes, setAttributeTypes] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'form' | 'json'>('form');
 
   const [state, setState] = useState<SemanticsState>({
@@ -181,7 +189,9 @@ export default function Semantics({ isActive }: SemanticsProps) {
         elementTranslationRules: parsedSemantics.elementTranslationRules || {},
         relationTypes: parsedSemantics.relationTypes || [],
         relationTranslationRules: parsedSemantics.relationTranslationRules || {},
-        // Añadir otros campos según sea necesario (Los siguientes puede ser attributeTypes y attributeTranslationRules)
+        attributeTypes: parsedSemantics.attributeTypes || [],
+        attributeTranslationRules: parsedSemantics.attributeTranslationRules || {},
+        // Añadir otros campos según sea necesario (Los siguientes puede hierarchyTypes, typingRelationTypes, etc.)
       };
     } catch (e) {
       console.error('Error parsing semantics:', e);
@@ -190,6 +200,8 @@ export default function Semantics({ isActive }: SemanticsProps) {
         elementTranslationRules: {},
         relationTypes: [],
         relationTranslationRules: {},
+        attributeTypes: [],
+        attributeTranslationRules: {},
       };
     }
   }, [semantics]);
@@ -200,6 +212,8 @@ export default function Semantics({ isActive }: SemanticsProps) {
     setSelectedElements(elementTypes);
     const { relationTypes } = parseCurrentSemantics();
     setRelationTypes(relationTypes);
+    const { attributeTypes } = parseCurrentSemantics();
+    setAttributeTypes(attributeTypes);
   }, [semantics, parseCurrentSemantics]);
 
   // Manejar el cambio de elementos seleccionados
@@ -246,6 +260,31 @@ export default function Semantics({ isActive }: SemanticsProps) {
       relationTranslationRules: {
         ...currentSemantics.relationTranslationRules,
         [relationName]: rule,
+      },
+    };
+    setSemantics(JSON.stringify(updatedSemantics, null, 2));
+  };
+
+  const handleAttributeTypesChange = (attributes: string[]) => {
+    const currentSemantics = parseCurrentSemantics();
+    const updatedSemantics = {
+      ...currentSemantics,
+      attributeTypes: attributes,
+    };
+    setSemantics(JSON.stringify(updatedSemantics, null, 2));
+    setAttributeTypes(attributes);
+  };
+
+  const handleAttributeTranslationRuleChange = (
+    attributeName: string,
+    rule: AttributeTranslationRule
+  ) => {
+    const currentSemantics = parseCurrentSemantics();
+    const updatedSemantics = {
+      ...currentSemantics,
+      attributeTranslationRules: {
+        ...currentSemantics.attributeTranslationRules,
+        [attributeName]: rule,
       },
     };
     setSemantics(JSON.stringify(updatedSemantics, null, 2));
@@ -390,10 +429,14 @@ export default function Semantics({ isActive }: SemanticsProps) {
               elementTranslationRules={parseCurrentSemantics().elementTranslationRules}
               relationTypes={relationTypes}
               relationTranslationRules={parseCurrentSemantics().relationTranslationRules}
+              attributeTypes={attributeTypes}
+              attributeTranslationRules={parseCurrentSemantics().attributeTranslationRules}
               onElementsChange={handleElementsChange}
               onTranslationRuleChange={handleTranslationRuleChange}
               onRelationsChange={handleRelationsChange}
               onRelationTranslationRuleChange={handleRelationTranslationRuleChange}
+              onAttributeTypesChange={handleAttributeTypesChange}
+              onAttributeTranslationRuleChange={handleAttributeTranslationRuleChange}
             />
           ) : (
             <SourceCode code={semantics} dispatcher={setSemantics} />

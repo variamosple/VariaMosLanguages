@@ -4,6 +4,7 @@ import Select, { MultiValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import TranslationRuleModal from './TranslationRule';
 import RelationTranslationRuleModal from './RelationTranslationRule';
+import AttributeRuleModal from './AttributeRuleModal';
 
 // Interfaces
 interface TranslationRule {
@@ -18,8 +19,18 @@ interface RelationTranslationRule {
     constraint: string;
 }
 
+interface AttributeTranslationRule {
+    parent: string;
+    param: string;
+    template: string;
+    constraint: string;
+}
+
 interface Element {
     name: string;
+    properties?: {
+        name: string;
+    }[];
 }
 
 interface SelectOption {
@@ -34,12 +45,16 @@ interface VisualSemanticEditorProps {
     elementTranslationRules: Record<string, TranslationRule>;
     relationTypes: string[];
     relationTranslationRules: Record<string, RelationTranslationRule>;
+    attributeTypes: string[];
+    attributeTranslationRules: Record<string, AttributeTranslationRule>[];
     
     // Event handlers
     onElementsChange: (elements: string[]) => void;
     onTranslationRuleChange: (elementName: string, rule: TranslationRule) => void;
     onRelationsChange: (relations: string[]) => void;
     onRelationTranslationRuleChange: (relationName: string, rule: RelationTranslationRule) => void;
+    onAttributeTypesChange: (attributeTypes: string[]) => void;
+    onAttributeTranslationRuleChange: (attributeName: string, rule: AttributeTranslationRule) => void;
 }
 
 export default function VisualSemanticEditor({
@@ -48,10 +63,14 @@ export default function VisualSemanticEditor({
     elementTranslationRules,
     relationTypes,
     relationTranslationRules,
+    attributeTypes,
+    attributeTranslationRules,
     onElementsChange,
     onTranslationRuleChange,
     onRelationsChange,
     onRelationTranslationRuleChange,
+    onAttributeTypesChange,
+    onAttributeTranslationRuleChange,
 }: VisualSemanticEditorProps) {
 
     const [selectedRuleElement, setSelectedRuleElement] = useState<string | null>(null);
@@ -59,6 +78,9 @@ export default function VisualSemanticEditor({
 
     const [selectedRuleRelation, setSelectedRuleRelation] = useState<string | null>(null);
     const [showRelationModal, setShowRelationModal] = useState(false);
+
+    const [selectedRuleAttribute, setSelectedRuleAttribute] = useState<string | null>(null);
+    const [showAttributeModal, setShowAttributeModal] = useState(false);
 
     // Efecto para actualizar el modal cuando cambian las reglas
     useEffect(() => {
@@ -104,6 +126,11 @@ export default function VisualSemanticEditor({
     const handleSaveRelationRule = (relationName: string, rule: RelationTranslationRule) => {
         onRelationTranslationRuleChange(relationName, rule);
         setShowRelationModal(false);
+    };
+
+    const handleOpenAttributeModal = (attributeName: string) => {
+        setSelectedRuleAttribute(attributeName);
+        setShowAttributeModal(true);
     };
 
     return (
@@ -178,57 +205,128 @@ export default function VisualSemanticEditor({
             </Form.Group>
 
             {relationTypes.length > 0 && (
-                    <Form.Group as={Row} className="mb-3 align-items-center">
-                        <Form.Label column sm={2}>Relation Translation Rules</Form.Label>
-                        <Col sm={10}>
-                            <div className="d-flex flex-wrap gap-2">
-                                {relationTypes.map(relation => (
-                                    <Button
-                                        key={relation}
-                                        variant="outline-secondary"
-                                        onClick={() => handleOpenRelationModal(relation)}
-                                    >
-                                        {relation}
-                                        {relationTranslationRules[relation] && (
-                                            <span className="ms-1">✓</span>
-                                        )}
-                                    </Button>
-                                ))}
-                            </div>
-                        </Col>
-                    </Form.Group>
-                )}
-
-            </Form>
-
-            {selectedRuleElement && (
-                <TranslationRuleModal
-                    show={showModal}
-                    elementName={selectedRuleElement}
-                    rule={elementTranslationRules[selectedRuleElement] || {
-                        param: '',
-                        constraint: '',
-                        selectedConstraint: '',
-                        deselectedConstraint: '',
-                    }}
-                    onSave={(rule) => handleSaveRule(selectedRuleElement, rule)}
-                    onClose={() => setShowModal(false)}
-                />
+                <Form.Group as={Row} className="mb-3 align-items-center">
+                    <Form.Label column sm={2}>Relation Translation Rules</Form.Label>
+                    <Col sm={10}>
+                        <div className="d-flex flex-wrap gap-2">
+                            {relationTypes.map(relation => (
+                                <Button
+                                    key={relation}
+                                    variant="outline-secondary"
+                                    onClick={() => handleOpenRelationModal(relation)}
+                                >
+                                    {relation}
+                                    {relationTranslationRules[relation] && (
+                                        <span className="ms-1">✓</span>
+                                    )}
+                                </Button>
+                            ))}
+                        </div>
+                    </Col>
+                </Form.Group>
             )}
 
-            {selectedRuleRelation && (
-                <RelationTranslationRuleModal
-                    show={showRelationModal}
-                    relationName={selectedRuleRelation}
-                    rule={relationTranslationRules[selectedRuleRelation] || {
-                        params: [],
-                        constraint: ''
-                    }}
-                    selectedElements={selectedElements}
-                    onSave={handleSaveRelationRule}
-                    onClose={() => setShowRelationModal(false)}
+            <Form.Group as={Row} className="mb-3">
+            <Form.Label column sm={2}>Attribute Types</Form.Label>
+            <Col sm={10}>
+                <Select<SelectOption, true>
+                    options={elements.filter( element => element.properties.length > 0)
+                        .map(element => ({
+                            value: element.name,
+                            label: element.name,
+                    }))}
+                    value={attributeTypes.map(attribute => ({
+                        value: attribute,
+                        label: attribute,
+                    }))}
+                    onChange={(selectedOptions) =>
+                        onAttributeTypesChange(selectedOptions.map(option => option.value))
+                    }
+                    isMulti
+                    closeMenuOnSelect={false}
+                    placeholder="Select or add attribute type(s)"
                 />
-            )}
+            </Col>
+            </Form.Group>
+
+            {attributeTypes.length > 0 && (
+            <Form.Group as={Row} className="mb-3 align-items-center">
+                <Form.Label column sm={2}>Attribute Translation Rules</Form.Label>
+                <Col sm={10}>
+                    <div className="d-flex flex-wrap gap-2">
+                        {attributeTypes.map(attribute => {
+                            const hasRules = Object.keys(attributeTranslationRules).some(
+                                key => key.startsWith(`${attribute}:`)
+                            );
+                            return (
+                                <Button
+                                    key={attribute}
+                                    variant="outline-info"
+                                    onClick={() => handleOpenAttributeModal(attribute)}
+                                >
+                                    {attribute}
+                                    {hasRules && <span className="ms-1">✓</span>}
+                                </Button>
+                            );
+                        })}
+                    </div>
+                </Col>
+            </Form.Group>
+        )}
+
+        </Form>
+
+        {selectedRuleElement && (
+            <TranslationRuleModal
+                show={showModal}
+                elementName={selectedRuleElement}
+                rule={elementTranslationRules[selectedRuleElement] || {
+                    param: '',
+                    constraint: '',
+                    selectedConstraint: '',
+                    deselectedConstraint: '',
+                }}
+                onSave={(rule) => handleSaveRule(selectedRuleElement, rule)}
+                onClose={() => setShowModal(false)}
+            />
+        )}
+
+        {selectedRuleRelation && (
+            <RelationTranslationRuleModal
+                show={showRelationModal}
+                relationName={selectedRuleRelation}
+                rule={relationTranslationRules[selectedRuleRelation] || {
+                    params: [],
+                    constraint: ''
+                }}
+                selectedElements={selectedElements}
+                onSave={handleSaveRelationRule}
+                onClose={() => setShowRelationModal(false)}
+            />
+        )}
+
+        {selectedRuleAttribute && (
+            <AttributeRuleModal
+                show={showAttributeModal}
+                elementName={selectedRuleAttribute}
+                properties={
+                    elements
+                        .find(e => e.name === selectedRuleAttribute)
+                        ?.properties.map(prop => prop.name) || []
+                }
+                rule={
+                    attributeTranslationRules
+                }
+                onSave={(propertyName, rule) => {
+                    onAttributeTranslationRuleChange(propertyName, {
+                        ...rule
+                    });
+                    setShowAttributeModal(false);
+                }}
+                onClose={() => setShowAttributeModal(false)}
+            />
+        )}
+
         </>
     );
 }
