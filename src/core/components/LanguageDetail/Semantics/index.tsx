@@ -69,6 +69,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
   const [attributeTypes, setAttributeTypes] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'form' | 'json'>('form');
   const [hierarchyTypes, setHierarchyTypes] = useState<string[]>([]);
+  const [relationReificationTypes, setRelationReificationTypes] = useState<string[]>([]);
 
   const [state, setState] = useState<SemanticsState>({
     isLoading: true,
@@ -114,7 +115,11 @@ export default function Semantics({ isActive }: SemanticsProps) {
         parsed.hasOwnProperty('relationTranslationRules') &&
         Array.isArray(parsed.relationTranslationRules) &&
         parsed.hasOwnProperty('hierarchyTypes') &&
-        Array.isArray(parsed.hierarchyTypes)
+        Array.isArray(parsed.hierarchyTypes) &&
+        parsed.hasOwnProperty('hierarchyTranslationRules') &&
+        Array.isArray(parsed.hierarchyTranslationRules) &&
+        parsed.hasOwnProperty('relationReificationTypes') &&
+        Array.isArray(parsed.relationReificationTypes)
       );
     } catch (e) {
       return false;
@@ -164,6 +169,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
         ),
         elementTranslationRules: {},
         relationTranslationRules: {},
+        relationReificationTypes: [],
         attributeTypes: [],
         hierarchyTypes: [],
         typingRelationTypes: ["IndividualCardinality"],
@@ -208,6 +214,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
         elementTranslationRules: parsedSemantics.elementTranslationRules || {},
         relationTypes: parsedSemantics.relationTypes || [],
         relationTranslationRules: parsedSemantics.relationTranslationRules || {},
+        relationReificationTypes: parsedSemantics.relationReificationTypes || [],
         attributeTypes: parsedSemantics.attributeTypes || [],
         attributeTranslationRules: parsedSemantics.attributeTranslationRules || {},
         hierarchyTypes: parsedSemantics.hierarchyTypes || [],
@@ -221,6 +228,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
         elementTranslationRules: {},
         relationTypes: [],
         relationTranslationRules: {},
+        relationReificationTypes: [],
         attributeTypes: [],
         attributeTranslationRules: {},
         hierarchyTypes: [],
@@ -239,6 +247,8 @@ export default function Semantics({ isActive }: SemanticsProps) {
     setAttributeTypes(attributeTypes);
     const { hierarchyTypes } = parseCurrentSemantics();
     setHierarchyTypes(hierarchyTypes);
+    const { relationReificationTypes } = parseCurrentSemantics();
+    setRelationReificationTypes(relationReificationTypes);
   }, [semantics, parseCurrentSemantics]);
 
   // Manejar el cambio de elementos seleccionados
@@ -261,7 +271,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
     };
     setSemantics(JSON.stringify(updatedSemantics, null, 2));
     setRelationTypes(relations);
-};
+  };
 
   const handleTranslationRuleChange = (elementName: string, rule: TranslationRule) => {
     const currentSemantics = parseCurrentSemantics();
@@ -290,6 +300,17 @@ export default function Semantics({ isActive }: SemanticsProps) {
     setSemantics(JSON.stringify(updatedSemantics, null, 2));
   };
 
+  const handleRelationReificationTypes = (relationReificationTypes: string[]) => {
+    const currentSemantics = parseCurrentSemantics();
+    const updatedSemantics = {
+      ...currentSemantics,
+      relationReificationTypes: relationReificationTypes,
+    };
+    setSemantics(JSON.stringify(updatedSemantics, null, 2));
+    setRelationReificationTypes(relationReificationTypes);
+  }
+
+  // Attributes
   const handleAttributeTypesChange = (attributes: string[]) => {
     const currentSemantics = parseCurrentSemantics();
     const updatedSemantics = {
@@ -478,8 +499,10 @@ export default function Semantics({ isActive }: SemanticsProps) {
               elements={elements}
               selectedElements={selectedElements}
               elementTranslationRules={parseCurrentSemantics().elementTranslationRules}
+              relationships={relationships}
               relationTypes={relationTypes}
               relationTranslationRules={parseCurrentSemantics().relationTranslationRules}
+              relationReificationTypes={relationReificationTypes}
               attributeTypes={attributeTypes}
               attributeTranslationRules={parseCurrentSemantics().attributeTranslationRules}
               hierarchyTypes={hierarchyTypes}
@@ -488,6 +511,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
               onTranslationRuleChange={handleTranslationRuleChange}
               onRelationsChange={handleRelationsChange}
               onRelationTranslationRuleChange={handleRelationTranslationRuleChange}
+              onRelationReificationTypesChange={handleRelationReificationTypes}
               onAttributeTypesChange={handleAttributeTypesChange}
               onAttributeTranslationRuleChange={handleAttributeTranslationRuleChange}
               onHierarchyTypesChange={handleHierarchyChange}

@@ -60,8 +60,15 @@ interface VisualSemanticEditorProps {
     elements: Element[];
     selectedElements: string[];
     elementTranslationRules: Record<string, TranslationRule>;
+    relationships: Array<{
+        properties?: Array<{
+            name: string;
+            possibleValues?: string[];
+        }>;
+    }>;
     relationTypes: string[];
     relationTranslationRules: Record<string, RelationTranslationRule>;
+    relationReificationTypes: string[];
     attributeTypes: string[];
     attributeTranslationRules: Record<string, AttributeTranslationRule>[];
     hierarchyTypes: string[];
@@ -72,6 +79,7 @@ interface VisualSemanticEditorProps {
     onTranslationRuleChange: (elementName: string, rule: TranslationRule) => void;
     onRelationsChange: (relations: string[]) => void;
     onRelationTranslationRuleChange: (relationName: string, rule: RelationTranslationRule) => void;
+    onRelationReificationTypesChange: (types: string[]) => void;
     onAttributeTypesChange: (attributeTypes: string[]) => void;
     onAttributeTranslationRuleChange: (attributeName: string, rule: AttributeTranslationRule) => void;
     onHierarchyTypesChange: (hierarchyTypes: string[]) => void;
@@ -82,8 +90,10 @@ export default function VisualSemanticEditor({
     elements,
     selectedElements,
     elementTranslationRules,
+    relationships,
     relationTypes,
     relationTranslationRules,
+    relationReificationTypes,
     attributeTypes,
     attributeTranslationRules,
     hierarchyTypes,
@@ -92,6 +102,7 @@ export default function VisualSemanticEditor({
     onTranslationRuleChange,
     onRelationsChange,
     onRelationTranslationRuleChange,
+    onRelationReificationTypesChange,
     onAttributeTypesChange,
     onAttributeTranslationRuleChange,
     onHierarchyTypesChange,
@@ -174,6 +185,7 @@ export default function VisualSemanticEditor({
     return (
         <>
             <Form>
+                {/* Elements */}
                 <Form.Group as={Row} className="mb-3">
                     <Form.Label column sm={2}>Element Types</Form.Label>
                     <Col sm={10}>
@@ -213,48 +225,183 @@ export default function VisualSemanticEditor({
                     </Form.Group>
                 )}
 
-            <Form.Group as={Row} className="mb-3">
-                <Form.Label column sm={2}>Relation Types</Form.Label>
+                {/* Relations */}
+                <Form.Group as={Row} className="mb-3">
+                    <Form.Label column sm={2}>Relation Types</Form.Label>
+                    <Col sm={10}>
+                        <CreatableSelect<SelectOption, true>
+                            options={
+                                Array.from(
+                                    relationships.reduce((types, relationship) => {
+                                        const typeProperty = relationship.properties?.find(
+                                            (prop) => prop.name === "Type"
+                                        );
+                                        if (typeProperty?.possibleValues) {
+                                            typeProperty.possibleValues.forEach((value) => types.add(value));
+                                        }
+                                        return types;
+                                    }, new Set<string>())
+                                ).map(type => ({
+                                    value: type,
+                                    label: type
+                                }))
+                            }
+                            value={relationTypes.map(relation => ({
+                                value: relation,
+                                label: relation,
+                            }))}
+                            onChange={(selectedOptions) =>
+                                onRelationsChange(selectedOptions.map(option => option.value))
+                            }
+                            isMulti
+                            closeMenuOnSelect={false}
+                            placeholder="Select or add relation type(s)"
+                            formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
+                            onCreateOption={(inputValue) => {
+                                // Actualiza el estado con la nueva opción personalizada
+                                if (!relationTypes.includes(inputValue)) {
+                                    onRelationsChange([...relationTypes, inputValue]);
+                                }
+                            }}
+                        />
+                    </Col>
+                </Form.Group>
+
+                {relationTypes.length > 0 && (
+                    <Form.Group as={Row} className="mb-3 align-items-center">
+                        <Form.Label column sm={2}>Relation Translation Rules</Form.Label>
+                        <Col sm={10}>
+                            <div className="d-flex flex-wrap gap-2">
+                                {relationTypes.map(relation => (
+                                    <Button
+                                        key={relation}
+                                        variant="outline-secondary"
+                                        onClick={() => handleOpenRelationModal(relation)}
+                                    >
+                                        {relation}
+                                        {relationTranslationRules[relation] && (
+                                            <span className="ms-1">✓</span>
+                                        )}
+                                    </Button>
+                                ))}
+                            </div>
+                        </Col>
+                    </Form.Group>
+                )}
+
+                <Form.Group as={Row} className="mb-3">
+                    <Form.Label column sm={2}>Relation Reification Types</Form.Label>
+                    <Col sm={10}>
+                        <Select<SelectOption, true>
+                            options={elements.map(element => ({
+                                value: element.name,
+                                label: element.name,
+                            }))}
+                            value={relationReificationTypes.map(type => ({
+                                value: type,
+                                label: type,
+                            }))}
+                            onChange={(selectedOptions) =>
+                                onRelationReificationTypesChange(
+                                    selectedOptions.map(option => option.value)
+                                )
+                            }
+                            isMulti
+                            closeMenuOnSelect={false}
+                            placeholder="Select or add reification types"
+                        />
+                    </Col>
+                </Form.Group>
+
+                <Form.Group as={Row} className="mb-3">
+                <Form.Label column sm={2}>Attribute Types</Form.Label>
                 <Col sm={10}>
-                    <CreatableSelect<SelectOption, true>
-                        options={elements.map(element => ({
-                            value: element.name,
-                            label: element.name,
+                    <Select<SelectOption, true>
+                        options={elements.filter( element => element.properties.length > 0)
+                            .map(element => ({
+                                value: element.name,
+                                label: element.name,
                         }))}
-                        value={relationTypes.map(relation => ({
-                            value: relation,
-                            label: relation,
+                        value={attributeTypes.map(attribute => ({
+                            value: attribute,
+                            label: attribute,
                         }))}
                         onChange={(selectedOptions) =>
-                            onRelationsChange(selectedOptions.map(option => option.value))
+                            onAttributeTypesChange(selectedOptions.map(option => option.value))
                         }
                         isMulti
                         closeMenuOnSelect={false}
-                        placeholder="Select or add relation type(s)"
-                        formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
-                        onCreateOption={(inputValue) => {
-                            // Actualiza el estado con la nueva opción personalizada
-                            if (!relationTypes.includes(inputValue)) {
-                                onRelationsChange([...relationTypes, inputValue]);
-                            }
-                        }}
+                        placeholder="Select or add attribute type(s)"
                     />
                 </Col>
-            </Form.Group>
+                </Form.Group>
 
-            {relationTypes.length > 0 && (
+                {attributeTypes.length > 0 && (
                 <Form.Group as={Row} className="mb-3 align-items-center">
-                    <Form.Label column sm={2}>Relation Translation Rules</Form.Label>
+                    <Form.Label column sm={2}>Attribute Translation Rules</Form.Label>
                     <Col sm={10}>
                         <div className="d-flex flex-wrap gap-2">
-                            {relationTypes.map(relation => (
+                            {attributeTypes.map(attribute => {
+                                const hasRules = Object.keys(attributeTranslationRules).some(
+                                    key => key.startsWith(`${attribute}:`)
+                                );
+                                return (
+                                    <Button
+                                        key={attribute}
+                                        variant="outline-info"
+                                        onClick={() => handleOpenAttributeModal(attribute)}
+                                    >
+                                        {attribute}
+                                        {hasRules && <span className="ms-1">✓</span>}
+                                    </Button>
+                                );
+                            })}
+                        </div>
+                    </Col>
+                </Form.Group>
+                )}
+
+                <Form.Group as={Row} className="mb-3">
+                    <Form.Label column sm={2}>Hierarchy Types</Form.Label>
+                    <Col sm={10}>
+                        <CreatableSelect<SelectOption, true>
+                            options={elements.map(element => ({
+                                value: element.name,
+                                label: element.name,
+                            }))}
+                            value={hierarchyTypes.map(type => ({
+                                value: type,
+                                label: type,
+                            }))}
+                            onChange={(selectedOptions) =>
+                                onHierarchyTypesChange(selectedOptions.map(option => option.value))
+                            }
+                            isMulti
+                            closeMenuOnSelect={false}
+                            placeholder="Select or add hierarchy type(s)"
+                            formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
+                            onCreateOption={(inputValue) => {
+                                if (!hierarchyTypes.includes(inputValue)) {
+                                    onHierarchyTypesChange([...hierarchyTypes, inputValue]);
+                                }
+                            }}
+                        />
+                    </Col>
+                </Form.Group>
+
+                {hierarchyTypes.length > 0 && (
+                <Form.Group as={Row} className="mb-3 align-items-center">
+                    <Form.Label column sm={2}>Hierarchy Translation Rules</Form.Label>
+                    <Col sm={10}>
+                        <div className="d-flex flex-wrap gap-2">
+                            {hierarchyTypes.map(hierarchyType => (
                                 <Button
-                                    key={relation}
-                                    variant="outline-secondary"
-                                    onClick={() => handleOpenRelationModal(relation)}
+                                    key={hierarchyType}
+                                    variant="outline-success"
+                                    onClick={() => handleOpenHierarchyModal(hierarchyType)}
                                 >
-                                    {relation}
-                                    {relationTranslationRules[relation] && (
+                                    {hierarchyType}
+                                    {hierarchyTranslationRules[hierarchyType] && (
                                         <span className="ms-1">✓</span>
                                     )}
                                 </Button>
@@ -262,105 +409,7 @@ export default function VisualSemanticEditor({
                         </div>
                     </Col>
                 </Form.Group>
-            )}
-
-            <Form.Group as={Row} className="mb-3">
-            <Form.Label column sm={2}>Attribute Types</Form.Label>
-            <Col sm={10}>
-                <Select<SelectOption, true>
-                    options={elements.filter( element => element.properties.length > 0)
-                        .map(element => ({
-                            value: element.name,
-                            label: element.name,
-                    }))}
-                    value={attributeTypes.map(attribute => ({
-                        value: attribute,
-                        label: attribute,
-                    }))}
-                    onChange={(selectedOptions) =>
-                        onAttributeTypesChange(selectedOptions.map(option => option.value))
-                    }
-                    isMulti
-                    closeMenuOnSelect={false}
-                    placeholder="Select or add attribute type(s)"
-                />
-            </Col>
-            </Form.Group>
-
-            {attributeTypes.length > 0 && (
-            <Form.Group as={Row} className="mb-3 align-items-center">
-                <Form.Label column sm={2}>Attribute Translation Rules</Form.Label>
-                <Col sm={10}>
-                    <div className="d-flex flex-wrap gap-2">
-                        {attributeTypes.map(attribute => {
-                            const hasRules = Object.keys(attributeTranslationRules).some(
-                                key => key.startsWith(`${attribute}:`)
-                            );
-                            return (
-                                <Button
-                                    key={attribute}
-                                    variant="outline-info"
-                                    onClick={() => handleOpenAttributeModal(attribute)}
-                                >
-                                    {attribute}
-                                    {hasRules && <span className="ms-1">✓</span>}
-                                </Button>
-                            );
-                        })}
-                    </div>
-                </Col>
-            </Form.Group>
-            )}
-
-            <Form.Group as={Row} className="mb-3">
-                <Form.Label column sm={2}>Hierarchy Types</Form.Label>
-                <Col sm={10}>
-                    <CreatableSelect<SelectOption, true>
-                        options={elements.map(element => ({
-                            value: element.name,
-                            label: element.name,
-                        }))}
-                        value={hierarchyTypes.map(type => ({
-                            value: type,
-                            label: type,
-                        }))}
-                        onChange={(selectedOptions) =>
-                            onHierarchyTypesChange(selectedOptions.map(option => option.value))
-                        }
-                        isMulti
-                        closeMenuOnSelect={false}
-                        placeholder="Select or add hierarchy type(s)"
-                        formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
-                        onCreateOption={(inputValue) => {
-                            if (!hierarchyTypes.includes(inputValue)) {
-                                onHierarchyTypesChange([...hierarchyTypes, inputValue]);
-                            }
-                        }}
-                    />
-                </Col>
-            </Form.Group>
-
-            {hierarchyTypes.length > 0 && (
-            <Form.Group as={Row} className="mb-3 align-items-center">
-                <Form.Label column sm={2}>Hierarchy Translation Rules</Form.Label>
-                <Col sm={10}>
-                    <div className="d-flex flex-wrap gap-2">
-                        {hierarchyTypes.map(hierarchyType => (
-                            <Button
-                                key={hierarchyType}
-                                variant="outline-success"
-                                onClick={() => handleOpenHierarchyModal(hierarchyType)}
-                            >
-                                {hierarchyType}
-                                {hierarchyTranslationRules[hierarchyType] && (
-                                    <span className="ms-1">✓</span>
-                                )}
-                            </Button>
-                        ))}
-                    </div>
-                </Col>
-            </Form.Group>
-            )}
+                )}
 
         </Form>
 
