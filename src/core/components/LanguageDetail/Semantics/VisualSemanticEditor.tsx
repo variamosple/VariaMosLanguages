@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Form, Col, Row, Button } from 'react-bootstrap';
+import { Form, Col, Row, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Select, { MultiValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import TranslationRuleModal from './TranslationRule';
 import RelationTranslationRuleModal from './RelationTranslationRule';
 import AttributeRuleModal from './AttributeRuleModal';
 import HierarchyRuleModal from './hierarchyRuleModal';
+import { BiHelpCircle } from "react-icons/bi";
 
 // Interfaces
 interface TranslationRule {
@@ -187,8 +188,22 @@ export default function VisualSemanticEditor({
             <Form>
                 {/* Elements */}
                 <Form.Group as={Row} className="mb-3">
-                    <Form.Label column sm={2}>Element Types</Form.Label>
-                    <Col sm={10}>
+                    <Form.Label column sm={3}>
+                        Element Types
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={
+                                <Tooltip>
+                                    Define the element types that are translated independently of other elements in the model. These types correspond to those declared in the abstract syntax and must be listed here for further semantic translation. Ensure all required element types are included.
+                                </Tooltip>
+                            }
+                        >
+                            <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                <BiHelpCircle />
+                            </span>
+                        </OverlayTrigger>
+                    </Form.Label>
+                    <Col sm={9}>
                         <Select<SelectOption, true>
                             options={elements.map(element => ({
                                 value: element.name,
@@ -208,8 +223,22 @@ export default function VisualSemanticEditor({
 
                 {selectedElements.length > 0 && (
                     <Form.Group as={Row} className="mb-3 align-items-center">
-                        <Form.Label column sm={2}>Element Translation Rules</Form.Label>
-                        <Col sm={10}>
+                        <Form.Label column sm={3}>
+                            Element Translation Rules
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip>
+                                        Specify the translation rules for each element type listed in 'elementTypes'. Define attributes such as 'param' (placeholder for the element's ID), 'constraint' (default formula), and optional 'selectedConstraint' or 'deselectedConstraint' for specific states. Use these rules to construct the logical representation of the elements in the target semantics.
+                                    </Tooltip>
+                                }
+                            >
+                                <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                    <BiHelpCircle />
+                                </span>
+                            </OverlayTrigger>
+                        </Form.Label>
+                        <Col sm={9}>
                             <div className="d-flex flex-wrap gap-2">
                                 {selectedElements.map(element => (
                                     <Button
@@ -227,8 +256,22 @@ export default function VisualSemanticEditor({
 
                 {/* Relations */}
                 <Form.Group as={Row} className="mb-3">
-                    <Form.Label column sm={2}>Relation Types</Form.Label>
-                    <Col sm={10}>
+                    <Form.Label column sm={3}>
+                        Relation Types
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={
+                                <Tooltip>
+                                    List the allowed types of relations (edges) between nodes in the model. These types are critical for defining how relations are categorized and processed in the semantic translation. Ensure all required relation types are included
+                                </Tooltip>
+                            }
+                        >
+                            <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                <BiHelpCircle />
+                            </span>
+                        </OverlayTrigger>
+                    </Form.Label>
+                    <Col sm={9}>
                         <CreatableSelect<SelectOption, true>
                             options={
                                 Array.from(
@@ -269,8 +312,22 @@ export default function VisualSemanticEditor({
 
                 {relationTypes.length > 0 && (
                     <Form.Group as={Row} className="mb-3 align-items-center">
-                        <Form.Label column sm={2}>Relation Translation Rules</Form.Label>
-                        <Col sm={10}>
+                        <Form.Label column sm={3}>
+                            Relation Translation Rules
+                            <OverlayTrigger
+                            placement="right"
+                            overlay={
+                                <Tooltip>
+                                    Define the translation rules for each relation type listed in 'relationTypes'. Specify 'params' for placeholders representing source and target nodes, and 'constraint' to express the logical condition for the relation in the target semantics. These rules enable precise semantic representation of relations.
+                                </Tooltip>
+                            }
+                        >
+                            <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                <BiHelpCircle />
+                            </span>
+                        </OverlayTrigger>
+                        </Form.Label>
+                        <Col sm={9}>
                             <div className="d-flex flex-wrap gap-2">
                                 {relationTypes.map(relation => (
                                     <Button
@@ -290,8 +347,22 @@ export default function VisualSemanticEditor({
                 )}
 
                 <Form.Group as={Row} className="mb-3">
-                    <Form.Label column sm={2}>Relation Reification Types</Form.Label>
-                    <Col sm={10}>
+                    <Form.Label column sm={3}>
+                        Relation Reification Types
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={
+                                <Tooltip>
+                                    Specifies the types of relations that are treated as reified relations in the model. Reified relations represent many-to-many, many-to-one, or one-to-many connections between elements and may include additional attributes or variables.
+                                </Tooltip>
+                            }
+                        >
+                            <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                <BiHelpCircle />
+                            </span>
+                        </OverlayTrigger>
+                    </Form.Label>
+                    <Col sm={9}>
                         <Select<SelectOption, true>
                             options={elements.map(element => ({
                                 value: element.name,
@@ -313,9 +384,24 @@ export default function VisualSemanticEditor({
                     </Col>
                 </Form.Group>
 
+                {/* Attributes */}
                 <Form.Group as={Row} className="mb-3">
-                <Form.Label column sm={2}>Attribute Types</Form.Label>
-                <Col sm={10}>
+                <Form.Label column sm={3}>
+                    Attribute Types
+                    <OverlayTrigger
+                        placement="right"
+                        overlay={
+                            <Tooltip>
+                                Specify the element types for which attributes will be translated. These types determine which properties of the elements are considered during semantic translation. Ensure this list includes all relevant element types that use attributes in the model.
+                            </Tooltip>
+                        }
+                    >
+                        <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                            <BiHelpCircle />
+                        </span>
+                    </OverlayTrigger>
+                </Form.Label>
+                <Col sm={9}>
                     <Select<SelectOption, true>
                         options={elements.filter( element => element.properties.length > 0)
                             .map(element => ({
@@ -338,8 +424,22 @@ export default function VisualSemanticEditor({
 
                 {attributeTypes.length > 0 && (
                 <Form.Group as={Row} className="mb-3 align-items-center">
-                    <Form.Label column sm={2}>Attribute Translation Rules</Form.Label>
-                    <Col sm={10}>
+                    <Form.Label column sm={3}>
+                        Attribute Translation Rules
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={
+                                <Tooltip>
+                                    Define how specific attributes are translated into logical constraints. Use 'parent' to refer to the associated element, 'param' to specify the field providing the value, and 'template' for the placeholder in the formula. The 'constraint' expresses the semantic rule using these placeholders. This is essential for models relying on attributes for contextual or operational semantics.
+                                </Tooltip>
+                            }
+                        >
+                            <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                <BiHelpCircle />
+                            </span>
+                        </OverlayTrigger>    
+                    </Form.Label>
+                    <Col sm={9}>
                         <div className="d-flex flex-wrap gap-2">
                             {attributeTypes.map(attribute => {
                                 const hasRules = Object.keys(attributeTranslationRules).some(
@@ -361,9 +461,24 @@ export default function VisualSemanticEditor({
                 </Form.Group>
                 )}
 
+                {/* Hierarchy */}
                 <Form.Group as={Row} className="mb-3">
-                    <Form.Label column sm={2}>Hierarchy Types</Form.Label>
-                    <Col sm={10}>
+                    <Form.Label column sm={3}>
+                        Hierarchy Types
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={
+                                <Tooltip>
+                                    Specify the types of elements that require translation based on their position in a hierarchical structure. These types often differ in semantics depending on whether they are at the root, intermediate nodes, or leaves in the hierarchy.
+                                </Tooltip>
+                            }
+                        >
+                            <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                <BiHelpCircle />
+                            </span>
+                        </OverlayTrigger>
+                    </Form.Label>
+                    <Col sm={9}>
                         <CreatableSelect<SelectOption, true>
                             options={elements.map(element => ({
                                 value: element.name,
@@ -391,8 +506,22 @@ export default function VisualSemanticEditor({
 
                 {hierarchyTypes.length > 0 && (
                 <Form.Group as={Row} className="mb-3 align-items-center">
-                    <Form.Label column sm={2}>Hierarchy Translation Rules</Form.Label>
-                    <Col sm={10}>
+                    <Form.Label column sm={3}>
+                        Hierarchy Translation Rules
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={
+                                <Tooltip>
+                                    Define translation rules for hierarchical structures. Use 'nodeRule' to specify constraints for nodes with hierarchical connections, mapping their IDs and related nodes via 'paramMapping'. Use 'leafRule' for constraints when the element is a leaf node.
+                                </Tooltip>
+                            }
+                        >
+                            <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                <BiHelpCircle />
+                            </span>
+                        </OverlayTrigger>
+                    </Form.Label>
+                    <Col sm={9}>
                         <div className="d-flex flex-wrap gap-2">
                             {hierarchyTypes.map(hierarchyType => (
                                 <Button
@@ -411,83 +540,83 @@ export default function VisualSemanticEditor({
                 </Form.Group>
                 )}
 
-        </Form>
+            </Form>
 
-        {selectedRuleElement && (
-            <TranslationRuleModal
-                show={showModal}
-                elementName={selectedRuleElement}
-                rule={elementTranslationRules[selectedRuleElement] || {
-                    param: '',
-                    constraint: '',
-                    selectedConstraint: '',
-                    deselectedConstraint: '',
-                }}
-                onSave={(rule) => handleSaveRule(selectedRuleElement, rule)}
-                onClose={() => setShowModal(false)}
-            />
-        )}
-
-        {selectedRuleRelation && (
-            <RelationTranslationRuleModal
-                show={showRelationModal}
-                relationName={selectedRuleRelation}
-                rule={relationTranslationRules[selectedRuleRelation] || {
-                    params: [],
-                    constraint: ''
-                }}
-                selectedElements={selectedElements}
-                onSave={handleSaveRelationRule}
-                onClose={() => setShowRelationModal(false)}
-            />
-        )}
-
-        {selectedRuleAttribute && (
-            <AttributeRuleModal
-                show={showAttributeModal}
-                elementName={selectedRuleAttribute}
-                properties={
-                    elements
-                        .find(e => e.name === selectedRuleAttribute)
-                        ?.properties.map(prop => prop.name) || []
-                }
-                rule={
-                    attributeTranslationRules
-                }
-                onSave={(propertyName, rule) => {
-                    onAttributeTranslationRuleChange(propertyName, {
-                        ...rule
-                    });
-                    setShowAttributeModal(false);
-                }}
-                onClose={() => setShowAttributeModal(false)}
-            />
-        )}
-
-        {selectedRuleHierarchy && (
-            <HierarchyRuleModal
-                show={showHierarchyModal}
-                hierarchyType={selectedRuleHierarchy}
-                rule={hierarchyTranslationRules[selectedRuleHierarchy] || {
-                    nodeRule: {
-                        param: [],
-                        paramMapping: {
-                            incoming: false,
-                            var: '',
-                            node: '',
-                        },
-                        constraint: '',
-                    },
-                    leafRule: {
+            {selectedRuleElement && (
+                <TranslationRuleModal
+                    show={showModal}
+                    elementName={selectedRuleElement}
+                    rule={elementTranslationRules[selectedRuleElement] || {
                         param: '',
                         constraint: '',
-                    },
-                }}
-                elements={elements}
-                onSave={handleSaveHierarchyRule}
-                onClose={() => setShowHierarchyModal(false)}
-            />
-        )}
+                        selectedConstraint: '',
+                        deselectedConstraint: '',
+                    }}
+                    onSave={(rule) => handleSaveRule(selectedRuleElement, rule)}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
+
+            {selectedRuleRelation && (
+                <RelationTranslationRuleModal
+                    show={showRelationModal}
+                    relationName={selectedRuleRelation}
+                    rule={relationTranslationRules[selectedRuleRelation] || {
+                        params: [],
+                        constraint: ''
+                    }}
+                    selectedElements={selectedElements}
+                    onSave={handleSaveRelationRule}
+                    onClose={() => setShowRelationModal(false)}
+                />
+            )}
+
+            {selectedRuleAttribute && (
+                <AttributeRuleModal
+                    show={showAttributeModal}
+                    elementName={selectedRuleAttribute}
+                    properties={
+                        elements
+                            .find(e => e.name === selectedRuleAttribute)
+                            ?.properties.map(prop => prop.name) || []
+                    }
+                    rule={
+                        attributeTranslationRules
+                    }
+                    onSave={(propertyName, rule) => {
+                        onAttributeTranslationRuleChange(propertyName, {
+                            ...rule
+                        });
+                        setShowAttributeModal(false);
+                    }}
+                    onClose={() => setShowAttributeModal(false)}
+                />
+            )}
+
+            {selectedRuleHierarchy && (
+                <HierarchyRuleModal
+                    show={showHierarchyModal}
+                    hierarchyType={selectedRuleHierarchy}
+                    rule={hierarchyTranslationRules[selectedRuleHierarchy] || {
+                        nodeRule: {
+                            param: [],
+                            paramMapping: {
+                                incoming: false,
+                                var: '',
+                                node: '',
+                            },
+                            constraint: '',
+                        },
+                        leafRule: {
+                            param: '',
+                            constraint: '',
+                        },
+                    }}
+                    elements={elements}
+                    onSave={handleSaveHierarchyRule}
+                    onClose={() => setShowHierarchyModal(false)}
+                />
+            )}
 
         </>
     );
