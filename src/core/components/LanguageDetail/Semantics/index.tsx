@@ -104,24 +104,14 @@ export default function Semantics({ isActive }: SemanticsProps) {
   const isValidSemantics = useCallback((semantics: string | undefined): boolean => {
     try {
       if (!semantics) return false;
+      
+      // Intentamos parsear el JSON
       const parsed = JSON.parse(semantics);
-      return (
-        parsed.hasOwnProperty('elementTypes') &&
-        Array.isArray(parsed.elementTypes) &&
-        parsed.hasOwnProperty('elementTranslationRules') &&
-        Array.isArray(parsed.elementTranslationRules) &&
-        parsed.hasOwnProperty('relationTypes') &&
-        Array.isArray(parsed.relationTypes) &&
-        parsed.hasOwnProperty('relationTranslationRules') &&
-        Array.isArray(parsed.relationTranslationRules) &&
-        parsed.hasOwnProperty('hierarchyTypes') &&
-        Array.isArray(parsed.hierarchyTypes) &&
-        parsed.hasOwnProperty('hierarchyTranslationRules') &&
-        Array.isArray(parsed.hierarchyTranslationRules) &&
-        parsed.hasOwnProperty('relationReificationTypes') &&
-        Array.isArray(parsed.relationReificationTypes)
-      );
+      
+      // Verificamos que sea un objeto
+      return parsed !== null && typeof parsed === 'object' && Object.keys(parsed).length > 0;;
     } catch (e) {
+      // Si hay un error al parsear, no es un JSON válido
       return false;
     }
   }, []);
@@ -155,30 +145,11 @@ export default function Semantics({ isActive }: SemanticsProps) {
 
       // Crear nueva semántica basada en elementos actuales
       const initialSemantics = {
-        elementTypes: Array.from(new Set(elements.map(element => element.name))),
-        relationTypes: Array.from(
-          relationships.reduce((types, relationship) => {
-            const typeProperty = relationship.properties?.find(
-              (prop) => prop.name === "Type"
-            );
-            if (typeProperty?.possibleValues) {
-              typeProperty.possibleValues.forEach((value) => types.add(value));
-            }
-            return types;
-          }, new Set<string>())
-        ),
+        elementTypes:[],
+        relationTypes: [],
         elementTranslationRules: {},
         relationTranslationRules: {},
         relationReificationTypes: [],
-        attributeTypes: [],
-        hierarchyTypes: [],
-        typingRelationTypes: ["IndividualCardinality"],
-        relationPropertySchema: {
-          type: {
-            key: "value",
-            index: 0
-          }
-        }
       };
 
       setSemantics(JSON.stringify(initialSemantics, null, 2));
@@ -210,6 +181,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
     try {
       const parsedSemantics = semantics ? JSON.parse(semantics) : {};
       return {
+        ...parsedSemantics,
         elementTypes: parsedSemantics.elementTypes || [],
         elementTranslationRules: parsedSemantics.elementTranslationRules || {},
         relationTypes: parsedSemantics.relationTypes || [],
@@ -219,6 +191,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
         attributeTranslationRules: parsedSemantics.attributeTranslationRules || {},
         hierarchyTypes: parsedSemantics.hierarchyTypes || [],
         hierarchyTranslationRules: parsedSemantics.hierarchyTranslationRules || {},
+        relationReificationExpansions: parsedSemantics.relationReificationExpansions || [],
         // Añadir otros campos según sea necesario (Los siguientes pueden ser typingRelationTypes, etc.)
       };
     } catch (e) {
@@ -239,15 +212,18 @@ export default function Semantics({ isActive }: SemanticsProps) {
   
   // Sincronizar el estado local con la semántica
   useEffect(() => {
-    const { elementTypes } = parseCurrentSemantics();
+    const {
+      elementTypes,
+      relationTypes,
+      attributeTypes,
+      hierarchyTypes,
+      relationReificationTypes,
+    } = parseCurrentSemantics();
+  
     setSelectedElements(elementTypes);
-    const { relationTypes } = parseCurrentSemantics();
     setRelationTypes(relationTypes);
-    const { attributeTypes } = parseCurrentSemantics();
     setAttributeTypes(attributeTypes);
-    const { hierarchyTypes } = parseCurrentSemantics();
     setHierarchyTypes(hierarchyTypes);
-    const { relationReificationTypes } = parseCurrentSemantics();
     setRelationReificationTypes(relationReificationTypes);
   }, [semantics, parseCurrentSemantics]);
 
