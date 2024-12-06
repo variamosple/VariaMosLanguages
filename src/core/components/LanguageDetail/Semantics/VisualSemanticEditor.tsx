@@ -7,6 +7,7 @@ import RelationTranslationRuleModal from './RelationTranslationRule';
 import AttributeRuleModal from './AttributeRuleModal';
 import HierarchyRuleModal from './hierarchyRuleModal';
 import { BiHelpCircle } from "react-icons/bi";
+import PropertySchemaModal from './PropertySchemaModal';
 
 // Interfaces
 interface TranslationRule {
@@ -20,6 +21,13 @@ interface RelationTranslationRule {
     params: string[];
     constraint: string;
 }
+
+interface RelationPropertySchema {
+    type: {
+      index: number;
+      key: string;
+    }
+  }
 
 interface AttributeTranslationRule {
     parent: string;
@@ -69,6 +77,7 @@ interface VisualSemanticEditorProps {
     }>;
     relationTypes: string[];
     relationTranslationRules: Record<string, RelationTranslationRule>;
+    relationPropertySchema?: RelationPropertySchema;
     relationReificationTypes: string[];
     attributeTypes: string[];
     attributeTranslationRules: Record<string, AttributeTranslationRule>[];
@@ -80,6 +89,7 @@ interface VisualSemanticEditorProps {
     onTranslationRuleChange: (elementName: string, rule: TranslationRule) => void;
     onRelationsChange: (relations: string[]) => void;
     onRelationTranslationRuleChange: (relationName: string, rule: RelationTranslationRule) => void;
+    onRelationPropertySchemaChange?: (schema: RelationPropertySchema) => void;
     onRelationReificationTypesChange: (types: string[]) => void;
     onAttributeTypesChange: (attributeTypes: string[]) => void;
     onAttributeTranslationRuleChange: (attributeName: string, rule: AttributeTranslationRule) => void;
@@ -94,6 +104,7 @@ export default function VisualSemanticEditor({
     relationships,
     relationTypes,
     relationTranslationRules,
+    relationPropertySchema,
     relationReificationTypes,
     attributeTypes,
     attributeTranslationRules,
@@ -103,6 +114,7 @@ export default function VisualSemanticEditor({
     onTranslationRuleChange,
     onRelationsChange,
     onRelationTranslationRuleChange,
+    onRelationPropertySchemaChange,
     onRelationReificationTypesChange,
     onAttributeTypesChange,
     onAttributeTranslationRuleChange,
@@ -115,6 +127,8 @@ export default function VisualSemanticEditor({
 
     const [selectedRuleRelation, setSelectedRuleRelation] = useState<string | null>(null);
     const [showRelationModal, setShowRelationModal] = useState(false);
+
+    const [showRelationPropertySchemaModal, setShowRelationPropertySchemaModal] = useState(false);
 
     const [selectedRuleAttribute, setSelectedRuleAttribute] = useState<string | null>(null);
     const [showAttributeModal, setShowAttributeModal] = useState(false);
@@ -167,6 +181,15 @@ export default function VisualSemanticEditor({
         onRelationTranslationRuleChange(relationName, rule);
         setShowRelationModal(false);
     };
+
+    const handleOpenRelationPropertySchemaModal = () => {
+        setShowRelationPropertySchemaModal(true);
+    };
+
+    const handleSaveRelationPropertySchema = (schema: RelationPropertySchema) => {
+        onRelationPropertySchemaChange(schema);
+        setShowRelationPropertySchemaModal(false);
+    }
 
     const handleOpenAttributeModal = (attributeName: string) => {
         setSelectedRuleAttribute(attributeName);
@@ -345,6 +368,33 @@ export default function VisualSemanticEditor({
                         </Col>
                     </Form.Group>
                 )}
+
+                {/* Relation Property Schema */}
+                <Form.Group as={Row} className="mb-3">
+                    <Form.Label column sm={3}>
+                        Relation Property Schema
+                        <OverlayTrigger
+                            placement="right"
+                            overlay={
+                                <Tooltip>
+                                    Define the schema for relation properties. This schema specifies the type of the property and its key in the target semantics. The schema is essential for models with relations that include additional properties or variables.
+                                </Tooltip>
+                            }
+                        >
+                            <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                <BiHelpCircle />
+                            </span>
+                        </OverlayTrigger>
+                    </Form.Label>
+                    <Col sm={9}>
+                        <Button
+                            variant="outline-primary"
+                            onClick={() => handleOpenRelationPropertySchemaModal()}
+                        >
+                            {"Relation Property Schema"}
+                        </Button>
+                    </Col>
+                </Form.Group>
 
                 <Form.Group as={Row} className="mb-3">
                     <Form.Label column sm={3}>
@@ -568,6 +618,15 @@ export default function VisualSemanticEditor({
                     selectedElements={selectedElements}
                     onSave={handleSaveRelationRule}
                     onClose={() => setShowRelationModal(false)}
+                />
+            )}
+
+            {showRelationPropertySchemaModal && (
+                <PropertySchemaModal
+                    show={showRelationPropertySchemaModal}
+                    schema={relationPropertySchema || { type: { index: 0, key: '' } }}
+                    onSave={handleSaveRelationPropertySchema}
+                    onClose={() => setShowRelationPropertySchemaModal(false)}
                 />
             )}
 

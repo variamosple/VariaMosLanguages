@@ -30,6 +30,13 @@ interface RelationTranslationRule {
   constraint: string;
 }
 
+interface RelationPropertySchema {
+  type: {
+    index: number;
+    key: string;
+  }
+}
+
 interface AttributeTranslationRule {
   parent: string;
   param: string;
@@ -186,6 +193,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
         elementTranslationRules: parsedSemantics.elementTranslationRules || {},
         relationTypes: parsedSemantics.relationTypes || [],
         relationTranslationRules: parsedSemantics.relationTranslationRules || {},
+        relationPropertySchema: parsedSemantics.relationPropertySchema || {},
         relationReificationTypes: parsedSemantics.relationReificationTypes || [],
         attributeTypes: parsedSemantics.attributeTypes || [],
         attributeTranslationRules: parsedSemantics.attributeTranslationRules || {},
@@ -201,6 +209,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
         elementTranslationRules: {},
         relationTypes: [],
         relationTranslationRules: {},
+        relationPropertySchema: {},
         relationReificationTypes: [],
         attributeTypes: [],
         attributeTranslationRules: {},
@@ -260,6 +269,15 @@ export default function Semantics({ isActive }: SemanticsProps) {
     };
     setSemantics(JSON.stringify(updatedSemantics, null, 2));
   };
+
+  const handleRelationPropertySchemaChange = (schema: RelationPropertySchema) => {
+    const currentSemantics = parseCurrentSemantics();
+    const updatedSemantics = {
+      ...currentSemantics,
+      relationPropertySchema: schema
+    };
+    setSemantics(JSON.stringify(updatedSemantics, null, 2));
+  }
 
   const handleRelationTranslationRuleChange = (
     relationName: string,
@@ -478,6 +496,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
               relationships={relationships}
               relationTypes={relationTypes}
               relationTranslationRules={parseCurrentSemantics().relationTranslationRules}
+              relationPropertySchema={parseCurrentSemantics().relationPropertySchema}
               relationReificationTypes={relationReificationTypes}
               attributeTypes={attributeTypes}
               attributeTranslationRules={parseCurrentSemantics().attributeTranslationRules}
@@ -487,6 +506,7 @@ export default function Semantics({ isActive }: SemanticsProps) {
               onTranslationRuleChange={handleTranslationRuleChange}
               onRelationsChange={handleRelationsChange}
               onRelationTranslationRuleChange={handleRelationTranslationRuleChange}
+              onRelationPropertySchemaChange={handleRelationPropertySchemaChange}
               onRelationReificationTypesChange={handleRelationReificationTypes}
               onAttributeTypesChange={handleAttributeTypesChange}
               onAttributeTranslationRuleChange={handleAttributeTranslationRuleChange}
