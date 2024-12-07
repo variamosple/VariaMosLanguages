@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Form, Col, Row, Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import Select, { MultiValue } from "react-select";
+import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import TranslationRuleModal from './TranslationRule';
 import RelationTranslationRuleModal from './RelationTranslationRule';
@@ -154,12 +154,6 @@ export default function VisualSemanticEditor({
     }, [elementTranslationRules, selectedRuleElement, showModal, relationTranslationRules, selectedRuleRelation, showRelationModal]);
 
     // Event handlers
-    const handleElementSelection = (
-        selectedOptions: MultiValue<SelectOption>
-    ) => {
-        const updatedElements = selectedOptions.map(option => option.value);
-        onElementsChange(updatedElements);
-    };
 
     const handleOpenModal = (elementName: string) => {
         setSelectedRuleElement(elementName);
@@ -227,20 +221,29 @@ export default function VisualSemanticEditor({
                         </OverlayTrigger>
                     </Form.Label>
                     <Col sm={9}>
-                        <Select<SelectOption, true>
-                            options={elements.map(element => ({
-                                value: element.name,
-                                label: element.name,
-                            }))}
-                            value={selectedElements.map(element => ({
-                                value: element,
-                                label: element,
-                            }))}
-                            onChange={handleElementSelection}
-                            isMulti
-                            closeMenuOnSelect={false}
-                            placeholder="Select element type(s)"
-                        />
+                        <div className="d-flex flex-wrap gap-2">
+                            {elements.map(element => (
+                                <Button
+                                    key={element.name}
+                                    variant={selectedElements.includes(element.name) ? "primary" : "outline-primary"}
+                                    onClick={() => {
+                                        const currentSelection = [...selectedElements];
+                                        if (currentSelection.includes(element.name)) {
+                                            const index = currentSelection.indexOf(element.name);
+                                            currentSelection.splice(index, 1);
+                                        } else {
+                                            currentSelection.push(element.name);
+                                        }
+                                        onElementsChange(currentSelection);
+                                    }}
+                                >
+                                    {element.name}
+                                    {selectedElements.includes(element.name) && (
+                                        <span className="ms-1">✓</span>
+                                    )}
+                                </Button>
+                            ))}
+                        </div>
                     </Col>
                 </Form.Group>
 
@@ -413,24 +416,29 @@ export default function VisualSemanticEditor({
                         </OverlayTrigger>
                     </Form.Label>
                     <Col sm={9}>
-                        <Select<SelectOption, true>
-                            options={elements.map(element => ({
-                                value: element.name,
-                                label: element.name,
-                            }))}
-                            value={relationReificationTypes.map(type => ({
-                                value: type,
-                                label: type,
-                            }))}
-                            onChange={(selectedOptions) =>
-                                onRelationReificationTypesChange(
-                                    selectedOptions.map(option => option.value)
-                                )
-                            }
-                            isMulti
-                            closeMenuOnSelect={false}
-                            placeholder="Select or add reification types"
-                        />
+                        <div className="d-flex flex-wrap gap-2">
+                            {elements.map(element => (
+                                <Button
+                                    key={element.name}
+                                    variant={relationReificationTypes.includes(element.name) ? "primary" : "outline-primary"}
+                                    onClick={() => {
+                                        const currentSelection = [...relationReificationTypes];
+                                        if (currentSelection.includes(element.name)) {
+                                            const index = currentSelection.indexOf(element.name);
+                                            currentSelection.splice(index, 1);
+                                        } else {
+                                            currentSelection.push(element.name);
+                                        }
+                                        onRelationReificationTypesChange(currentSelection);
+                                    }}
+                                >
+                                    {element.name}
+                                    {relationReificationTypes.includes(element.name) && (
+                                        <span className="ms-1">✓</span>
+                                    )}
+                                </Button>
+                            ))}
+                        </div>
                     </Col>
                 </Form.Group>
 
@@ -529,28 +537,29 @@ export default function VisualSemanticEditor({
                         </OverlayTrigger>
                     </Form.Label>
                     <Col sm={9}>
-                        <CreatableSelect<SelectOption, true>
-                            options={elements.map(element => ({
-                                value: element.name,
-                                label: element.name,
-                            }))}
-                            value={hierarchyTypes.map(type => ({
-                                value: type,
-                                label: type,
-                            }))}
-                            onChange={(selectedOptions) =>
-                                onHierarchyTypesChange(selectedOptions.map(option => option.value))
-                            }
-                            isMulti
-                            closeMenuOnSelect={false}
-                            placeholder="Select or add hierarchy type(s)"
-                            formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
-                            onCreateOption={(inputValue) => {
-                                if (!hierarchyTypes.includes(inputValue)) {
-                                    onHierarchyTypesChange([...hierarchyTypes, inputValue]);
-                                }
-                            }}
-                        />
+                        <div className="d-flex flex-wrap gap-2">
+                            {elements.map(element => (
+                                <Button
+                                    key={element.name}
+                                    variant={hierarchyTypes.includes(element.name) ? "primary" : "outline-primary"}
+                                    onClick={() => {
+                                        const currentSelection = [...hierarchyTypes];
+                                        if (currentSelection.includes(element.name)) {
+                                            const index = currentSelection.indexOf(element.name);
+                                            currentSelection.splice(index, 1);
+                                        } else {
+                                            currentSelection.push(element.name);
+                                        }
+                                        onHierarchyTypesChange(currentSelection);
+                                    }}
+                                >
+                                    {element.name}
+                                    {hierarchyTypes.includes(element.name) && (
+                                        <span className="ms-1">✓</span>
+                                    )}
+                                </Button>
+                            ))}
+                        </div>
                     </Col>
                 </Form.Group>
 
