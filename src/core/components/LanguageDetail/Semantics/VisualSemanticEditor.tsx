@@ -8,6 +8,7 @@ import AttributeRuleModal from './AttributeRuleModal';
 import HierarchyRuleModal from './hierarchyRuleModal';
 import { BiHelpCircle } from "react-icons/bi";
 import PropertySchemaModal from './PropertySchemaModal';
+import RelationReificationTranslationRuleModal from './RelationReificationTranslationRule';
 
 // Interfaces
 interface TranslationRule {
@@ -27,7 +28,24 @@ interface RelationPropertySchema {
       index: number;
       key: string;
     }
-  }
+}
+
+interface RelationReificationTranslationRules {
+    param: string[];
+    paramMapping: {
+      inboundEdges: {
+        unique: boolean;
+        var: string;
+      };
+      outboundEdges: {
+        unique: boolean;
+        var: string;
+      };
+    };
+    constraint: {
+        [key: string]: string;
+    };
+}
 
 interface AttributeTranslationRule {
     parent: string;
@@ -79,6 +97,7 @@ interface VisualSemanticEditorProps {
     relationTranslationRules: Record<string, RelationTranslationRule>;
     relationPropertySchema?: RelationPropertySchema;
     relationReificationTypes: string[];
+    relationReificationTranslationRules: Record<string, RelationReificationTranslationRules>;
     attributeTypes: string[];
     attributeTranslationRules: Record<string, AttributeTranslationRule>[];
     hierarchyTypes: string[];
@@ -91,6 +110,7 @@ interface VisualSemanticEditorProps {
     onRelationTranslationRuleChange: (relationName: string, rule: RelationTranslationRule) => void;
     onRelationPropertySchemaChange?: (schema: RelationPropertySchema) => void;
     onRelationReificationTypesChange: (types: string[]) => void;
+    onRelationReificationTranslationRuleChange: (relationName: string, rule: RelationReificationTranslationRules) => void;
     onAttributeTypesChange: (attributeTypes: string[]) => void;
     onAttributeTranslationRuleChange: (attributeName: string, rule: AttributeTranslationRule) => void;
     onHierarchyTypesChange: (hierarchyTypes: string[]) => void;
@@ -106,6 +126,7 @@ export default function VisualSemanticEditor({
     relationTranslationRules,
     relationPropertySchema,
     relationReificationTypes,
+    relationReificationTranslationRules,
     attributeTypes,
     attributeTranslationRules,
     hierarchyTypes,
@@ -116,6 +137,7 @@ export default function VisualSemanticEditor({
     onRelationTranslationRuleChange,
     onRelationPropertySchemaChange,
     onRelationReificationTypesChange,
+    onRelationReificationTranslationRuleChange,
     onAttributeTypesChange,
     onAttributeTranslationRuleChange,
     onHierarchyTypesChange,
@@ -136,6 +158,9 @@ export default function VisualSemanticEditor({
     const [selectedRuleHierarchy, setSelectedRuleHierarchy] = useState<string | null>(null);
     const [showHierarchyModal, setShowHierarchyModal] = useState(false);
 
+    const [selectedRuleReification, setSelectedRuleReification] = useState<string | null>(null);
+    const [showReificationModal, setShowReificationModal] = useState(false);
+
     // Efecto para actualizar el modal cuando cambian las reglas
     useEffect(() => {
         if (selectedRuleElement && showModal) {
@@ -154,7 +179,6 @@ export default function VisualSemanticEditor({
     }, [elementTranslationRules, selectedRuleElement, showModal, relationTranslationRules, selectedRuleRelation, showRelationModal]);
 
     // Event handlers
-
     const handleOpenModal = (elementName: string) => {
         setSelectedRuleElement(elementName);
         setShowModal(true);
@@ -185,11 +209,23 @@ export default function VisualSemanticEditor({
         setShowRelationPropertySchemaModal(false);
     }
 
+    const handleOpenRelationReificationRuleModal = (relationName: string) => {
+        setSelectedRuleReification(relationName);
+        setShowReificationModal(true);
+    };
+
+    const handleSaveRelationReificationRule = (relationName: string, rule: RelationReificationTranslationRules) => {
+        onRelationReificationTranslationRuleChange(relationName, rule);
+        setShowReificationModal(false);
+    };
+
+    // Event handlers para atributos
     const handleOpenAttributeModal = (attributeName: string) => {
         setSelectedRuleAttribute(attributeName);
         setShowAttributeModal(true);
     };
 
+    // Event handlers para jerarquías
     const handleOpenHierarchyModal = (hierarchyType: string) => {
         setSelectedRuleHierarchy(hierarchyType);
         setShowHierarchyModal(true);
@@ -399,6 +435,7 @@ export default function VisualSemanticEditor({
                     </Col>
                 </Form.Group>
 
+                {/* Relation Reification */}
                 <Form.Group as={Row} className="mb-3">
                     <Form.Label column sm={3}>
                         Relation Reification Types
@@ -441,6 +478,42 @@ export default function VisualSemanticEditor({
                         </div>
                     </Col>
                 </Form.Group>
+
+                {relationReificationTypes.length > 0 && (
+                    <Form.Group as={Row} className="mb-3 align-items-center">
+                        <Form.Label column sm={3}>
+                            Relation Reification Translation Rules
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip>
+                                        Define translation rules for reified relations. Use 'param' to specify placeholders for the relation's source and target nodes, and 'paramMapping' to map the relation's ID and related nodes. The 'constraint' expresses the semantic rule using these placeholders. This is essential for models with complex relations that require additional attributes or variables.
+                                    </Tooltip>
+                                }
+                            >
+                                <span className="ms-2 text-info" style={{cursor: 'help'}}>
+                                    <BiHelpCircle />
+                                </span>
+                            </OverlayTrigger>
+                        </Form.Label>
+                        <Col sm={9}>
+                            <div className="d-flex flex-wrap gap-2">
+                                {relationReificationTypes.map(relation => (
+                                    <Button
+                                        key={relation}
+                                        variant="outline-secondary"
+                                        onClick={() => handleOpenRelationReificationRuleModal(relation)}
+                                    >
+                                        {relation}
+                                        {relationReificationTranslationRules[relation] && (
+                                            <span className="ms-1">✓</span>
+                                        )}
+                                    </Button>
+                                ))}
+                            </div>
+                        </Col>
+                    </Form.Group>
+                )}
 
                 {/* Attributes */}
                 <Form.Group as={Row} className="mb-3">
@@ -686,6 +759,28 @@ export default function VisualSemanticEditor({
                 />
             )}
 
+            {selectedRuleReification && (
+                <RelationReificationTranslationRuleModal
+                    show={showReificationModal}
+                    relationReificationType={selectedRuleReification}
+                    rule={relationReificationTranslationRules[selectedRuleReification] || {
+                        param: [],
+                        paramMapping: {
+                            inboundEdges: {
+                                unique: false,
+                                var: '',
+                            },
+                            outboundEdges: {
+                                unique: false,
+                                var: '',
+                            },
+                        },
+                        constraint: {},
+                    }}
+                    onSave={(rule) => handleSaveRelationReificationRule(selectedRuleReification, rule)}
+                    onClose={() => setShowReificationModal(false)}
+                />
+            )}
         </>
     );
 }
