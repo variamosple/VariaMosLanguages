@@ -9,11 +9,10 @@ export class Polygon extends Shape{
     x: number, 
     y: number, 
     fillColor: string = "#ffffff", 
-    lineColor: string = "#000000", 
-    rotation: number = 0, 
+    lineColor: string = "#000000",
     lineStyle: number[] = []
   ) {
-    super(x, y, undefined, undefined, fillColor, lineColor, rotation, lineStyle);
+    super(x, y, undefined, undefined, fillColor, lineColor, lineStyle);
     this.points = [{ x, y }];  // El primer punto se inicializa con las coordenadas iniciales
     this.isClosed = false;  // Inicializa el polígono como abierto
     this.tempPoint = null;
