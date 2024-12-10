@@ -3,7 +3,6 @@ import { useLanguageContext } from "../../../../context/LanguageContext/Language
 import ItemEditor from "../Utils/ItemUtils/ItemEditor/ItemEditor";
 import { useState, useCallback, useEffect } from "react";
 import ItemList from "../Utils/ItemUtils/ItemList/ItemList";
-import { Button } from 'react-bootstrap';
 
 export default function ElementTab() {
   const { elements, setElements } = useLanguageContext();

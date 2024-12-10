@@ -4,15 +4,8 @@ export class GeometryUtils {
   }
 
   static pointInRectangle(px: number, py: number, x: number, y: number, width: number, height: number, angle: number): boolean {
-    const cx = x + width / 2;
-    const cy = y + height / 2;
-
-    // Rotar el punto alrededor del centro del rectángulo en sentido contrario al ángulo dado
-    const rotatedPoint = GeometryUtils.rotatePoint(px, py, cx, cy, -angle);
-
-    // Verificar si el punto rotado está dentro de los límites del rectángulo no rotado
-    return rotatedPoint.x >= x && rotatedPoint.x <= x + width &&
-           rotatedPoint.y >= y && rotatedPoint.y <= y + height;
+    return px >= x && px <= x + width &&
+           py >= y && py <= y + height;
   }
 
   static pointInCircle(px: number, py: number, cx: number, cy: number, radius: number): boolean {
@@ -23,25 +16,6 @@ export class GeometryUtils {
     return {
       offsetX: clickX - shapeX,
       offsetY: clickY - shapeY,
-    };
-  }
-
-  static rotatePoint(px: number, py: number, cx: number, cy: number, angle: number): { x: number, y: number } {
-    const sin = Math.sin(angle);
-    const cos = Math.cos(angle);
-
-    // Trasladar punto al origen
-    const dx = px - cx;
-    const dy = py - cy;
-
-    // Aplicar la rotación
-    const xnew = dx * cos - dy * sin;
-    const ynew = dx * sin + dy * cos;
-
-    // Trasladar punto de regreso
-    return {
-      x: xnew + cx,
-      y: ynew + cy
     };
   }
 

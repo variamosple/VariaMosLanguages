@@ -9,6 +9,7 @@ export class ShapeCollection {
     shapes: Shape[] = [];
     private otherElements: string[] = [];
     shapeAttributes: Record<string, string>;
+    connectionsXML: string = "";
 
     addShape(shape: Shape) {
         this.shapes.push(shape);
@@ -131,7 +132,8 @@ export class ShapeCollection {
         }
 
         // Generamos el XML escalando las coordenadas
-        let xml = `<shape ${shapeAttrString}>\n  <background>\n`;
+        let xml = 
+        `<shape ${shapeAttrString}>\n ${this.connectionsXML}\n  <background>\n`;
     
         this.shapes.forEach(shape => {
             const strokeColor = shape.lineColor || "#333333";
@@ -246,8 +248,14 @@ export class ShapeCollection {
     
         // Obtener la etiqueta shape
         const shapeNode = xmlDoc.getElementsByTagName("shape")[0];
-    
+
         if (shapeNode) {
+
+            // Extraer y almacenar conexiones
+            const connectionsNode = shapeNode.getElementsByTagName("connections")[0];
+            if (connectionsNode) {
+                this.connectionsXML = new XMLSerializer().serializeToString(connectionsNode);
+            }
 
             // Extraer y almacenar atributos de la etiqueta <shape>
             this.shapeAttributes = {};

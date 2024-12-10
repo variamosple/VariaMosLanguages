@@ -1,5 +1,3 @@
-import { GeometryUtils } from "../GeometryUtils";
-
 export abstract class Shape {
     x: number;
     y: number;
@@ -7,7 +5,6 @@ export abstract class Shape {
     height: number;
     fillColor: string;
     lineColor: string;
-    rotation: number;
     lineStyle: number[];
     isSelected: boolean;
     lineWidth: number;
@@ -19,7 +16,6 @@ export abstract class Shape {
       height?: number, 
       fillColor: string = "#ffffff",
       lineColor: string = "#000000",
-      rotation: number = 0,
       lineStyle: number[] = []
     ) {
       this.x = x;
@@ -28,7 +24,6 @@ export abstract class Shape {
       this.height = height;
       this.fillColor = fillColor;
       this.lineColor = lineColor;
-      this.rotation = rotation;
       this.lineStyle = lineStyle;
       this.isSelected = false;
       this.lineWidth = 2;
@@ -85,19 +80,11 @@ export abstract class Shape {
     // Método para verificar si el mouse está sobre un "handle"
     isOverHandle(mouseX: number, mouseY: number): boolean {
       const handles = this.getResizeHandles();
-      const centerX = this.x + this.width / 2;
-      const centerY = this.y + this.height / 2;
       
-      return handles.some(handle => {
-        // Calcular la posición rotada del handle
-        const rotatedHandle = GeometryUtils.rotatePoint(handle.x, handle.y, centerX, centerY, this.rotation);
-        
-        // Verificar si el mouse está sobre el handle rotado
-        return (
-          mouseX >= rotatedHandle.x - 5 && mouseX <= rotatedHandle.x + 5 &&
-          mouseY >= rotatedHandle.y - 5 && mouseY <= rotatedHandle.y + 5
-        );
-      });
+      return handles.some(handle => 
+        mouseX >= handle.x - 5 && mouseX <= handle.x + 5 &&
+        mouseY >= handle.y - 5 && mouseY <= handle.y + 5
+      );
     }
 
     setFillColor(color: string): void {
