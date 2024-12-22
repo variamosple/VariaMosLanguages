@@ -15,9 +15,11 @@ import { Modal, Button, Form } from 'react-bootstrap';
 interface CanvasProps {
   xml: string;
   onXmlChange: (xml: string, icon?: string) => void; // Prop para manejar los cambios en el XML
+  scaleFactor: number;
+  onScaleFactorChange: (scaleFactor: number) => void;
 }
 
-export default function Canvas({xml, onXmlChange }: CanvasProps) {
+export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChange }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedTool, setSelectedTool] = useState<string>('select');
   const [shapeCollection, setShapeCollection] = useState<ShapeCollection>(new ShapeCollection());
@@ -55,7 +57,7 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
    // useEffect para inicializar las figuras desde el XML solo una vez
   useEffect(() => {
     if (xml && xml !== "<shape></shape>") {
-      const newShapeCollection = new ShapeCollection();
+      const newShapeCollection = new ShapeCollection(scaleFactor);
       newShapeCollection.fromXML(xml); // Convertir XML a formas
       setShapeCollection(newShapeCollection); // Actualizar colección de figuras
     }
@@ -476,6 +478,7 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
 
   const updateXml = () => {
     const xml = shapeCollection.toXML();
+    onScaleFactorChange(shapeCollection.getScaleFactor());
     const icon = getIcon();
     onXmlChange(xml, icon);
   };

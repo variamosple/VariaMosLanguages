@@ -11,6 +11,15 @@ export class ShapeCollection {
     private otherElements: string[] = [];
     shapeAttributes: Record<string, string>;
     connectionsXML: string = "";
+    scale: number;
+
+    constructor(scale: number = 1) {
+        this.scale = scale;
+    }
+
+    getScaleFactor(): number {
+        return this.scale;
+    }
 
     addShape(shape: Shape) {
         this.shapes.push(shape);
@@ -125,6 +134,7 @@ export class ShapeCollection {
     
         // Factor de escala para ajustar las figuras dentro del cuadro de 100x100
         const scale = 100 / Math.max(boundingBoxWidth, boundingBoxHeight);
+        this.scale = scale;
     
         // Preparar los atributos
         if (!this.shapeAttributes["name"]) this.shapeAttributes["name"] = "compositeShape";
@@ -443,6 +453,7 @@ export class ShapeCollection {
         // Recuperar el contenido del texto y otras propiedades
         const content = textElement.getAttribute('str') || "";
         const fontFamily = textElement.getAttribute('fontfamily') || "Arial";
+        fontSize = fontSize / this.scale;
 
         // Escalar y desplazar el texto
         const scaleFactor = 2;

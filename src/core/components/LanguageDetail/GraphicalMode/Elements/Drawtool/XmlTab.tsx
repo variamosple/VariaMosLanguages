@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Row, Col, DropdownButton, Dropdown  } from 'react-bootstrap';
+import { Row, Col, DropdownButton, Dropdown  } from 'react-bootstrap';
 import XMLInput from './XMLInput';
 import Canvas from './Canvas';
 import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
@@ -9,6 +9,8 @@ import ShapeRenderer from "./ShapeRenderer";
 
 export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) {
   const svgToXmlService = new SvgToXmlService();
+
+  const [ scaleFactor, setScaleFactor ] = useState(1);
 
   const [viewMode, setViewMode] = useState<'canvas' | 'xml'>('canvas');
 
@@ -99,7 +101,12 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
     {/* Renderizar dinámicamente el Canvas o el XML */}
     {viewMode === 'canvas' ? (
       <div>
-        <Canvas xml={xml} onXmlChange={XMLInput_onXmlChange} />
+        <Canvas 
+          xml={xml} 
+          onXmlChange={XMLInput_onXmlChange} 
+          scaleFactor={scaleFactor} 
+          onScaleFactorChange={setScaleFactor} 
+        />
       </div>
     ) : (
       <Row>
