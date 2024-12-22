@@ -4,6 +4,7 @@ import { Ellipse } from "./Ellipse";
 import { Triangle } from "./Triangle";
 import { Shape } from "./Shape";
 import { Polygon } from "./Polygon";
+import { TextElement } from "./TextElement";
 
 export class ShapeCollection {
     shapes: Shape[] = [];
@@ -77,8 +78,9 @@ export class ShapeCollection {
     toXML(): string {
         // Inicializamos las variables para encontrar el bounding box de todas las figuras
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        let textElements: TextElement[] = [];
     
-        // Primero, recorremos todas las figuras para calcular el bounding box global
+        // Primero, recorremos todas las figuras para calcular el bounding box global y guardamos las etiquetas de texto en una lista
         this.shapes.forEach(shape => {
             switch (shape.getType()) {
                 case 'rectangle':
@@ -110,6 +112,9 @@ export class ShapeCollection {
                         maxX = Math.max(maxX, point.x);
                         maxY = Math.max(maxY, point.y);
                     });
+                    break;
+                case 'text':
+                    textElements.push(shape as TextElement);
                     break;
             }
         });
@@ -232,7 +237,22 @@ export class ShapeCollection {
         <foreground>
             <fillstroke/>`;
 
-        // Añadir las etiquetas de texto al XML
+        // Añadir las etiquetas de texto
+        let previousFontSize = 0;
+        textElements.forEach(textElement => {
+            const scaledFontSize = textElement.fontSize * scale;
+
+            // Comparar si el tamaño de la fuente es el mismo que el anterior
+            if (scaledFontSize !== previousFontSize) {
+                previousFontSize = scaledFontSize;
+                xml += `
+                <fontsize size="${scaledFontSize}"/>\n`;
+            }
+            xml += `
+            <text str="${textElement.content}" x="${(textElement.x - minX) * scale}" y="${(textElement.y - minY) * scale}"/>\n
+            `;
+        });
+        // Añadir las otras etiquetas que no tengan soporte
         this.otherElements.forEach(element => xml += `          ${element}\n`);
 
         xml += `
@@ -285,6 +305,8 @@ export class ShapeCollection {
         let strokeColor = "#000000";
         let strokeWidth = 2;
         let lineStyle = [];
+
+        let fontSize = 16;
     
         for (let shape of Array.from(shapes)) {
             // Detectar si es un elemento de estilo
@@ -309,6 +331,10 @@ export class ShapeCollection {
                 case 'fillstroke': 
                     // Ignorar
                     break;
+
+                case 'fontsize':
+                    fontSize = parseFloat(shape.getAttribute('size') || "16");
+                    break;
     
                 // Detectar si es una figura
                 case 'rect':
@@ -322,6 +348,9 @@ export class ShapeCollection {
                 case 'path':
                     this.parsePathElement(shape, fillColor, strokeColor, strokeWidth, lineStyle);
                     lineStyle = [];
+                    break;
+                case 'text':
+                    this.createText(shape, fontSize);
                     break;
 
                 // Detectar si es texto u otra etiqueta
@@ -407,6 +436,25 @@ export class ShapeCollection {
         ellipse.setLineStyle(this.parseLineStyle(lineStyle));
         ellipse.setLineWidth(strokeWidth);
         this.addShape(ellipse);
+    }
+
+    // Función para crear textos
+    createText(textElement: Element, fontSize: number): void {
+        // Recuperar el contenido del texto y otras propiedades
+        const content = textElement.getAttribute('str') || "";
+        const fontFamily = textElement.getAttribute('fontfamily') || "Arial";
+
+        // Escalar y desplazar el texto
+        const scaleFactor = 2;
+        const offsetX = 50;
+        const offsetY = 50;
+
+        const x = (parseFloat(textElement.getAttribute('x') || "0") * scaleFactor) + offsetX;
+        const y = (parseFloat(textElement.getAttribute('y') || "0") * scaleFactor) + offsetY;
+
+        // Crear el elemento de texto
+        const text = new TextElement(x, y, content, fontSize, fontFamily);
+        this.addShape(text);
     }
     
     // Función auxiliar para crear y añadir un polígono cerrado

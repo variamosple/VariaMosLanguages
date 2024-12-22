@@ -1,6 +1,6 @@
 import React, {useRef, useState } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
-import { MdOutlineRectangle } from "react-icons/md";
+import { MdOutlineRectangle, MdOutlineTextFields } from "react-icons/md";
 import { IoEllipseOutline, IoTriangleOutline, IoColorFill, IoColorPaletteOutline } from "react-icons/io5";
 import { FaMinus } from "react-icons/fa6";
 import { RxBorderWidth } from "react-icons/rx";
@@ -11,6 +11,7 @@ import { SketchPicker } from 'react-color';
 import CustomPatternModal from './CustomPatternModal';
 
 interface ToolBarProps {
+  selectedTool: string;
   onSelectTool: (tool: string) => void;
   onDelete: () => void;
   hasSelectedShape: boolean;
@@ -23,6 +24,7 @@ interface ToolBarProps {
 }
 
 export default function ToolBar({
+  selectedTool,
   onSelectTool,
   onDelete,
   hasSelectedShape,
@@ -33,7 +35,6 @@ export default function ToolBar({
   lineWidth,
   lineStyle
 }: ToolBarProps) {
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [fillColor, setFillColor] = useState<string>('#000000');
   const [lineColor, setLineColor] = useState<string>('#000000');
   const [showFillColorPicker, setShowFillColorPicker] = useState<boolean>(false);
@@ -44,7 +45,6 @@ export default function ToolBar({
   const lineColorPickerRef = useRef<HTMLDivElement | null>(null);
 
   const handleToolClick = (tool: string) => {
-    setSelectedTool(tool);
     onSelectTool(tool);
   };
 
@@ -138,6 +138,12 @@ export default function ToolBar({
           onClick={() => handleToolClick('polygon')}
         >
           <TbPolygon />
+        </Button>
+        <Button
+          variant={selectedTool === 'text' ? 'primary' : 'secondary'}
+          onClick={() => handleToolClick('text')}
+        >
+          <MdOutlineTextFields  />
         </Button>
         <Button
           variant={hasSelectedShape ? 'danger' : 'secondary'}
