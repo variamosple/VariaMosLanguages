@@ -7,39 +7,45 @@ import { RxBorderWidth } from "react-icons/rx";
 import { PiCursorFill } from "react-icons/pi";
 import { FaTrashAlt } from "react-icons/fa";
 import { TbPolygon, TbBorderStyle2  } from "react-icons/tb";
+import { AiOutlineFontSize } from "react-icons/ai";
 import { SketchPicker } from 'react-color';
 import CustomPatternModal from './CustomPatternModal';
 
 interface ToolBarProps {
   selectedTool: string;
+  hasSelectedShape: boolean;
+  lineWidth: number;
+  lineStyle: string | number[];
+  fontSize?: number;
   onSelectTool: (tool: string) => void;
   onDelete: () => void;
-  hasSelectedShape: boolean;
   onFillColorChange: (color: string) => void;
   onLineColorChange: (color: string) => void;
   onLineStyleChange: (style: string | number[]) => void;
   onLineWidthChange: (width: number) => void;
-  lineWidth: number;
-  lineStyle: string | number[];
+  onFontSizeChange?: (size: number) => void;
 }
 
 export default function ToolBar({
   selectedTool,
+  hasSelectedShape,
+  lineWidth,
+  lineStyle,
+  fontSize,
   onSelectTool,
   onDelete,
-  hasSelectedShape,
   onFillColorChange,
   onLineColorChange,
   onLineStyleChange,
   onLineWidthChange,
-  lineWidth,
-  lineStyle
+  onFontSizeChange,
 }: ToolBarProps) {
   const [fillColor, setFillColor] = useState<string>('#000000');
   const [lineColor, setLineColor] = useState<string>('#000000');
   const [showFillColorPicker, setShowFillColorPicker] = useState<boolean>(false);
   const [showLineColorPicker, setShowLineColorPicker] = useState<boolean>(false);
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
+  const [showFontSizeOptions, setShowFontSizeOptions] = useState(false);
 
   const fillColorPickerRef = useRef<HTMLDivElement | null>(null);
   const lineColorPickerRef = useRef<HTMLDivElement | null>(null);
@@ -78,6 +84,13 @@ export default function ToolBar({
       onLineWidthChange(newWidth);
     }
   }
+
+  const handleFontSizeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const newSize = parseInt(event.target.value, 10);
+    if (!isNaN(newSize) && newSize > 0) {
+      onFontSizeChange?.(newSize);
+    }
+  };  
 
   const toggleFillColorPicker = () => {
     setShowFillColorPicker((prevShowFillColorPicker) => {
@@ -209,17 +222,58 @@ export default function ToolBar({
           />
         )}
 
-          {/* Stepper Control para el grosor de línea */}
-          <div className="ms-3 d-flex align-items-center">
-            <RxBorderWidth />
+        {/* Stepper Control para el grosor de línea */}
+        <div className="ms-3 d-flex align-items-center">
+          <RxBorderWidth />
+          <input
+            type="number"
+            value={lineWidth}
+            onChange={(e) => handleLineWidthChange(parseInt(e.target.value))}
+            style={{ width: '50px', textAlign: 'center' }}
+            className="mx-2"
+          />
+        </div>
+
+        {/* Control para el tamaño de fuente */}
+        <div className="ms-3 d-flex align-items-center">
+          <AiOutlineFontSize />
+          <div className="position-relative">
             <input
-              type="number"
-              value={lineWidth}
-              onChange={(e) => handleLineWidthChange(parseInt(e.target.value))}
-              style={{ width: '50px', textAlign: 'center' }}
-              className="mx-2"
+              type="text"
+              value={fontSize}
+              onChange={(e) => handleFontSizeChange(e)}
+              onFocus={() => setShowFontSizeOptions(true)}
+              onBlur={() => setTimeout(() => setShowFontSizeOptions(false), 200)} // Retraso para permitir clic en opciones
+              style={{ width: '80px', textAlign: 'center' }}
+              className="form-control mx-2"
+              placeholder="Font Size"
             />
+            {showFontSizeOptions && (
+              <ul
+                className="dropdown-menu show"
+                style={{
+                  position: 'absolute',
+                  zIndex: 1000,
+                  width: '80px',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                }}
+              >
+                {[8, 10, 12, 14, 16, 18, 24, 36, 48].map((size) => (
+                  <li key={size}>
+                    <button
+                      className="dropdown-item"
+                      onMouseDown={() => handleFontSizeChange({ target: { value: size.toString() } } as React.ChangeEvent<HTMLInputElement>)}
+                    >
+                      {size}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
+        </div>
+
       </div>
     </div>
   );

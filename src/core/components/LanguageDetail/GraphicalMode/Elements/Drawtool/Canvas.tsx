@@ -471,6 +471,21 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     updateXml();
   }
 
+  const handleFontSizeChange = (size: number) => {
+    if (selectedShape instanceof TextElement) {
+      selectedShape.fontSize = size;
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          drawShapes(context);
+        }
+      }
+    }
+    updateXml();
+  }
+
   const saveToJSON = () => {
     const json = shapeCollection.toJSON();
     console.log("Saved JSON:", json);
@@ -520,15 +535,17 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         <div className="mb-2">
           <ToolBar
             selectedTool={selectedTool}
+            hasSelectedShape={selectedShape !== null}
+            lineWidth={selectedShape ? selectedShape.lineWidth : 1}
+            lineStyle={selectedShape ? selectedShape.getLineStyle() : 'solid'}
+            fontSize={selectedShape instanceof TextElement ? selectedShape.fontSize : 0}
             onSelectTool={handleSelectTool}
             onDelete={handleDelete}
-            hasSelectedShape={selectedShape !== null}
             onFillColorChange={handleFillColorChange}
             onLineColorChange={handleLineColorChange}
             onLineStyleChange={handleLineStyleChange}
             onLineWidthChange={handleLineWidthChange}
-            lineWidth={selectedShape ? selectedShape.lineWidth : 1}
-            lineStyle={selectedShape ? selectedShape.getLineStyle() : 'solid'}
+            onFontSizeChange={handleFontSizeChange}
           />
         </div>
 
