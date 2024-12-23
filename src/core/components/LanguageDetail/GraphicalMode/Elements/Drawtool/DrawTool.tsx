@@ -28,7 +28,7 @@ export default function Drawtool({ show, handleClose, xml, onXmlChange }) {
 
 
   return (
-    <Modal show={show} onHide={handleClose} size={"xl"}>
+    <Modal show={show} onHide={handleClose} size={"xl"} enforceFocus={false}>
       <Modal.Header closeButton>
         <Modal.Title>Draw Tool</Modal.Title>
       </Modal.Header>

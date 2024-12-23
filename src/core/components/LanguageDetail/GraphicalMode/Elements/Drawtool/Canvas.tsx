@@ -9,13 +9,17 @@ import { ShapeCollection } from './Shapes/ShapeCollection';
 import { GeometryUtils } from './GeometryUtils';
 import { ShapeUtils } from './Shapes/ShapeUtils';
 import { Polygon } from "./Shapes/Polygon";
+import { TextElement } from './Shapes/TextElement';
+import { Modal, Button, Form } from 'react-bootstrap';
 
 interface CanvasProps {
   xml: string;
   onXmlChange: (xml: string, icon?: string) => void; // Prop para manejar los cambios en el XML
+  scaleFactor: number;
+  onScaleFactorChange: (scaleFactor: number) => void;
 }
 
-export default function Canvas({xml, onXmlChange }: CanvasProps) {
+export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChange }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedTool, setSelectedTool] = useState<string>('select');
   const [shapeCollection, setShapeCollection] = useState<ShapeCollection>(new ShapeCollection());
@@ -27,14 +31,19 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [resizeHandleIndex, setResizeHandleIndex] = useState<number | null>(null);
   const [currentPolygon, setCurrentPolygon] = useState<Polygon | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalText, setModalText] = useState<string>('');
+  const [isNewText, setIsNewText] = useState<boolean>(false);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
+    // Dibujar formas
     shapeCollection.shapes.forEach(shape => {
-
       if (shape === selectedShape) {
         ctx.save();
         shape.draw(ctx);
-        shape.drawResizeHandles(ctx);
+        if (!(shape instanceof TextElement)) {
+          shape.drawResizeHandles(ctx);
+        }
         ctx.restore();
 
       } else {
@@ -48,10 +57,9 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
    // useEffect para inicializar las figuras desde el XML solo una vez
   useEffect(() => {
     if (xml && xml !== "<shape></shape>") {
-      const newShapeCollection = new ShapeCollection();
+      const newShapeCollection = new ShapeCollection(scaleFactor);
       newShapeCollection.fromXML(xml); // Convertir XML a formas
       setShapeCollection(newShapeCollection); // Actualizar colección de figuras
-      console.log(newShapeCollection);
     }
   }, []);
 
@@ -74,6 +82,8 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
           selectedTool === 'line') 
       {
         canvas.style.cursor = 'crosshair';
+      } else if (selectedTool === 'text') {
+        canvas.style.cursor = 'text';
       } else {
         canvas.style.cursor = 'default';
       }
@@ -85,30 +95,31 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
     updateXml();
   };
 
+  // Función auxiliar para manejar la selección de figuras
+  const handleShapeSelection = (x: number, y: number) => {
+    shapeCollection.shapes.forEach(shape => shape.isSelected = false);
+    for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
+      if (shapeCollection.shapes[i].contains(x, y)) {
+        shapeCollection.shapes[i].isSelected = true;
+        setSelectedShape(shapeCollection.shapes[i]);
+        setIsDragging(true);
+        setStartX(x);
+        setStartY(y);
+        return true; // Figuras seleccionada
+      }
+    }
+    setSelectedShape(null);
+    return false; // Ninguna figura seleccionada
+  };
+
+  // Funciones para manejar eventos del mouse
   const handleMouseDown = (e: React.MouseEvent) => {
     const clickX = e.nativeEvent.offsetX;
     const clickY = e.nativeEvent.offsetY;
 
-    // Función auxiliar para manejar la selección de figuras
-    const handleShapeSelection = (x: number, y: number) => {
-      shapeCollection.shapes.forEach(shape => shape.isSelected = false);
-      for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
-        if (shapeCollection.shapes[i].contains(x, y)) {
-          shapeCollection.shapes[i].isSelected = true;
-          setSelectedShape(shapeCollection.shapes[i]);
-          setIsDragging(true);
-          setStartX(x);
-          setStartY(y);
-          return true; // Figuras seleccionada
-        }
-      }
-      setSelectedShape(null);
-      return false; // Ninguna figura seleccionada
-    };
-
     if (selectedTool === 'select') {
+      // Verificar si hizo clic en una figura
       if (selectedShape) {
-        
         if (selectedShape.isOverHandle(clickX, clickY)) {
           setIsResizing(true);
       
@@ -168,6 +179,16 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
           setCurrentPolygon(null); // Terminar el dibujo
         }
       }
+    } else if (selectedTool === 'text') {
+      const newText = new TextElement(clickX, clickY);
+      const updatedShapeCollection = shapeCollection;
+      updatedShapeCollection.addShape(newText);
+
+      setShapeCollection(updatedShapeCollection);
+      setSelectedShape(newText);
+      setIsModalOpen(true);
+      setModalText(newText.content);
+      setIsNewText(true);
     }
     updateXml();
   };
@@ -312,6 +333,61 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
     updateXml();
   };
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    if (selectedTool !== 'select') return;
+
+    const clickX = e.nativeEvent.offsetX;
+    const clickY = e.nativeEvent.offsetY;
+
+    // Buscar si se hizo doble clic en un texto
+    for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
+      const shape = shapeCollection.shapes[i];
+      if (shape instanceof TextElement && shape.contains(clickX, clickY)) {
+        setSelectedShape(shape);
+        setModalText(shape.content);
+        setIsModalOpen(true);
+        setIsNewText(false);
+        break;
+      }
+    }
+  };
+
+  // Funciones para manejar el modal de edición de texto
+  const handleTextUpdate = (content: string) => {
+    if (selectedShape instanceof TextElement) {
+      selectedShape.content = modalText;
+      const updatedShapeCollection = shapeCollection;
+      setIsModalOpen(false);
+      setModalText('');
+      setShapeCollection(updatedShapeCollection);
+
+      // Cambiar a la herramienta de selección
+      setSelectedShape(null);
+      if (selectedTool === 'text') {
+        setSelectedTool('select');
+      }
+      setIsNewText(false);
+      
+      updateXml();
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setModalText('');
+    setSelectedShape(null);
+
+    if (selectedTool === 'text') {
+      setSelectedTool('select');
+    }
+    setIsNewText(false);
+    
+    if (selectedShape instanceof TextElement && isNewText) {
+      // Si se cancela la edición de un texto, eliminarlo
+      handleDelete();
+    }
+  };
+
   const handleDelete = () => {
     if (selectedShape) {
       if (selectedShape) {
@@ -395,6 +471,21 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
     updateXml();
   }
 
+  const handleFontSizeChange = (size: number) => {
+    if (selectedShape instanceof TextElement) {
+      selectedShape.fontSize = size;
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const context = canvas.getContext('2d');
+        if (context) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          drawShapes(context);
+        }
+      }
+    }
+    updateXml();
+  }
+
   const saveToJSON = () => {
     const json = shapeCollection.toJSON();
     console.log("Saved JSON:", json);
@@ -402,6 +493,7 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
 
   const updateXml = () => {
     const xml = shapeCollection.toXML();
+    onScaleFactorChange(shapeCollection.getScaleFactor());
     const icon = getIcon();
     onXmlChange(xml, icon);
   };
@@ -418,7 +510,6 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
     const ctx = canvas.getContext('2d');
 
     const area = shapeCollection.getArea();
-    //alert("Area: " + JSON.stringify(area));
 
     // Captura la región especificada
     const imageData = ctx.getImageData(area.x - 3, area.y - 3, area.width + 6, area.height + 6);
@@ -443,15 +534,18 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
         {/* ToolBar arriba, ocupando todo el ancho */}
         <div className="mb-2">
           <ToolBar
+            selectedTool={selectedTool}
+            hasSelectedShape={selectedShape !== null}
+            lineWidth={selectedShape ? selectedShape.lineWidth : 1}
+            lineStyle={selectedShape ? selectedShape.getLineStyle() : 'solid'}
+            fontSize={selectedShape instanceof TextElement ? selectedShape.fontSize : 0}
             onSelectTool={handleSelectTool}
             onDelete={handleDelete}
-            hasSelectedShape={selectedShape !== null}
             onFillColorChange={handleFillColorChange}
             onLineColorChange={handleLineColorChange}
             onLineStyleChange={handleLineStyleChange}
             onLineWidthChange={handleLineWidthChange}
-            lineWidth={selectedShape ? selectedShape.lineWidth : 1}
-            lineStyle={selectedShape ? selectedShape.getLineStyle() : 'solid'}
+            onFontSizeChange={handleFontSizeChange}
           />
         </div>
 
@@ -465,8 +559,42 @@ export default function Canvas({xml, onXmlChange }: CanvasProps) {
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
+            onDoubleClick={handleDoubleClick}
           />
         </div>
+
+        <Modal show={isModalOpen} onHide={handleModalClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+          {selectedShape instanceof TextElement && selectedShape.content === 'Text' 
+                ? 'Add Text' 
+                : 'Edit Text'}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={(e) => {
+            e.preventDefault();
+            handleTextUpdate(modalText);
+          }}>
+            <Form.Group controlId="textElementContent">
+              <Form.Control
+                type="text"
+                value={modalText}
+                onChange={(e) => setModalText(e.target.value)}
+                autoFocus
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleModalClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={() => handleTextUpdate(modalText)}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
       </div>
     </div>
   );  
