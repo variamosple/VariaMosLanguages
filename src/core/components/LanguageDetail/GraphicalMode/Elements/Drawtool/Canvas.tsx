@@ -66,13 +66,16 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   useEffect(() => {    
     const canvas = canvasRef.current;
     if (canvas) {
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.fillStyle = '#ffffff';
-        context.fillRect(0, 0, canvas.width, canvas.height);
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        drawShapes(context);
+        // Dibujar las lineas guia
+        drawGuideLines(ctx);
+
+        drawShapes(ctx);
       }
 
       if (selectedTool === 'rectangle' || 
@@ -89,6 +92,30 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       }
     }
   }, [shapeCollection, selectedTool, selectedShape]);
+
+  // Dibujar las lineas guia
+  const drawGuideLines = (ctx: CanvasRenderingContext2D) => {
+    ctx.save();
+    ctx.strokeStyle = '#d3d3d3';
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.moveTo(0, 100);
+    ctx.lineTo(400, 100);
+
+    ctx.moveTo(0, 300);
+    ctx.lineTo(400, 300);
+
+    // Líneas verticales
+    ctx.moveTo(100, 0);
+    ctx.lineTo(100, 400);
+
+    ctx.moveTo(300, 0);
+    ctx.lineTo(300, 400);
+
+    ctx.stroke();
+    ctx.restore();
+  }
 
   const handleSelectTool = (tool: string) => {
     setSelectedTool(tool);
@@ -208,11 +235,13 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       if (selectedShape instanceof Polygon) {
         ShapeUtils.resizePolygon(selectedShape as Polygon, resizeHandleIndex, currentX, currentY);
         context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGuideLines(context);
         drawShapes(context);
       } else{
         ShapeUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
         console.log(selectedShape, resizeHandleIndex, currentX, currentY);
         context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGuideLines(context);
         drawShapes(context);
       }
       return;
@@ -220,6 +249,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
 
     if (isDrawing && startX !== null && startY !== null) {
       context.clearRect(0, 0, canvas.width, canvas.height);
+      drawGuideLines(context);
       drawShapes(context);
   
       let shape: Shape;
@@ -259,11 +289,13 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       setStartY(currentY);
   
       context.clearRect(0, 0, canvas.width, canvas.height);
+      drawGuideLines(context);
       drawShapes(context);
     }
 
     if (selectedTool === 'polygon' && currentPolygon) {
       context.clearRect(0, 0, canvas.width, canvas.height);
+      drawGuideLines(context);
       drawShapes(context);
   
       currentPolygon.draw(context);
@@ -404,6 +436,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         const context = canvas.getContext('2d');
         if (context) {
           context.clearRect(0, 0, canvas.width, canvas.height);
+          drawGuideLines(context);
           drawShapes(context);
         }
       }
@@ -419,6 +452,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         const context = canvas.getContext('2d');
         if (context) {
           context.clearRect(0, 0, canvas.width, canvas.height);
+          drawGuideLines(context);
           drawShapes(context);
         }
       }
@@ -434,6 +468,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         const context = canvas.getContext('2d');
         if (context) {
           context.clearRect(0, 0, canvas.width, canvas.height);
+          drawGuideLines(context);
           drawShapes(context);
         }
       }
@@ -449,6 +484,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         const context = canvas.getContext('2d');
         if (context) {
           context.clearRect(0, 0, canvas.width, canvas.height);
+          drawGuideLines(context);
           drawShapes(context);
         }
       }
@@ -464,6 +500,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         const context = canvas.getContext('2d');
         if (context) {
           context.clearRect(0, 0, canvas.width, canvas.height);
+          drawGuideLines(context);
           drawShapes(context);
         }
       }
@@ -479,6 +516,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         const context = canvas.getContext('2d');
         if (context) {
           context.clearRect(0, 0, canvas.width, canvas.height);
+          drawGuideLines(context);
           drawShapes(context);
         }
       }
