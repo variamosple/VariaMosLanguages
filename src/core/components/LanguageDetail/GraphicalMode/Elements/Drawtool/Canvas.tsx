@@ -116,6 +116,19 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     ctx.stroke();
     ctx.restore();
   }
+  
+  // Resetear el canvas
+  const resetCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+  
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGuideLines(ctx);
+    drawShapes(ctx);
+  };
 
   const handleSelectTool = (tool: string) => {
     setSelectedTool(tool);
@@ -234,23 +247,17 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
      if (isResizing && selectedShape && resizeHandleIndex !== null) {
       if (selectedShape instanceof Polygon) {
         ShapeUtils.resizePolygon(selectedShape as Polygon, resizeHandleIndex, currentX, currentY);
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        drawGuideLines(context);
-        drawShapes(context);
+        resetCanvas();
       } else{
         ShapeUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
         console.log(selectedShape, resizeHandleIndex, currentX, currentY);
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        drawGuideLines(context);
-        drawShapes(context);
+        resetCanvas();
       }
       return;
     }
 
     if (isDrawing && startX !== null && startY !== null) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      drawGuideLines(context);
-      drawShapes(context);
+      resetCanvas();
   
       let shape: Shape;
   
@@ -288,15 +295,11 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       setStartX(currentX);
       setStartY(currentY);
   
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      drawGuideLines(context);
-      drawShapes(context);
+      resetCanvas();
     }
 
     if (selectedTool === 'polygon' && currentPolygon) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      drawGuideLines(context);
-      drawShapes(context);
+      resetCanvas();
   
       currentPolygon.draw(context);
   
@@ -435,9 +438,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       if (canvas) {
         const context = canvas.getContext('2d');
         if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawGuideLines(context);
-          drawShapes(context);
+          resetCanvas();
         }
       }
       updateXml();
@@ -447,15 +448,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     if (selectedShape) {
       selectedShape.setFillColor(color);
 
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawGuideLines(context);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   };
@@ -463,15 +456,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const handleLineColorChange = (color: string) => {
     if (selectedShape) {
       selectedShape.setLineColor(color);
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawGuideLines(context);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   };
@@ -479,15 +464,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const handleLineStyleChange = (style: string | number[]) => {
     if (selectedShape) {
       selectedShape.setLineStyle(style);
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawGuideLines(context);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   };
@@ -495,15 +472,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const handleLineWidthChange = (width: number) => {
     if (selectedShape) {
       selectedShape.setLineWidth(width);
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawGuideLines(context);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   }
@@ -511,15 +480,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const handleFontSizeChange = (size: number) => {
     if (selectedShape instanceof TextElement) {
       selectedShape.fontSize = size;
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawGuideLines(context);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   }
