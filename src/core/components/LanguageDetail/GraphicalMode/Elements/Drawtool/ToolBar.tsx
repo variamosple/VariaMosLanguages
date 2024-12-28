@@ -2,7 +2,7 @@ import React, {useRef, useState } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 import { MdOutlineRectangle, MdOutlineTextFields } from "react-icons/md";
 import { IoEllipseOutline, IoTriangleOutline, IoColorFill, IoColorPaletteOutline } from "react-icons/io5";
-import { FaMinus } from "react-icons/fa6";
+import { FaMinus, FaBezierCurve } from "react-icons/fa6";
 import { RxBorderWidth } from "react-icons/rx";
 import { PiCursorFill } from "react-icons/pi";
 import { FaTrashAlt } from "react-icons/fa";
@@ -145,6 +145,12 @@ export default function ToolBar({
           onClick={() => handleToolClick('line')}
         >
           <FaMinus />
+        </Button>
+        <Button
+          variant={selectedTool === 'curve' ? 'primary' : 'secondary'}
+          onClick={() => handleToolClick('curve')}
+        >
+          <FaBezierCurve />
         </Button>
         <Button
           variant={selectedTool === 'polygon' ? 'primary' : 'secondary'}

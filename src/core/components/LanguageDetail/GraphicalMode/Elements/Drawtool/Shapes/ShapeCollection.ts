@@ -1,4 +1,5 @@
 import { Line } from "./Line";
+import { BezierCurve } from "./BezierCurve";
 import { Rectangle } from "./Rectangle";
 import { Ellipse } from "./Ellipse";
 import { Triangle } from "./Triangle";
@@ -62,6 +63,72 @@ export class ShapeCollection {
                     maxX = Math.max(maxX, line.x, line.x2);
                     maxY = Math.max(maxY, line.y, line.y2);
                     break;
+                case 'curve':
+                    const curve = shape as BezierCurve;
+                
+                    // Puntos iniciales y finales
+                    const points = [
+                        { x: curve.x, y: curve.y },
+                        { x: curve.x2, y: curve.y2 }
+                    ];
+                
+                    // Derivada para X e Y
+                    const getBezierDerivativeRoots = (p0: number, p1: number, p2: number, p3: number): number[] => {
+                        const a = -3 * p0 + 9 * p1 - 9 * p2 + 3 * p3;
+                        const b = 6 * p0 - 12 * p1 + 6 * p2;
+                        const c = -3 * p0 + 3 * p1;
+                
+                        const roots = [];
+                        if (a === 0) { // Ecuación cuadrática (si 'a' es cero)
+                            if (b !== 0) {
+                                roots.push(-c / b);
+                            }
+                        } else { // Ecuación cuadrática normal
+                            const discriminant = b * b - 4 * a * c;
+                            if (discriminant >= 0) {
+                                const sqrtDisc = Math.sqrt(discriminant);
+                                roots.push((-b + sqrtDisc) / (2 * a));
+                                roots.push((-b - sqrtDisc) / (2 * a));
+                            }
+                        }
+                
+                        return roots.filter(t => t >= 0 && t <= 1); // Solo valores entre 0 y 1
+                    };
+                
+                    // Calcular raíces para X e Y
+                    const rootsX = getBezierDerivativeRoots(curve.x, curve.controlPoint1.x, curve.controlPoint2.x, curve.x2);
+                    const rootsY = getBezierDerivativeRoots(curve.y, curve.controlPoint1.y, curve.controlPoint2.y, curve.y2);
+                
+                    // Evaluar puntos críticos en la curva
+                    const evaluateBezier = (t: number, p0: number, p1: number, p2: number, p3: number): number => {
+                        return Math.pow(1 - t, 3) * p0 +
+                                3 * Math.pow(1 - t, 2) * t * p1 +
+                                3 * (1 - t) * Math.pow(t, 2) * p2 +
+                                Math.pow(t, 3) * p3;
+                    };
+                
+                    rootsX.forEach(t => {
+                        points.push({ 
+                            x: evaluateBezier(t, curve.x, curve.controlPoint1.x, curve.controlPoint2.x, curve.x2),
+                            y: evaluateBezier(t, curve.y, curve.controlPoint1.y, curve.controlPoint2.y, curve.y2)
+                        });
+                    });
+                
+                    rootsY.forEach(t => {
+                        points.push({ 
+                            x: evaluateBezier(t, curve.x, curve.controlPoint1.x, curve.controlPoint2.x, curve.x2),
+                            y: evaluateBezier(t, curve.y, curve.controlPoint1.y, curve.controlPoint2.y, curve.y2)
+                        });
+                    });
+                
+                    // Calcular límites
+                    points.forEach(point => {
+                        minX = Math.min(minX, point.x);
+                        minY = Math.min(minY, point.y);
+                        maxX = Math.max(maxX, point.x);
+                        maxY = Math.max(maxY, point.y);
+                    });
+                    break;                    
                 case 'triangle':
                     const triangle = shape as Triangle;
                     minX = Math.min(minX, triangle.x, triangle.x + triangle.width / 2, triangle.x + triangle.width);
@@ -77,6 +144,9 @@ export class ShapeCollection {
                         maxX = Math.max(maxX, point.x);
                         maxY = Math.max(maxY, point.y);
                     });
+                    break;
+                default:
+                    minX = minY = maxX = maxY = 0
                     break;
             }
         });
@@ -144,6 +214,19 @@ export class ShapeCollection {
             <path>
                 <move x="${(line.x - offset) * scale}" y="${(line.y - offset) * scale}"/>
                 <line x="${(line.x2 - offset) * scale}" y="${(line.y2 - offset) * scale}"/>
+            </path>
+            <stroke/>\n`;
+                    break;
+                case 'curve':
+                    const curve = shape as BezierCurve;
+                    xml += `
+            <strokecolor color="${strokeColor}"/>
+            <strokewidth width="${lineWidth}"/>
+            <dashed dashed="${dashed}"/>
+            ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
+            <path>
+                <move x="${(curve.x - offset) * scale}" y="${(curve.y - offset) * scale}"/>
+                <curve x1="${(curve.controlPoint1.x - offset) * scale}" y1="${(curve.controlPoint1.y - offset) * scale}" x2="${(curve.controlPoint2.x - offset) * scale}" y2="${(curve.controlPoint2.y - offset) * scale}" x3="${(curve.x2 - offset) * scale}" y3="${(curve.y2 - offset) * scale}"/>
             </path>
             <stroke/>\n`;
                     break;
@@ -357,6 +440,32 @@ export class ShapeCollection {
 
                 case 'line':
                     points.push({ x, y });
+                    break;
+                
+                case 'curve':
+                    const x1 = parseFloat(child.getAttribute('x1') || "0") * scaleFactor + offsetX;
+                    const y1 = parseFloat(child.getAttribute('y1') || "0") * scaleFactor + offsetY;
+                    const x2 = parseFloat(child.getAttribute('x2') || "0") * scaleFactor + offsetX;
+                    const y2 = parseFloat(child.getAttribute('y2') || "0") * scaleFactor + offsetY;
+                    const x3 = parseFloat(child.getAttribute('x3') || "0") * scaleFactor + offsetX;
+                    const y3 = parseFloat(child.getAttribute('y3') || "0") * scaleFactor + offsetY;
+                    
+                    if (points.length > 0) {
+                        const startPoint = points[points.length - 1];
+                        const curve = new BezierCurve(
+                            startPoint.x, 
+                            startPoint.y,
+                            x3, 
+                            y3, 
+                            strokeColor,
+                            { x: x1, y: y1 },
+                            { x: x2, y: y2 }
+                        );
+                        curve.setLineStyle(this.parseLineStyle(lineStyle));
+                        curve.setLineWidth(strokeWidth);
+                        this.addShape(curve);
+                        points = [];
+                    }
                     break;
 
                 case 'close':

@@ -5,6 +5,7 @@ import { Rectangle } from "./Shapes/Rectangle";
 import { Ellipse } from "./Shapes/Ellipse";
 import { Triangle } from "./Shapes/Triangle";
 import { Line } from "./Shapes/Line";
+import { BezierCurve } from './Shapes/BezierCurve';
 import { ShapeCollection } from './Shapes/ShapeCollection';
 import { GeometryUtils } from './GeometryUtils';
 import { ShapeUtils } from './Shapes/ShapeUtils';
@@ -34,6 +35,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalText, setModalText] = useState<string>('');
   const [isNewText, setIsNewText] = useState<boolean>(false);
+  const [curveHandleIndex, setCurveHandleIndex] = useState<number | null>(null);
+  const [isMovingControlPoint, setIsMovingControlPoint] = useState<boolean>(false);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     // Dibujar formas
@@ -43,6 +46,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         shape.draw(ctx);
         if (!(shape instanceof TextElement)) {
           shape.drawResizeHandles(ctx);
+          if (shape instanceof BezierCurve) shape.drawCurveHandles(ctx);
         }
         ctx.restore();
 
@@ -82,7 +86,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           selectedTool === 'ellipse'  || 
           selectedTool === 'triangle' ||
           selectedTool === 'polygon' ||
-          selectedTool === 'line') 
+          selectedTool === 'line' ||
+          selectedTool === 'curve') 
       {
         canvas.style.cursor = 'crosshair';
       } else if (selectedTool === 'text') {
@@ -187,6 +192,21 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
               setResizeHandleIndex(handleIndex);
             }
           return;
+        } else if ((selectedShape instanceof BezierCurve) && selectedShape.isOverControlPoint(clickX, clickY)) {
+          setIsMovingControlPoint(true);
+          const controlPointIndex = selectedShape.getControlPoints().findIndex(point => {
+            return GeometryUtils.pointInRectangle(
+              clickX,
+              clickY,
+              point.x - 5,
+              point.y - 5,
+              10,
+              10,
+              0
+            );
+          });
+          setCurveHandleIndex(controlPointIndex);
+          return;
         }
       }
 
@@ -195,11 +215,11 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       if (!shapeSelected) {
           setSelectedShape(null); // Deseleccionar figura si no se selecciona ninguna
       }
-    } else if (['rectangle', 'ellipse', 'triangle', 'line'].includes(selectedTool)) {
-        // Comenzar a dibujar una nueva figura
-        setIsDrawing(true);
-        setStartX(clickX);
-        setStartY(clickY);
+    } else if (['rectangle', 'ellipse', 'triangle', 'line', 'curve'].includes(selectedTool)) {
+      // Comenzar a dibujar una nueva figura
+      setIsDrawing(true);
+      setStartX(clickX);
+      setStartY(clickY);
     } else if(selectedTool === 'polygon'){
       if (!currentPolygon) {
         setIsDrawing(true);
@@ -244,15 +264,22 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     const currentY = e.nativeEvent.offsetY;
 
      // Si se está redimensionando
-     if (isResizing && selectedShape && resizeHandleIndex !== null) {
+    if (isResizing && selectedShape && resizeHandleIndex !== null) {
       if (selectedShape instanceof Polygon) {
         ShapeUtils.resizePolygon(selectedShape as Polygon, resizeHandleIndex, currentX, currentY);
         resetCanvas();
       } else{
         ShapeUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
-        console.log(selectedShape, resizeHandleIndex, currentX, currentY);
         resetCanvas();
       }
+      return;
+    }
+
+    // Si se está moviendo un punto de control de la curva de Bézier
+    if (isMovingControlPoint && selectedShape instanceof BezierCurve && curveHandleIndex !== null) {
+      const curve = selectedShape as BezierCurve;
+      curve.translateControlPoint(curveHandleIndex, currentX, currentY);
+      resetCanvas();
       return;
     }
 
@@ -273,6 +300,9 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           break;
         case 'line':
           shape = new Line(startX, startY, currentX, currentY);
+          break;
+        case 'curve':
+          shape = new BezierCurve(startX, startY, currentX, currentY);
           break;
         default:
           return;
@@ -320,6 +350,12 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       setResizeHandleIndex(null);
       return;
     }
+
+    if(isMovingControlPoint) {
+      setIsMovingControlPoint(false);
+      setCurveHandleIndex(null);
+      return;
+    }
     
     if (isDrawing) {
       setIsDrawing(false);
@@ -347,6 +383,9 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           case 'line':
             newShape = new Line(startX, startY, endX, endY);
             break;
+          case 'curve':
+            newShape = new BezierCurve(startX, startY, endX, endY);
+            break;
           default:
             return;
         }
@@ -364,6 +403,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       setIsDragging(false); // Terminar el arrastre
       setStartX(null); // Resetear coordenadas de arrastre
       setStartY(null);
+      updateXml();
     }
     updateXml();
   };
@@ -431,7 +471,6 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         setSelectedShape(null);
       }
     };
-    
 
       // Redibujar el canvas
       const canvas = canvasRef.current;
