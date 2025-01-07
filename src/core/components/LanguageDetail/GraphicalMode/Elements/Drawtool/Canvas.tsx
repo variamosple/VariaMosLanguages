@@ -12,6 +12,7 @@ import { ShapeUtils } from './Shapes/ShapeUtils';
 import { Polygon } from "./Shapes/Polygon";
 import { TextElement } from './Shapes/TextElement';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { set } from 'immer/dist/internal';
 
 interface CanvasProps {
   xml: string;
@@ -237,6 +238,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           updatedShapeCollection.addShape(currentPolygon);
           setShapeCollection(updatedShapeCollection);
           setCurrentPolygon(null); // Terminar el dibujo
+          setSelectedTool('select');
+          setSelectedShape(currentPolygon);
         }
       }
     } else if (selectedTool === 'text') {
@@ -395,7 +398,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
 
         // Actualizar el estado con la misma instancia
         setShapeCollection(updatedShapeCollection);
-        setSelectedShape(null);
+        setSelectedTool('select');
+        setSelectedShape(newShape);
       }
     }
 
