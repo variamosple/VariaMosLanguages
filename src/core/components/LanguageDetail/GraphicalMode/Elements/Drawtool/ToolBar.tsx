@@ -113,69 +113,70 @@ export default function ToolBar({
   };
 
   return (
-    <div className="mb-3">
-      {/* Primera fila: herramientas de formas */}
-      <ButtonGroup aria-label="Shape tools">
-        <Button
-          variant={selectedTool === 'select' ? 'primary' : 'secondary'}
-          onClick={() => handleToolClick('select')}
-        >
-          <PiCursorFill />
-        </Button>
-        <Button
-          variant={selectedTool === 'rectangle' ? 'primary' : 'secondary'}
-          onClick={() => handleToolClick('rectangle')}
-        >
-          <MdOutlineRectangle />
-        </Button>
-        <Button
-          variant={selectedTool === 'ellipse' ? 'primary' : 'secondary'}
-          onClick={() => handleToolClick('ellipse')}
-        >
-          <IoEllipseOutline />
-        </Button>
-        <Button
-          variant={selectedTool === 'triangle' ? 'primary' : 'secondary'}
-          onClick={() => handleToolClick('triangle')}
-        >
-          <IoTriangleOutline />
-        </Button>
-        <Button
-          variant={selectedTool === 'line' ? 'primary' : 'secondary'}
-          onClick={() => handleToolClick('line')}
-        >
-          <FaMinus />
-        </Button>
-        <Button
-          variant={selectedTool === 'curve' ? 'primary' : 'secondary'}
-          onClick={() => handleToolClick('curve')}
-        >
-          <FaBezierCurve />
-        </Button>
-        <Button
-          variant={selectedTool === 'polygon' ? 'primary' : 'secondary'}
-          onClick={() => handleToolClick('polygon')}
-        >
-          <TbPolygon />
-        </Button>
-        <Button
-          variant={selectedTool === 'text' ? 'primary' : 'secondary'}
-          onClick={() => handleToolClick('text')}
-        >
-          <MdOutlineTextFields  />
-        </Button>
-        <Button
-          variant={hasSelectedShape ? 'danger' : 'secondary'}
-          onClick={onDelete}
-          disabled={!hasSelectedShape}
-        >
-          <FaTrashAlt />
-        </Button>
-      </ButtonGroup>
-
-      {/* Segunda fila: opciones de edición */}
-      <div className="d-flex mt-3 align-items-center">
-        {/* Botón y picker de color de relleno */}
+    <div className="mb-3 d-flex gap-3">
+      {/* Grupo de herramientas de formas */}
+      <div className="d-flex align-items-center gap-2">
+        <ButtonGroup aria-label="Shape tools">
+          <Button
+            variant={selectedTool === 'select' ? 'primary' : 'secondary'}
+            onClick={() => handleToolClick('select')}
+          >
+            <PiCursorFill />
+          </Button>
+          <Button
+            variant={selectedTool === 'rectangle' ? 'primary' : 'secondary'}
+            onClick={() => handleToolClick('rectangle')}
+          >
+            <MdOutlineRectangle />
+          </Button>
+          <Button
+            variant={selectedTool === 'ellipse' ? 'primary' : 'secondary'}
+            onClick={() => handleToolClick('ellipse')}
+          >
+            <IoEllipseOutline />
+          </Button>
+          <Button
+            variant={selectedTool === 'triangle' ? 'primary' : 'secondary'}
+            onClick={() => handleToolClick('triangle')}
+          >
+            <IoTriangleOutline />
+          </Button>
+          <Button
+            variant={selectedTool === 'line' ? 'primary' : 'secondary'}
+            onClick={() => handleToolClick('line')}
+          >
+            <FaMinus />
+          </Button>
+          <Button
+            variant={selectedTool === 'curve' ? 'primary' : 'secondary'}
+            onClick={() => handleToolClick('curve')}
+          >
+            <FaBezierCurve />
+          </Button>
+          <Button
+            variant={selectedTool === 'polygon' ? 'primary' : 'secondary'}
+            onClick={() => handleToolClick('polygon')}
+          >
+            <TbPolygon />
+          </Button>
+          <Button
+            variant={selectedTool === 'text' ? 'primary' : 'secondary'}
+            onClick={() => handleToolClick('text')}
+          >
+            <MdOutlineTextFields />
+          </Button>
+          <Button
+            variant={hasSelectedShape ? 'danger' : 'secondary'}
+            onClick={onDelete}
+            disabled={!hasSelectedShape}
+          >
+            <FaTrashAlt />
+          </Button>
+        </ButtonGroup>
+      </div>
+  
+      {/* Grupo de herramientas de cambio de color */}
+      <div className="d-flex align-items-center gap-2">
         <ButtonGroup>
           <Button
             variant={showFillColorPicker ? 'primary' : 'secondary'}
@@ -188,12 +189,11 @@ export default function ToolBar({
               <SketchPicker color={fillColor} onChangeComplete={handleFillColorChange} />
             </div>
           )}
-          {/* Botón y picker de color de borde */}
           <Button
             variant={showLineColorPicker ? 'primary' : 'secondary'}
             onClick={toggleLineColorPicker}
           >
-            <IoColorPaletteOutline  />
+            <IoColorPaletteOutline />
           </Button>
           {showLineColorPicker && (
             <div ref={lineColorPickerRef} style={{ marginTop: '80px', position: 'absolute', zIndex: 1000 }}>
@@ -201,9 +201,12 @@ export default function ToolBar({
             </div>
           )}
         </ButtonGroup>
-
+      </div>
+  
+      {/* Herramientas de línea */}
+      <div className="d-flex align-items-center gap-3">
         {/* Dropdown de estilo de línea */}
-        <div className="ms-3">
+        <div className="d-flex align-items-center">
           <TbBorderStyle2 size={24} />
           <select
             className="form-select d-inline-block ms-2"
@@ -218,18 +221,9 @@ export default function ToolBar({
             <option value="custom">Custom…</option>
           </select>
         </div>
-
-        {/* Modal para mostrar el patrón personalizado */}
-        {showCustomModal && (
-        <CustomPatternModal
-          show={showCustomModal}
-          onSave={handleSaveCustomPattern}
-          onCancel={() => setShowCustomModal(false)}
-          />
-        )}
-
+  
         {/* Stepper Control para el grosor de línea */}
-        <div className="ms-3 d-flex align-items-center">
+        <div className="d-flex align-items-center">
           <RxBorderWidth />
           <input
             type="number"
@@ -239,9 +233,9 @@ export default function ToolBar({
             className="mx-2"
           />
         </div>
-
+  
         {/* Control para el tamaño de fuente */}
-        <div className="ms-3 d-flex align-items-center">
+        <div className="d-flex align-items-center">
           <AiOutlineFontSize />
           <div className="position-relative">
             <input
@@ -249,7 +243,7 @@ export default function ToolBar({
               value={fontSize}
               onChange={(e) => handleFontSizeChange(e)}
               onFocus={() => setShowFontSizeOptions(true)}
-              onBlur={() => setTimeout(() => setShowFontSizeOptions(false), 200)} // Retraso para permitir clic en opciones
+              onBlur={() => setTimeout(() => setShowFontSizeOptions(false), 200)}
               style={{ width: '80px', textAlign: 'center' }}
               className="form-control mx-2"
               placeholder="Font Size"
@@ -269,7 +263,9 @@ export default function ToolBar({
                   <li key={size}>
                     <button
                       className="dropdown-item"
-                      onMouseDown={() => handleFontSizeChange({ target: { value: size.toString() } } as React.ChangeEvent<HTMLInputElement>)}
+                      onMouseDown={() =>
+                        handleFontSizeChange({ target: { value: size.toString() } } as React.ChangeEvent<HTMLInputElement>)
+                      }
                     >
                       {size}
                     </button>
@@ -279,8 +275,8 @@ export default function ToolBar({
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
+  
 }

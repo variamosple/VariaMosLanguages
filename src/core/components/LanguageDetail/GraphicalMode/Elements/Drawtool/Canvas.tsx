@@ -12,7 +12,6 @@ import { ShapeUtils } from './Shapes/ShapeUtils';
 import { Polygon } from "./Shapes/Polygon";
 import { TextElement } from './Shapes/TextElement';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { set } from 'immer/dist/internal';
 
 interface CanvasProps {
   xml: string;
@@ -74,12 +73,10 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#d3d3d3';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Dibujar las lineas guia
-        drawGuideLines(ctx);
-
+        drawWorkSpace(ctx);
         drawShapes(ctx);
       }
 
@@ -99,27 +96,13 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     }
   }, [shapeCollection, selectedTool, selectedShape]);
 
-  // Dibujar las lineas guia
-  const drawGuideLines = (ctx: CanvasRenderingContext2D) => {
+  const drawWorkSpace = (ctx: CanvasRenderingContext2D) => {
     ctx.save();
-    ctx.strokeStyle = '#d3d3d3';
+    ctx.fillStyle = '#ffffff';
     ctx.lineWidth = 1;
 
-    ctx.beginPath();
-    ctx.moveTo(0, 100);
-    ctx.lineTo(400, 100);
+    ctx.fillRect(100, 100, 300, 300);
 
-    ctx.moveTo(0, 300);
-    ctx.lineTo(400, 300);
-
-    // Líneas verticales
-    ctx.moveTo(100, 0);
-    ctx.lineTo(100, 400);
-
-    ctx.moveTo(300, 0);
-    ctx.lineTo(300, 400);
-
-    ctx.stroke();
     ctx.restore();
   }
   
@@ -132,7 +115,12 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGuideLines(ctx);
+
+    // Establece el color de fondo
+    ctx.fillStyle = '#d3d3d3';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    drawWorkSpace(ctx);
     drawShapes(ctx);
   };
 
@@ -595,8 +583,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         <div className="d-flex justify-content-center">
           <canvas
             ref={canvasRef}
-            width={400}
-            height={400}
+            width={500}
+            height={500}
             style={{ border: '1px solid #000' }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -636,7 +624,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
             Save
           </Button>
         </Modal.Footer>
-      </Modal>
+        </Modal>
       </div>
     </div>
   );  

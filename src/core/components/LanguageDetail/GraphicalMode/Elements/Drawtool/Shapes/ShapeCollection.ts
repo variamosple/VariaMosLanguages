@@ -156,7 +156,7 @@ export class ShapeCollection {
 
     toXML(): string {
         // Inicializamos la variable de escalado y el desplazamiento y los textos
-        const scale = 1/2;
+        const scale = 1/3;
         this.scale = scale;
         const offset = 100;
         let textElements: TextElement[] = [];
@@ -414,7 +414,7 @@ export class ShapeCollection {
 
     parsePathElement(pathNode: Element, fillColor: string, strokeColor: string, strokeWidth: number, lineStyle: number[]): void {
         let points = [];
-        const scaleFactor = 2;
+        const scaleFactor = 3;
         const offsetX = 100;
         const offsetY = 100;
 
@@ -486,7 +486,7 @@ export class ShapeCollection {
     
     // Función para procesar el rectángulo
     createRectangle(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number,  lineStyle: number[]): void {
-        const scaleFactor = 2;
+        const scaleFactor = 3;
         const offsetX = 100;
         const offsetY = 100;
         
@@ -503,7 +503,7 @@ export class ShapeCollection {
     
     // Función para procesar la elipse
     createEllipse(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number, lineStyle: number[]): void {
-        const scaleFactor = 2;
+        const scaleFactor = 3;
         const offsetX = 100;
         const offsetY = 100;
 
@@ -521,7 +521,7 @@ export class ShapeCollection {
     // Función para crear textos
     createText(textElement: Element, fontSize: number): void {
         // Escalar y desplazar el texto
-        const scaleFactor = 2;
+        const scaleFactor = 3;
         const offsetX = 100;
         const offsetY = 100;
 
