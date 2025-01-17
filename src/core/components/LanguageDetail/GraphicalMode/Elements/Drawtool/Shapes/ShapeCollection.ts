@@ -1,4 +1,5 @@
 import { Line } from "./Line";
+import { BezierCurve } from "./BezierCurve";
 import { Rectangle } from "./Rectangle";
 import { Ellipse } from "./Ellipse";
 import { Triangle } from "./Triangle";
@@ -62,6 +63,72 @@ export class ShapeCollection {
                     maxX = Math.max(maxX, line.x, line.x2);
                     maxY = Math.max(maxY, line.y, line.y2);
                     break;
+                case 'curve':
+                    const curve = shape as BezierCurve;
+                
+                    // Puntos iniciales y finales
+                    const points = [
+                        { x: curve.x, y: curve.y },
+                        { x: curve.x2, y: curve.y2 }
+                    ];
+                
+                    // Derivada para X e Y
+                    const getBezierDerivativeRoots = (p0: number, p1: number, p2: number, p3: number): number[] => {
+                        const a = -3 * p0 + 9 * p1 - 9 * p2 + 3 * p3;
+                        const b = 6 * p0 - 12 * p1 + 6 * p2;
+                        const c = -3 * p0 + 3 * p1;
+                
+                        const roots = [];
+                        if (a === 0) { // Ecuación cuadrática (si 'a' es cero)
+                            if (b !== 0) {
+                                roots.push(-c / b);
+                            }
+                        } else { // Ecuación cuadrática normal
+                            const discriminant = b * b - 4 * a * c;
+                            if (discriminant >= 0) {
+                                const sqrtDisc = Math.sqrt(discriminant);
+                                roots.push((-b + sqrtDisc) / (2 * a));
+                                roots.push((-b - sqrtDisc) / (2 * a));
+                            }
+                        }
+                
+                        return roots.filter(t => t >= 0 && t <= 1); // Solo valores entre 0 y 1
+                    };
+                
+                    // Calcular raíces para X e Y
+                    const rootsX = getBezierDerivativeRoots(curve.x, curve.controlPoint1.x, curve.controlPoint2.x, curve.x2);
+                    const rootsY = getBezierDerivativeRoots(curve.y, curve.controlPoint1.y, curve.controlPoint2.y, curve.y2);
+                
+                    // Evaluar puntos críticos en la curva
+                    const evaluateBezier = (t: number, p0: number, p1: number, p2: number, p3: number): number => {
+                        return Math.pow(1 - t, 3) * p0 +
+                                3 * Math.pow(1 - t, 2) * t * p1 +
+                                3 * (1 - t) * Math.pow(t, 2) * p2 +
+                                Math.pow(t, 3) * p3;
+                    };
+                
+                    rootsX.forEach(t => {
+                        points.push({ 
+                            x: evaluateBezier(t, curve.x, curve.controlPoint1.x, curve.controlPoint2.x, curve.x2),
+                            y: evaluateBezier(t, curve.y, curve.controlPoint1.y, curve.controlPoint2.y, curve.y2)
+                        });
+                    });
+                
+                    rootsY.forEach(t => {
+                        points.push({ 
+                            x: evaluateBezier(t, curve.x, curve.controlPoint1.x, curve.controlPoint2.x, curve.x2),
+                            y: evaluateBezier(t, curve.y, curve.controlPoint1.y, curve.controlPoint2.y, curve.y2)
+                        });
+                    });
+                
+                    // Calcular límites
+                    points.forEach(point => {
+                        minX = Math.min(minX, point.x);
+                        minY = Math.min(minY, point.y);
+                        maxX = Math.max(maxX, point.x);
+                        maxY = Math.max(maxY, point.y);
+                    });
+                    break;                    
                 case 'triangle':
                     const triangle = shape as Triangle;
                     minX = Math.min(minX, triangle.x, triangle.x + triangle.width / 2, triangle.x + triangle.width);
@@ -77,6 +144,9 @@ export class ShapeCollection {
                         maxX = Math.max(maxX, point.x);
                         maxY = Math.max(maxY, point.y);
                     });
+                    break;
+                default:
+                    minX = minY = maxX = maxY = 0
                     break;
             }
         });
@@ -85,57 +155,12 @@ export class ShapeCollection {
     }
 
     toXML(): string {
-        // Inicializamos las variables para encontrar el bounding box de todas las figuras
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        let textElements: TextElement[] = [];
-    
-        // Primero, recorremos todas las figuras para calcular el bounding box global y guardamos las etiquetas de texto en una lista
-        this.shapes.forEach(shape => {
-            switch (shape.getType()) {
-                case 'rectangle':
-                case 'ellipse':
-                    minX = Math.min(minX, shape.x);
-                    minY = Math.min(minY, shape.y);
-                    maxX = Math.max(maxX, shape.x + shape.width);
-                    maxY = Math.max(maxY, shape.y + shape.height);
-                    break;
-                case 'line':
-                    const line = shape as Line;
-                    minX = Math.min(minX, line.x, line.x2);
-                    minY = Math.min(minY, line.y, line.y2);
-                    maxX = Math.max(maxX, line.x, line.x2);
-                    maxY = Math.max(maxY, line.y, line.y2);
-                    break;
-                case 'triangle':
-                    const triangle = shape as Triangle;
-                    minX = Math.min(minX, triangle.x, triangle.x + triangle.width / 2, triangle.x + triangle.width);
-                    minY = Math.min(minY, triangle.y, triangle.y + triangle.height);
-                    maxX = Math.max(maxX, triangle.x, triangle.x + triangle.width / 2, triangle.x + triangle.width);
-                    maxY = Math.max(maxY, triangle.y, triangle.y + triangle.height);
-                    break;
-                case 'polygon':
-                    const polygon = shape as Polygon;
-                    polygon.points.forEach(point => {
-                        minX = Math.min(minX, point.x);
-                        minY = Math.min(minY, point.y);
-                        maxX = Math.max(maxX, point.x);
-                        maxY = Math.max(maxY, point.y);
-                    });
-                    break;
-                case 'text':
-                    textElements.push(shape as TextElement);
-                    break;
-            }
-        });
-    
-        // Calculamos el tamaño del bounding box
-        const boundingBoxWidth = maxX - minX;
-        const boundingBoxHeight = maxY - minY;
-    
-        // Factor de escala para ajustar las figuras dentro del cuadro de 100x100
-        const scale = 100 / Math.max(boundingBoxWidth, boundingBoxHeight);
+        // Inicializamos la variable de escalado y el desplazamiento y los textos
+        const scale = 1/3;
         this.scale = scale;
-    
+        const offset = 100;
+        let textElements: TextElement[] = [];
+
         // Preparar los atributos
         if (!this.shapeAttributes["name"]) this.shapeAttributes["name"] = "compositeShape";
         if (!this.shapeAttributes["aspect"]) this.shapeAttributes["aspect"] = "variable";
@@ -146,7 +171,7 @@ export class ShapeCollection {
             shapeAttrString += ` ${key}="${value}"`;
         }
 
-        // Generamos el XML escalando las coordenadas
+        // Generamos el XML escalando las coordenadas y ajustando el desplazamiento
         let xml = 
         `<shape ${shapeAttrString}>\n ${this.connectionsXML}\n  <background>\n`;
     
@@ -166,7 +191,7 @@ export class ShapeCollection {
             <strokewidth width="${lineWidth}"/>
             <dashed dashed="${dashed}"/>
             ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
-            <rect x="${(shape.x - minX) * scale}" y="${(shape.y - minY) * scale}" w="${shape.width * scale}" h="${shape.height * scale}" />
+            <rect x="${(shape.x - offset) * scale}" y="${(shape.y - offset) * scale}" w="${shape.width * scale}" h="${shape.height * scale}" />
             <fillstroke/>\n`;
                     break;
                 case 'ellipse':
@@ -176,7 +201,7 @@ export class ShapeCollection {
             <strokewidth width="${lineWidth}"/>
             <dashed dashed="${dashed}"/>
             ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
-            <ellipse x="${(shape.x - minX) * scale}" y="${(shape.y - minY) * scale}" w="${shape.width * scale}" h="${shape.height * scale}" />
+            <ellipse x="${(shape.x - offset) * scale}" y="${(shape.y - offset) * scale}" w="${shape.width * scale}" h="${shape.height * scale}" />
             <fillstroke/>\n`;
                     break;
                 case 'line':
@@ -187,19 +212,32 @@ export class ShapeCollection {
             <dashed dashed="${dashed}"/>
             ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
             <path>
-                <move x="${(line.x - minX) * scale}" y="${(line.y - minY) * scale}"/>
-                <line x="${(line.x2 - minX) * scale}" y="${(line.y2 - minY) * scale}"/>
+                <move x="${(line.x - offset) * scale}" y="${(line.y - offset) * scale}"/>
+                <line x="${(line.x2 - offset) * scale}" y="${(line.y2 - offset) * scale}"/>
+            </path>
+            <stroke/>\n`;
+                    break;
+                case 'curve':
+                    const curve = shape as BezierCurve;
+                    xml += `
+            <strokecolor color="${strokeColor}"/>
+            <strokewidth width="${lineWidth}"/>
+            <dashed dashed="${dashed}"/>
+            ${dashed ? `<dashpattern pattern="${dashpattern}"/>` : ""}
+            <path>
+                <move x="${(curve.x - offset) * scale}" y="${(curve.y - offset) * scale}"/>
+                <curve x1="${(curve.controlPoint1.x - offset) * scale}" y1="${(curve.controlPoint1.y - offset) * scale}" x2="${(curve.controlPoint2.x - offset) * scale}" y2="${(curve.controlPoint2.y - offset) * scale}" x3="${(curve.x2 - offset) * scale}" y3="${(curve.y2 - offset) * scale}"/>
             </path>
             <stroke/>\n`;
                     break;
                 case 'triangle':
                     const triangle = shape as Triangle;
-                    const x1 = (triangle.x - minX) * scale;
-                    const y1 = (triangle.y + triangle.height - minY) * scale;
-                    const x2 = (triangle.x + triangle.width / 2 - minX) * scale;
-                    const y2 = (triangle.y - minY) * scale;
-                    const x3 = (triangle.x + triangle.width - minX) * scale;
-                    const y3 = (triangle.y + triangle.height - minY) * scale;
+                    const x1 = (triangle.x - offset) * scale;
+                    const y1 = (triangle.y + triangle.height - offset) * scale;
+                    const x2 = (triangle.x + triangle.width / 2 - offset) * scale;
+                    const y2 = (triangle.y - offset) * scale;
+                    const x3 = (triangle.x + triangle.width - offset) * scale;
+                    const y3 = (triangle.y + triangle.height - offset) * scale;
     
                     xml += `
             <strokecolor color="${strokeColor}"/>
@@ -226,12 +264,12 @@ export class ShapeCollection {
             <path>\n`;
     
                     // Movemos el lápiz al primer punto del polígono
-                    xml += `            <move x="${(polygon.points[0].x - minX) * scale}" y="${(polygon.points[0].y - minY) * scale}"/>\n`;
+                    xml += `            <move x="${(polygon.points[0].x - offset) * scale}" y="${(polygon.points[0].y - offset) * scale}"/>\n`;
     
                     // Dibujamos las líneas entre los puntos
                     for (let i = 1; i < polygon.points.length; i++) {
                         const point = polygon.points[i];
-                        xml += `            <line x="${(point.x - minX) * scale}" y="${(point.y - minY) * scale}"/>\n`;
+                        xml += `            <line x="${(point.x - offset) * scale}" y="${(point.y - offset) * scale}"/>\n`;
                     }
     
                     if (polygon.isClosed) {
@@ -239,6 +277,9 @@ export class ShapeCollection {
                     }
     
                     xml += `        </path>\n        <fillstroke/>\n`;
+                    break;
+                case 'text':
+                    textElements.push(shape as TextElement);
                     break;
             }
         });
@@ -259,7 +300,7 @@ export class ShapeCollection {
                 <fontsize size="${scaledFontSize}"/>\n`;
             }
             xml += `
-            <text str="${textElement.content}" x="${(textElement.x - minX) * scale}" y="${(textElement.y - minY) * scale}"/>\n
+            <text str="${textElement.content}" x="${(textElement.x - offset) * scale}" y="${(textElement.y - offset - textElement.fontSize) * scale}"/>\n
             `;
         });
         // Añadir las otras etiquetas que no tengan soporte
@@ -373,10 +414,13 @@ export class ShapeCollection {
 
     parsePathElement(pathNode: Element, fillColor: string, strokeColor: string, strokeWidth: number, lineStyle: number[]): void {
         let points = [];
+        const scaleFactor = 3;
+        const offsetX = 100;
+        const offsetY = 100;
 
         for (let child of Array.from(pathNode.children)) {
-            const x = parseFloat(child.getAttribute('x') || "0") * 2 + 50;
-            const y = parseFloat(child.getAttribute('y') || "0") * 2 + 50;
+            const x = parseFloat(child.getAttribute('x') || "0") * scaleFactor + offsetX;
+            const y = parseFloat(child.getAttribute('y') || "0") * scaleFactor + offsetY;
 
             switch (child.tagName) {
                 case 'ellipse':
@@ -397,6 +441,32 @@ export class ShapeCollection {
                 case 'line':
                     points.push({ x, y });
                     break;
+                
+                case 'curve':
+                    const x1 = parseFloat(child.getAttribute('x1') || "0") * scaleFactor + offsetX;
+                    const y1 = parseFloat(child.getAttribute('y1') || "0") * scaleFactor + offsetY;
+                    const x2 = parseFloat(child.getAttribute('x2') || "0") * scaleFactor + offsetX;
+                    const y2 = parseFloat(child.getAttribute('y2') || "0") * scaleFactor + offsetY;
+                    const x3 = parseFloat(child.getAttribute('x3') || "0") * scaleFactor + offsetX;
+                    const y3 = parseFloat(child.getAttribute('y3') || "0") * scaleFactor + offsetY;
+                    
+                    if (points.length > 0) {
+                        const startPoint = points[points.length - 1];
+                        const curve = new BezierCurve(
+                            startPoint.x, 
+                            startPoint.y,
+                            x3, 
+                            y3, 
+                            strokeColor,
+                            { x: x1, y: y1 },
+                            { x: x2, y: y2 }
+                        );
+                        curve.setLineStyle(this.parseLineStyle(lineStyle));
+                        curve.setLineWidth(strokeWidth);
+                        this.addShape(curve);
+                        points = [];
+                    }
+                    break;
 
                 case 'close':
                     break;
@@ -416,9 +486,9 @@ export class ShapeCollection {
     
     // Función para procesar el rectángulo
     createRectangle(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number,  lineStyle: number[]): void {
-        const scaleFactor = 2;
-        const offsetX = 50;
-        const offsetY = 50;
+        const scaleFactor = 3;
+        const offsetX = 100;
+        const offsetY = 100;
         
         const x = (parseFloat(shapeNode.getAttribute('x') || "0") * scaleFactor) + offsetX;
         const y = (parseFloat(shapeNode.getAttribute('y') || "0") * scaleFactor) + offsetY;
@@ -433,9 +503,9 @@ export class ShapeCollection {
     
     // Función para procesar la elipse
     createEllipse(shapeNode: Element, fillColor: string, lineColor: string, strokeWidth: number, lineStyle: number[]): void {
-        const scaleFactor = 2;
-        const offsetX = 50;
-        const offsetY = 50;
+        const scaleFactor = 3;
+        const offsetX = 100;
+        const offsetY = 100;
 
         const x = (parseFloat(shapeNode.getAttribute('x') || "0") * scaleFactor) + offsetX;
         const y = (parseFloat(shapeNode.getAttribute('y') || "0") * scaleFactor) + offsetY;
@@ -450,18 +520,18 @@ export class ShapeCollection {
 
     // Función para crear textos
     createText(textElement: Element, fontSize: number): void {
+        // Escalar y desplazar el texto
+        const scaleFactor = 3;
+        const offsetX = 100;
+        const offsetY = 100;
+
         // Recuperar el contenido del texto y otras propiedades
         const content = textElement.getAttribute('str') || "";
         const fontFamily = textElement.getAttribute('fontfamily') || "Arial";
-        fontSize = fontSize / this.scale;
-
-        // Escalar y desplazar el texto
-        const scaleFactor = 2;
-        const offsetX = 50;
-        const offsetY = 50;
+        fontSize = fontSize * scaleFactor;       
 
         const x = (parseFloat(textElement.getAttribute('x') || "0") * scaleFactor) + offsetX;
-        const y = (parseFloat(textElement.getAttribute('y') || "0") * scaleFactor) + offsetY;
+        const y = (parseFloat(textElement.getAttribute('y') || "0") * scaleFactor) + offsetY + fontSize;
 
         // Crear el elemento de texto
         const text = new TextElement(x, y, content, fontSize, fontFamily);

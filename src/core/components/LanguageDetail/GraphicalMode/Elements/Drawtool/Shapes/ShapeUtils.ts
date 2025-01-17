@@ -2,6 +2,7 @@ import { Line } from "./Line";
 import type { Shape } from "./Shape";
 import { Polygon } from "./Polygon"
 import { GeometryUtils } from "../GeometryUtils";
+import { BezierCurve } from "./BezierCurve";
 
 export class ShapeUtils {
   static resizeShape(
@@ -10,7 +11,7 @@ export class ShapeUtils {
     currentX: number,
     currentY: number
   ): void {
-    if (shape instanceof Line) {
+    if (shape instanceof Line || shape instanceof BezierCurve) {
       // Si la figura es una línea, simplemente actualizamos uno de sus puntos extremos.
       if (resizeHandleIndex === 0) {
         shape.x = currentX;
@@ -42,8 +43,6 @@ export class ShapeUtils {
 
   static resizePolygon(polygon: Polygon, handleIndex: number, newX: number, newY: number): void {
     if (handleIndex >= 0 && handleIndex < polygon.points.length) {
-        // Obtener el centro del polígono para calcular los nuevos vértices
-        const centroid = GeometryUtils.calculateCentroid(polygon.points);
         
         // Calcular la diferencia de movimiento
         const deltaX = newX - polygon.points[handleIndex].x;
@@ -71,6 +70,15 @@ export class ShapeUtils {
     if (shape instanceof Line) {
       shape.x += deltaX;
       shape.y += deltaY;
+      shape.x2 += deltaX;
+      shape.y2 += deltaY;
+    } else if (shape instanceof BezierCurve) {
+      shape.x += deltaX;
+      shape.y += deltaY;
+      shape.controlPoint1.x += deltaX;
+      shape.controlPoint1.y += deltaY;
+      shape.controlPoint2.x += deltaX;
+      shape.controlPoint2.y += deltaY;
       shape.x2 += deltaX;
       shape.y2 += deltaY;
     } else {

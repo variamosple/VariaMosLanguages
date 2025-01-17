@@ -5,6 +5,7 @@ import { Rectangle } from "./Shapes/Rectangle";
 import { Ellipse } from "./Shapes/Ellipse";
 import { Triangle } from "./Shapes/Triangle";
 import { Line } from "./Shapes/Line";
+import { BezierCurve } from './Shapes/BezierCurve';
 import { ShapeCollection } from './Shapes/ShapeCollection';
 import { GeometryUtils } from './GeometryUtils';
 import { ShapeUtils } from './Shapes/ShapeUtils';
@@ -34,6 +35,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalText, setModalText] = useState<string>('');
   const [isNewText, setIsNewText] = useState<boolean>(false);
+  const [curveHandleIndex, setCurveHandleIndex] = useState<number | null>(null);
+  const [isMovingControlPoint, setIsMovingControlPoint] = useState<boolean>(false);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     // Dibujar formas
@@ -43,6 +46,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         shape.draw(ctx);
         if (!(shape instanceof TextElement)) {
           shape.drawResizeHandles(ctx);
+          if (shape instanceof BezierCurve) shape.drawCurveHandles(ctx);
         }
         ctx.restore();
 
@@ -66,20 +70,22 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   useEffect(() => {    
     const canvas = canvasRef.current;
     if (canvas) {
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.fillStyle = '#ffffff';
-        context.fillRect(0, 0, canvas.width, canvas.height);
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#d3d3d3';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        drawShapes(context);
+        drawWorkSpace(ctx);
+        drawShapes(ctx);
       }
 
       if (selectedTool === 'rectangle' || 
           selectedTool === 'ellipse'  || 
           selectedTool === 'triangle' ||
           selectedTool === 'polygon' ||
-          selectedTool === 'line') 
+          selectedTool === 'line' ||
+          selectedTool === 'curve') 
       {
         canvas.style.cursor = 'crosshair';
       } else if (selectedTool === 'text') {
@@ -89,6 +95,34 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       }
     }
   }, [shapeCollection, selectedTool, selectedShape]);
+
+  const drawWorkSpace = (ctx: CanvasRenderingContext2D) => {
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.lineWidth = 1;
+
+    ctx.fillRect(100, 100, 300, 300);
+
+    ctx.restore();
+  }
+  
+  // Resetear el canvas
+  const resetCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+  
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Establece el color de fondo
+    ctx.fillStyle = '#d3d3d3';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    drawWorkSpace(ctx);
+    drawShapes(ctx);
+  };
 
   const handleSelectTool = (tool: string) => {
     setSelectedTool(tool);
@@ -147,6 +181,21 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
               setResizeHandleIndex(handleIndex);
             }
           return;
+        } else if ((selectedShape instanceof BezierCurve) && selectedShape.isOverControlPoint(clickX, clickY)) {
+          setIsMovingControlPoint(true);
+          const controlPointIndex = selectedShape.getControlPoints().findIndex(point => {
+            return GeometryUtils.pointInRectangle(
+              clickX,
+              clickY,
+              point.x - 5,
+              point.y - 5,
+              10,
+              10,
+              0
+            );
+          });
+          setCurveHandleIndex(controlPointIndex);
+          return;
         }
       }
 
@@ -155,11 +204,11 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       if (!shapeSelected) {
           setSelectedShape(null); // Deseleccionar figura si no se selecciona ninguna
       }
-    } else if (['rectangle', 'ellipse', 'triangle', 'line'].includes(selectedTool)) {
-        // Comenzar a dibujar una nueva figura
-        setIsDrawing(true);
-        setStartX(clickX);
-        setStartY(clickY);
+    } else if (['rectangle', 'ellipse', 'triangle', 'line', 'curve'].includes(selectedTool)) {
+      // Comenzar a dibujar una nueva figura
+      setIsDrawing(true);
+      setStartX(clickX);
+      setStartY(clickY);
     } else if(selectedTool === 'polygon'){
       if (!currentPolygon) {
         setIsDrawing(true);
@@ -177,6 +226,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           updatedShapeCollection.addShape(currentPolygon);
           setShapeCollection(updatedShapeCollection);
           setCurrentPolygon(null); // Terminar el dibujo
+          setSelectedTool('select');
+          setSelectedShape(currentPolygon);
         }
       }
     } else if (selectedTool === 'text') {
@@ -204,23 +255,27 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     const currentY = e.nativeEvent.offsetY;
 
      // Si se está redimensionando
-     if (isResizing && selectedShape && resizeHandleIndex !== null) {
+    if (isResizing && selectedShape && resizeHandleIndex !== null) {
       if (selectedShape instanceof Polygon) {
         ShapeUtils.resizePolygon(selectedShape as Polygon, resizeHandleIndex, currentX, currentY);
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        drawShapes(context);
+        resetCanvas();
       } else{
         ShapeUtils.resizeShape(selectedShape, resizeHandleIndex, currentX, currentY);
-        console.log(selectedShape, resizeHandleIndex, currentX, currentY);
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        drawShapes(context);
+        resetCanvas();
       }
       return;
     }
 
+    // Si se está moviendo un punto de control de la curva de Bézier
+    if (isMovingControlPoint && selectedShape instanceof BezierCurve && curveHandleIndex !== null) {
+      const curve = selectedShape as BezierCurve;
+      curve.translateControlPoint(curveHandleIndex, currentX, currentY);
+      resetCanvas();
+      return;
+    }
+
     if (isDrawing && startX !== null && startY !== null) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      drawShapes(context);
+      resetCanvas();
   
       let shape: Shape;
   
@@ -236,6 +291,9 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           break;
         case 'line':
           shape = new Line(startX, startY, currentX, currentY);
+          break;
+        case 'curve':
+          shape = new BezierCurve(startX, startY, currentX, currentY);
           break;
         default:
           return;
@@ -258,13 +316,11 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       setStartX(currentX);
       setStartY(currentY);
   
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      drawShapes(context);
+      resetCanvas();
     }
 
     if (selectedTool === 'polygon' && currentPolygon) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      drawShapes(context);
+      resetCanvas();
   
       currentPolygon.draw(context);
   
@@ -283,6 +339,12 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     if (isResizing) {
       setIsResizing(false);  // Terminar el redimensionamiento
       setResizeHandleIndex(null);
+      return;
+    }
+
+    if(isMovingControlPoint) {
+      setIsMovingControlPoint(false);
+      setCurveHandleIndex(null);
       return;
     }
     
@@ -312,6 +374,9 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           case 'line':
             newShape = new Line(startX, startY, endX, endY);
             break;
+          case 'curve':
+            newShape = new BezierCurve(startX, startY, endX, endY);
+            break;
           default:
             return;
         }
@@ -321,7 +386,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
 
         // Actualizar el estado con la misma instancia
         setShapeCollection(updatedShapeCollection);
-        setSelectedShape(null);
+        setSelectedTool('select');
+        setSelectedShape(newShape);
       }
     }
 
@@ -329,6 +395,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       setIsDragging(false); // Terminar el arrastre
       setStartX(null); // Resetear coordenadas de arrastre
       setStartY(null);
+      updateXml();
     }
     updateXml();
   };
@@ -396,15 +463,13 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         setSelectedShape(null);
       }
     };
-    
 
       // Redibujar el canvas
       const canvas = canvasRef.current;
       if (canvas) {
         const context = canvas.getContext('2d');
         if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawShapes(context);
+          resetCanvas();
         }
       }
       updateXml();
@@ -414,14 +479,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     if (selectedShape) {
       selectedShape.setFillColor(color);
 
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   };
@@ -429,14 +487,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const handleLineColorChange = (color: string) => {
     if (selectedShape) {
       selectedShape.setLineColor(color);
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   };
@@ -444,14 +495,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const handleLineStyleChange = (style: string | number[]) => {
     if (selectedShape) {
       selectedShape.setLineStyle(style);
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   };
@@ -459,14 +503,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const handleLineWidthChange = (width: number) => {
     if (selectedShape) {
       selectedShape.setLineWidth(width);
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   }
@@ -474,14 +511,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const handleFontSizeChange = (size: number) => {
     if (selectedShape instanceof TextElement) {
       selectedShape.fontSize = size;
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          drawShapes(context);
-        }
-      }
+      resetCanvas();
     }
     updateXml();
   }
@@ -553,8 +583,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         <div className="d-flex justify-content-center">
           <canvas
             ref={canvasRef}
-            width={400}
-            height={400}
+            width={500}
+            height={500}
             style={{ border: '1px solid #000' }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -594,7 +624,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
             Save
           </Button>
         </Modal.Footer>
-      </Modal>
+        </Modal>
       </div>
     </div>
   );  
