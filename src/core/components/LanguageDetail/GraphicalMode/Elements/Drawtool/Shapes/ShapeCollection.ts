@@ -6,6 +6,7 @@ import { Triangle } from "./Triangle";
 import { Shape } from "./Shape";
 import { Polygon } from "./Polygon";
 import { TextElement } from "./TextElement";
+import { current } from "immer";
 
 export class ShapeCollection {
     shapes: Shape[] = [];
@@ -423,6 +424,8 @@ export class ShapeCollection {
         const offsetX = 100;
         const offsetY = 100;
 
+        let currentPoint: { x: number, y: number } | null = null; // Punto actual de la curva
+
         for (let child of Array.from(pathNode.children)) {
             const x = parseFloat(child.getAttribute('x') || "0") * scaleFactor + offsetX;
             const y = parseFloat(child.getAttribute('y') || "0") * scaleFactor + offsetY;
@@ -441,6 +444,7 @@ export class ShapeCollection {
                         points = [];
                     }
                     points.push({ x, y });
+                    currentPoint = { x, y };
                     break;
 
                 case 'line':
@@ -455,25 +459,26 @@ export class ShapeCollection {
                     const x3 = parseFloat(child.getAttribute('x3') || "0") * scaleFactor + offsetX;
                     const y3 = parseFloat(child.getAttribute('y3') || "0") * scaleFactor + offsetY;
                     
-                    if (points.length > 0) {
-                        const startPoint = points[points.length - 1];
-                        const curve = new BezierCurve(
-                            startPoint.x, 
-                            startPoint.y,
-                            x3, 
-                            y3, 
-                            strokeColor,
-                            { x: x1, y: y1 },
-                            { x: x2, y: y2 }
-                        );
-                        curve.setLineStyle(this.parseLineStyle(lineStyle));
-                        curve.setLineWidth(strokeWidth);
-                        this.addShape(curve);
-                        points = [];
-                    }
+                    // Crear la curva de Bezier
+                    const curve = new BezierCurve(
+                        currentPoint.x, 
+                        currentPoint.y, 
+                        x3, 
+                        y3, 
+                        strokeColor, 
+                        { x: x1, y: y1 }, 
+                        { x: x2, y: y2 }
+                    );
+                    curve.setLineStyle(this.parseLineStyle(lineStyle));
+                    curve.setLineWidth(strokeWidth);
+                    this.addShape(curve);
+
+                    // Actualizar el punto actual al punto final de la curva
+                    currentPoint = { x: x3, y: y3 };
                     break;
 
                 case 'close':
+                    currentPoint = null;
                     break;
             }
         }
