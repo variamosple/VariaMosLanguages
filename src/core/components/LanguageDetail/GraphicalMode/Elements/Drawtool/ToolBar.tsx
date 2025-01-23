@@ -17,6 +17,7 @@ interface ToolBarProps {
   lineWidth: number;
   lineStyle: string | number[];
   fontSize?: number;
+  connectors: number;
   onSelectTool: (tool: string) => void;
   onDelete: () => void;
   onFillColorChange: (color: string) => void;
@@ -24,6 +25,7 @@ interface ToolBarProps {
   onLineStyleChange: (style: string | number[]) => void;
   onLineWidthChange: (width: number) => void;
   onFontSizeChange?: (size: number) => void;
+  onConnectorsChange: (connectors: number) => void;
 }
 
 export default function ToolBar({
@@ -32,6 +34,7 @@ export default function ToolBar({
   lineWidth,
   lineStyle,
   fontSize,
+  connectors,
   onSelectTool,
   onDelete,
   onFillColorChange,
@@ -39,6 +42,7 @@ export default function ToolBar({
   onLineStyleChange,
   onLineWidthChange,
   onFontSizeChange,
+  onConnectorsChange,
 }: ToolBarProps) {
   const [fillColor, setFillColor] = useState<string>('#000000');
   const [lineColor, setLineColor] = useState<string>('#000000');
@@ -90,7 +94,12 @@ export default function ToolBar({
     if (!isNaN(newSize) && newSize > 0) {
       onFontSizeChange?.(newSize);
     }
-  };  
+  };
+
+  const handleConnectorsChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const connectorsPoints = parseInt(event.target.value, 10);
+    onConnectorsChange(connectorsPoints);
+  };
 
   const toggleFillColorPicker = () => {
     setShowFillColorPicker((prevShowFillColorPicker) => {
@@ -173,6 +182,24 @@ export default function ToolBar({
             <FaTrashAlt />
           </Button>
         </ButtonGroup>
+      </div>
+      
+      {/* Connectors */}
+      <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center">
+          <span>Connectors</span>
+          <select
+            className="form-select d-inline-block ms-2"
+            style={{ width: '70px' }}
+            value={connectors}
+            onChange={handleConnectorsChange}
+          >
+            <option value="0">0</option>
+            <option value="4">4</option>
+            <option value="8">8</option>
+            <option value="16">16</option>
+          </select>
+        </div>
       </div>
   
       {/* Grupo de herramientas de cambio de color */}
@@ -276,6 +303,15 @@ export default function ToolBar({
           </div>
         </div>
       </div>
+
+       {/* Modal para mostrar el patrón personalizado */}
+       {showCustomModal && (
+        <CustomPatternModal
+          show={showCustomModal}
+          onSave={handleSaveCustomPattern}
+          onCancel={() => setShowCustomModal(false)}
+          />
+        )}
     </div>
   );
   
