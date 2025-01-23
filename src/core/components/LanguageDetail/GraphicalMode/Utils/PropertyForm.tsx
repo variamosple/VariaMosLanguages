@@ -102,7 +102,7 @@ export default function PropertyForm({ show }) {
                 aria-label="Select a type"
               >
                 <option value="" className="text-muted">Select a type</option>
-                {["String", "Integer", "Boolean", "Text", "Date"].map((type, index) => (
+                {["String", "Integer", "Boolean", "Text", "Date", "Image"].map((type, index) => (
                   <option key={index} value={type}>
                     {type}
                   </option>
