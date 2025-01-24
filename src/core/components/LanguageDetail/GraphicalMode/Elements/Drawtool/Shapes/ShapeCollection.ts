@@ -6,12 +6,14 @@ import { Triangle } from "./Triangle";
 import { Shape } from "./Shape";
 import { Polygon } from "./Polygon";
 import { TextElement } from "./TextElement";
+import { current } from "immer";
 
 export class ShapeCollection {
     shapes: Shape[] = [];
     private otherElements: string[] = [];
     shapeAttributes: Record<string, string>;
     connectionsXML: string = "";
+    connectorsCount: number = 0;
     scale: number;
 
     constructor(scale: number = 1) {
@@ -326,6 +328,10 @@ export class ShapeCollection {
             const connectionsNode = shapeNode.getElementsByTagName("connections")[0];
             if (connectionsNode) {
                 this.connectionsXML = new XMLSerializer().serializeToString(connectionsNode);
+                
+                // Contar el número de conectores
+                const constraintNodes = connectionsNode.getElementsByTagName("constraint");
+                this.countConnectors(constraintNodes);
             }
 
             // Extraer y almacenar atributos de la etiqueta <shape>
@@ -418,6 +424,8 @@ export class ShapeCollection {
         const offsetX = 100;
         const offsetY = 100;
 
+        let currentPoint: { x: number, y: number } | null = null; // Punto actual de la curva
+
         for (let child of Array.from(pathNode.children)) {
             const x = parseFloat(child.getAttribute('x') || "0") * scaleFactor + offsetX;
             const y = parseFloat(child.getAttribute('y') || "0") * scaleFactor + offsetY;
@@ -436,6 +444,7 @@ export class ShapeCollection {
                         points = [];
                     }
                     points.push({ x, y });
+                    currentPoint = { x, y };
                     break;
 
                 case 'line':
@@ -450,25 +459,26 @@ export class ShapeCollection {
                     const x3 = parseFloat(child.getAttribute('x3') || "0") * scaleFactor + offsetX;
                     const y3 = parseFloat(child.getAttribute('y3') || "0") * scaleFactor + offsetY;
                     
-                    if (points.length > 0) {
-                        const startPoint = points[points.length - 1];
-                        const curve = new BezierCurve(
-                            startPoint.x, 
-                            startPoint.y,
-                            x3, 
-                            y3, 
-                            strokeColor,
-                            { x: x1, y: y1 },
-                            { x: x2, y: y2 }
-                        );
-                        curve.setLineStyle(this.parseLineStyle(lineStyle));
-                        curve.setLineWidth(strokeWidth);
-                        this.addShape(curve);
-                        points = [];
-                    }
+                    // Crear la curva de Bezier
+                    const curve = new BezierCurve(
+                        currentPoint.x, 
+                        currentPoint.y, 
+                        x3, 
+                        y3, 
+                        strokeColor, 
+                        { x: x1, y: y1 }, 
+                        { x: x2, y: y2 }
+                    );
+                    curve.setLineStyle(this.parseLineStyle(lineStyle));
+                    curve.setLineWidth(strokeWidth);
+                    this.addShape(curve);
+
+                    // Actualizar el punto actual al punto final de la curva
+                    currentPoint = { x: x3, y: y3 };
                     break;
 
                 case 'close':
+                    currentPoint = null;
                     break;
             }
         }
@@ -561,6 +571,182 @@ export class ShapeCollection {
     processElement(textNode: Element): void {
         // Serializa o almacena el texto de la etiqueta
         this.otherElements.push(textNode.outerHTML);
+    }
+
+    countConnectors(constraintNodes: HTMLCollectionOf<Element>): void {
+        // Inicializar el contador de conectores
+        this.connectorsCount = 0;
+
+        // Retornar si no hay nodos de conexión
+        if (constraintNodes.length === 0) {
+            this.connectorsCount = 0;
+            return;
+        };
+
+        // Contar el número de conectores
+        for (let i = 0; i < constraintNodes.length; i++) {
+            const constraint = constraintNodes[i];
+            const x = constraint.getAttribute("x");
+            const y = constraint.getAttribute("y");
+
+            // Verifica si los valores de x e y son 0, 0.5, o 1
+            if (["0", "0.25", "0.5", "0.75", "1"].includes(x) && ["0", "0.25", "0.5", "0.75", "1"].includes(y)) {
+                this.connectorsCount++;
+            }
+        }
+    }
+
+    changeConnections(newConnections: number): void {
+        // Verificar si el número de conectores no cambió
+        if (newConnections === this.connectorsCount) return;
+
+        if (!this.connectionsXML.includes('<connections>')) {
+            this.connectionsXML += '\n<connections>\n</connections>';
+        }
+    
+        // Función para verificar si una constraint ya existe en connectionsXML
+        const constraintExists = (x: string, y: string): boolean => {
+            const regex = new RegExp(`<constraint x="${x}" y="${y}" perimeter="0"/>`);
+            return regex.test(this.connectionsXML);
+        };
+    
+        // Función para agregar una nueva constraint si no existe
+        const addConstraint = (x: string, y: string): void => {
+            if (!constraintExists(x, y)) {
+                const newConstraint = `<constraint x="${x}" y="${y}" perimeter="0"/>`;
+                const closingTag = '</connections>';
+                // Insertar antes del cierre de la etiqueta <connections>
+                this.connectionsXML = this.connectionsXML.replace(closingTag, `    ${newConstraint}\n${closingTag}`);
+            }
+        };
+    
+        // Función para eliminar todas las constraints que coincidan con los valores predeterminados
+        const removeDefaultConstraints = (defaultConstraints: Array<{ x: string; y: string }>): void => {
+            // Crear un Set con las constraints predeterminadas (para comparación rápida)
+            const defaultSet = new Set(
+                defaultConstraints.map(({ x, y }) => `<constraint x="${x}" y="${y}" perimeter="0"/>`)
+            );
+        
+            // Extraer solo las constraints personalizadas (no en el set predeterminado)
+            const connectionsMatch = this.connectionsXML.match(/<connections>([\s\S]*?)<\/connections>/);
+            if (connectionsMatch) {
+                const allConstraints = connectionsMatch[1]
+                    .trim()
+                    .split(/\n/)
+                    .filter((line) => line.trim() !== "");
+        
+                const customConstraints = allConstraints.filter((line) => !defaultSet.has(line.trim()));
+        
+                // Si hay constraints personalizadas, reconstruir la etiqueta <connections>
+                if (customConstraints.length > 0) {
+                    const newConnections = `<connections>\n    ${customConstraints.join("\n    ")}\n</connections>`;
+                    this.connectionsXML = this.connectionsXML.replace(/<connections>[\s\S]*?<\/connections>/, newConnections);
+                } else {
+                    // Si no hay constraints personalizadas, eliminar toda la etiqueta <connections>
+                    this.connectionsXML = this.connectionsXML.replace(/<connections>[\s\S]*?<\/connections>/, "");
+                }
+            }
+        };          
+    
+        // Casos para agregar más conectores
+        if (newConnections > this.connectorsCount) {
+            switch (newConnections) {
+                case 4:
+                    // Agregar los conectores centrales
+                    [
+                        { x: "0.5", y: "0" },
+                        { x: "0.5", y: "1" },
+                        { x: "0", y: "0.5" },
+                        { x: "1", y: "0.5" }
+                    ].forEach(({ x, y }) => addConstraint(x, y));
+                    break;
+                case 8:
+                    // Agregar los conectores centrales y las esquinas
+                    [
+                        { x: "0.5", y: "0" },
+                        { x: "0.5", y: "1" },
+                        { x: "0", y: "0.5" },
+                        { x: "1", y: "0.5" },
+                        { x: "0", y: "0" },
+                        { x: "1", y: "0" },
+                        { x: "1", y: "1" },
+                        { x: "0", y: "1" }
+                    ].forEach(({ x, y }) => addConstraint(x, y));
+                    break;
+                case 16:
+                    // Agregar todos los conectores
+                    [
+                        { x: "0.5", y: "0" },
+                        { x: "0.5", y: "1" },
+                        { x: "0", y: "0.5" },
+                        { x: "1", y: "0.5" },
+                        { x: "0", y: "0" },
+                        { x: "1", y: "0" },
+                        { x: "1", y: "1" },
+                        { x: "0", y: "1" },
+                        { x: "0.25", y: "0.25" },
+                        { x: "0.75", y: "0.25" },
+                        { x: "0.25", y: "0.75" },
+                        { x: "0.75", y: "0.75" },
+                        { x: "0", y: "0.25" },
+                        { x: "1", y: "0.25" },
+                        { x: "1", y: "0.75" },
+                        { x: "0", y: "0.75" }
+                    ].forEach(({ x, y }) => addConstraint(x, y));
+                    break;
+            }
+        }
+    
+        // Casos para eliminar conectores
+        if (newConnections < this.connectorsCount) {
+            switch (newConnections) {
+                case 0:
+                    // Eliminar todas las constraints predeterminadas, conservar las personalizadas
+                    const defaultConstraints = [
+                        { x: "0.5", y: "0" },
+                        { x: "0.5", y: "1" },
+                        { x: "0", y: "0.5" },
+                        { x: "1", y: "0.5" },
+                        { x: "0", y: "0" },
+                        { x: "1", y: "0" },
+                        { x: "1", y: "1" },
+                        { x: "0", y: "1" },
+                        { x: "0.25", y: "0.25" },
+                        { x: "0.75", y: "0.25" },
+                        { x: "0.25", y: "0.75" },
+                        { x: "0.75", y: "0.75" },
+                        { x: "0", y: "0.25" },
+                        { x: "1", y: "0.25" },
+                        { x: "1", y: "0.75" },
+                        { x: "0", y: "0.75" }
+                    ];
+                    removeDefaultConstraints(defaultConstraints);
+                    break;
+                case 4:
+                    // Eliminar las esquinas, conservar los puntos centrales y las personalizadas
+                    const cornerConstraints = [
+                        { x: "0", y: "0" },
+                        { x: "1", y: "0" },
+                        { x: "1", y: "1" },
+                        { x: "0", y: "1" }
+                    ];
+                    removeDefaultConstraints(cornerConstraints);
+                    break;
+                case 8:
+                    // Eliminar los conectores del 25% y 75%, conservar los puntos centrales y las personalizadas
+                    const quarterConstraints = [
+                        { x: "0.25", y: "0.25" },
+                        { x: "0.75", y: "0.25" },
+                        { x: "0.25", y: "0.75" },
+                        { x: "0.75", y: "0.75" }
+                    ];
+                    removeDefaultConstraints(quarterConstraints);
+                    break;
+            }
+        }
+    
+        // Actualizar el número de conectores
+        this.connectorsCount = newConnections;
     }
 
 }

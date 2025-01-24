@@ -37,6 +37,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const [isNewText, setIsNewText] = useState<boolean>(false);
   const [curveHandleIndex, setCurveHandleIndex] = useState<number | null>(null);
   const [isMovingControlPoint, setIsMovingControlPoint] = useState<boolean>(false);
+  const [connectors, setConnectors] = useState<number>(0);
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     // Dibujar formas
@@ -54,8 +55,69 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         shape.draw(ctx);
       }
 
+      // Dibujar los conectores
+      drawConnectors(ctx);
       ctx.restore();
     });
+  };
+
+  const drawConnectors = (ctx: CanvasRenderingContext2D) => {
+
+    const drawX = (x1: number, y1: number, x2: number, y2: number) => {
+      // Color
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#00a00a';
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(x1 + 10, y1);
+      ctx.lineTo(x2 - 10, y2);
+      ctx.stroke();
+    };
+
+    const draw4Connectors = () => {
+      drawX(245, 95, 255, 105);
+      drawX(395, 245, 405, 255);
+      drawX(245, 395, 255, 405);
+      drawX(95, 245, 105, 255);
+    };
+
+    const draw8Connectors = () => {
+      draw4Connectors();
+      drawX(95, 95, 105, 105);
+      drawX(395, 95, 405, 105);
+      drawX(395, 395, 405, 405);
+      drawX(95, 395, 105, 405);
+    };
+
+    const draw16Connectors = () => {
+      draw8Connectors();
+      drawX(170, 95, 180, 105);
+      drawX(320, 95, 330, 105);
+      drawX(320, 395, 330, 405);
+      drawX(170, 395, 180, 405);
+      drawX(95, 170, 105, 180);
+      drawX(395, 170, 405, 180);
+      drawX(395, 320, 405, 330);
+      drawX(95, 320, 105, 330);
+    };
+
+    switch (connectors) {
+      case 0:
+        break;
+      case 4:
+        draw4Connectors();
+        break;
+      case 8:
+        draw8Connectors();
+        break;
+      case 16:
+        draw16Connectors();
+        break;
+    };
   };
 
    // useEffect para inicializar las figuras desde el XML solo una vez
@@ -64,6 +126,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       const newShapeCollection = new ShapeCollection(scaleFactor);
       newShapeCollection.fromXML(xml); // Convertir XML a formas
       setShapeCollection(newShapeCollection); // Actualizar colección de figuras
+      setConnectors(newShapeCollection.connectorsCount);
     }
   }, []);
 
@@ -94,7 +157,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         canvas.style.cursor = 'default';
       }
     }
-  }, [shapeCollection, selectedTool, selectedShape]);
+  }, [shapeCollection, selectedTool, selectedShape, connectors]);
 
   const drawWorkSpace = (ctx: CanvasRenderingContext2D) => {
     ctx.save();
@@ -104,7 +167,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     ctx.fillRect(100, 100, 300, 300);
 
     ctx.restore();
-  }
+  };
   
   // Resetear el canvas
   const resetCanvas = () => {
@@ -516,6 +579,13 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     updateXml();
   }
 
+  const handleConnectorsChange = (connectors: number) => {
+    setConnectors(connectors);
+    shapeCollection.changeConnections(connectors);
+    setSelectedTool('select');
+    updateXml();
+  };
+
   const saveToJSON = () => {
     const json = shapeCollection.toJSON();
     console.log("Saved JSON:", json);
@@ -569,6 +639,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
             lineWidth={selectedShape ? selectedShape.lineWidth : 1}
             lineStyle={selectedShape ? selectedShape.getLineStyle() : 'solid'}
             fontSize={selectedShape instanceof TextElement ? selectedShape.fontSize : 0}
+            connectors={connectors}
             onSelectTool={handleSelectTool}
             onDelete={handleDelete}
             onFillColorChange={handleFillColorChange}
@@ -576,6 +647,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
             onLineStyleChange={handleLineStyleChange}
             onLineWidthChange={handleLineWidthChange}
             onFontSizeChange={handleFontSizeChange}
+            onConnectorsChange={handleConnectorsChange}
           />
         </div>
 
