@@ -12,6 +12,7 @@ import { ShapeUtils } from './Shapes/ShapeUtils';
 import { Polygon } from "./Shapes/Polygon";
 import { TextElement } from './Shapes/TextElement';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { Overlay } from './Shapes/Overlay';
 
 interface CanvasProps {
   xml: string;
@@ -22,13 +23,17 @@ interface CanvasProps {
 
 export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChange }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [selectedTool, setSelectedTool] = useState<string>('select');
   const [shapeCollection, setShapeCollection] = useState<ShapeCollection>(new ShapeCollection());
+  const [overlays, setOverlays] = useState<Overlay[]>([]);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startX, setStartX] = useState<number | null>(null);
   const [startY, setStartY] = useState<number | null>(null);
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
+  const [selectedOverlay, setSelectedOverlay] = useState<Overlay | null>(null);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [resizeHandleIndex, setResizeHandleIndex] = useState<number | null>(null);
   const [currentPolygon, setCurrentPolygon] = useState<Polygon | null>(null);
@@ -59,6 +64,19 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       drawConnectors(ctx);
       ctx.restore();
     });
+
+    // Dibujar los overlays
+    if (overlays.length > 0) {
+      ctx.save();
+
+      overlays.forEach(overlay => {
+        overlay.draw(ctx);
+        if (overlay.isSelected) {
+          overlay.drawSelection(ctx);
+        }
+      });
+      ctx.restore();
+    }
   };
 
   const drawConnectors = (ctx: CanvasRenderingContext2D) => {
@@ -157,7 +175,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         canvas.style.cursor = 'default';
       }
     }
-  }, [shapeCollection, selectedTool, selectedShape, connectors]);
+  }, [shapeCollection, selectedTool, selectedShape, connectors, overlays, selectedOverlay]);
 
   const drawWorkSpace = (ctx: CanvasRenderingContext2D) => {
     ctx.save();
@@ -207,6 +225,23 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     }
     setSelectedShape(null);
     return false; // Ninguna figura seleccionada
+  };
+
+  // Función auxiliar para manejar la selección de overlays
+  const handleOverlaySelection = (x: number, y: number) => {
+    overlays.forEach(overlay => overlay.isSelected = false);
+    for (let i = overlays.length - 1; i >= 0; i--) {
+      if (overlays[i].contains(x, y)) {
+        overlays[i].isSelected = true;
+        setSelectedOverlay(overlays[i]);
+        setIsDragging(true);
+        setStartX(x);
+        setStartY(y);
+        return true; // Overlay seleccionado
+      }
+    }
+    setSelectedOverlay(null);
+    return false; // Ningún overlay seleccionado
   };
 
   // Funciones para manejar eventos del mouse
@@ -260,12 +295,30 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           setCurveHandleIndex(controlPointIndex);
           return;
         }
+      } else if (selectedOverlay) {
+        if (selectedOverlay.isOverHandle(clickX, clickY)) {
+          setIsResizing(true);
+          const handleIndex = selectedOverlay.getResizeHandles().findIndex(handle => {
+            return (
+              clickX >= handle.x - 5 && clickX <= handle.x + 5 &&
+              clickY >= handle.y - 5 && clickY <= handle.y + 5
+            );
+          });
+          setResizeHandleIndex(handleIndex);
+          return;
+        }
       }
 
-    // Selección de figuras
+      // Selección de figuras
       const shapeSelected = handleShapeSelection(clickX, clickY);
       if (!shapeSelected) {
           setSelectedShape(null); // Deseleccionar figura si no se selecciona ninguna
+      }
+
+      // Selección de overlays
+      const overlaySelected = handleOverlaySelection(clickX, clickY);
+      if (!overlaySelected) {
+        setSelectedOverlay(null); // Deseleccionar overlay si no se selecciona ninguno
       }
     } else if (['rectangle', 'ellipse', 'triangle', 'line', 'curve'].includes(selectedTool)) {
       // Comenzar a dibujar una nueva figura
@@ -327,6 +380,9 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         resetCanvas();
       }
       return;
+    } else if (isResizing && selectedOverlay && resizeHandleIndex !== null) {
+      selectedOverlay.resize(resizeHandleIndex, currentX, currentY);
+      resetCanvas();
     }
 
     // Si se está moviendo un punto de control de la curva de Bézier
@@ -375,6 +431,18 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
         // Traslación de otras figuras
         ShapeUtils.translateShape(selectedShape, dx, dy);
       }
+  
+      setStartX(currentX);
+      setStartY(currentY);
+  
+      resetCanvas();
+    } else if (selectedTool === 'select' && isDragging && selectedOverlay) {
+      // Movimiento de overlays
+      const dx = currentX - startX!;
+      const dy = currentY - startY!;
+
+      selectedOverlay.x += dx;
+      selectedOverlay.y += dy;
   
       setStartX(currentX);
       setStartY(currentY);
@@ -520,22 +588,26 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
 
   const handleDelete = () => {
     if (selectedShape) {
-      if (selectedShape) {
-        const updatedShapes = shapeCollection.deleteShape(selectedShape);
-        setShapeCollection(updatedShapes);
-        setSelectedShape(null);
-      }
+      const updatedShapes = shapeCollection.deleteShape(selectedShape);
+      setShapeCollection(updatedShapes);
+      setSelectedShape(null);
     };
 
-      // Redibujar el canvas
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const context = canvas.getContext('2d');
-        if (context) {
-          resetCanvas();
-        }
+    if (selectedOverlay) {
+      const updatedOverlays = overlays.filter(overlay => overlay !== selectedOverlay);
+      setOverlays(updatedOverlays);
+      setSelectedOverlay(null);
+    }
+
+    // Redibujar el canvas
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const context = canvas.getContext('2d');
+      if (context) {
+        resetCanvas();
       }
-      updateXml();
+    }
+    updateXml();
   };
 
   const handleFillColorChange = (color: string) => {
@@ -584,6 +656,42 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     shapeCollection.changeConnections(connectors);
     setSelectedTool('select');
     updateXml();
+  };
+
+  // Overlays
+  // Método para activar el explorador de archivos
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Método para manejar la selección del archivo
+  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const overlay = await Overlay.fromFile(file);
+        setOverlays((prev) => [...prev, overlay]);
+      } catch (error) {
+        console.error("Error creating overlay:", error);
+      }
+    }
+  };
+
+  // Métodos para drop
+  const handleDragOver = (e: React.DragEvent<HTMLCanvasElement>) => {
+    e.preventDefault(); // Necesario para permitir el drop
+    e.dataTransfer.dropEffect = "copy"; // Indica que se está copiando el archivo
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+
+    try {
+      const overlay = await Overlay.fromDropEvent(e.nativeEvent); // Convertir a DragEvent nativo
+      setOverlays((prev) => [...prev, overlay]); // Agregar al estado
+    } catch (error) {
+      console.error("Error creating overlay from drop:", error);
+    }
   };
 
   const saveToJSON = () => {
@@ -636,6 +744,7 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
           <ToolBar
             selectedTool={selectedTool}
             hasSelectedShape={selectedShape !== null}
+            hasSelectedOverlay={selectedOverlay !== null}
             lineWidth={selectedShape ? selectedShape.lineWidth : 1}
             lineStyle={selectedShape ? selectedShape.getLineStyle() : 'solid'}
             fontSize={selectedShape instanceof TextElement ? selectedShape.fontSize : 0}
@@ -648,9 +757,19 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
             onLineWidthChange={handleLineWidthChange}
             onFontSizeChange={handleFontSizeChange}
             onConnectorsChange={handleConnectorsChange}
+            onFileClick={handleFileClick}
           />
         </div>
 
+        {/* Input para cargar imágenes */}
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={handleFileInputChange}
+        />
+        
         {/* Canvas en la fila debajo del toolbar */}
         <div className="d-flex justify-content-center">
           <canvas
@@ -662,6 +781,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onDoubleClick={handleDoubleClick}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
           />
         </div>
 
