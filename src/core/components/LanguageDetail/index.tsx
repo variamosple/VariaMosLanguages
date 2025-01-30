@@ -325,6 +325,7 @@ export default function LanguageDetail({
               value={languageType}
               onChange={handleLanguageTypeChange}
             >
+              <option>Scope</option>
               <option>Domain</option>
               <option>Application</option>
               <option>Adaptation</option>

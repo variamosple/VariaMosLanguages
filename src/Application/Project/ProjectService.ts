@@ -395,16 +395,27 @@ export default class ProjectService {
   }
 
   getUser(){
-    let userId="0";
-    let databaseUserProfile=localStorage.getItem("databaseUserProfile");
-    if(databaseUserProfile){
-      let data=JSON.parse(databaseUserProfile);
-      userId=data.user.id;
-    } 
-    if (!userId) {
-      userId="0"; 
+    let userId = "0";
+    let databaseUserProfile = sessionStorage.getItem("databaseUserProfile");
+    if (databaseUserProfile) {
+      let data = JSON.parse(databaseUserProfile);
+      userId = data.user.id;
+    }
+    if (userId == "0") {
+        // userId = "21cd2d82-1bbc-43e9-898a-d5a45abdeceded";
     }
     return userId;
+
+    // let userId="0";
+    // let databaseUserProfile=localStorage.getItem("databaseUserProfile");
+    // if(databaseUserProfile){
+    //   let data=JSON.parse(databaseUserProfile);
+    //   userId=data.user.id;
+    // } 
+    // if (!userId) {
+    //   userId="0"; 
+    // }
+    // return userId;
   }
 
   getLanguagesByUser(): Language[] {
