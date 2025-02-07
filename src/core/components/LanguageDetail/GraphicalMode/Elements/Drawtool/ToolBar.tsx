@@ -126,9 +126,9 @@ export default function ToolBar({
   };
 
   return (
-    <div className="mb-3 d-flex gap-3">
-      {/* Grupo de herramientas de formas */}
-      <div className="d-flex align-items-center gap-2">
+    <div className="mb-3 d-flex flex-wrap gap-3">
+      {/* Fila 1: Herramientas de dibujo y seleccio´n */}
+      <div className="d-flex align-items-center gap-2 flex-wrap">
         <ButtonGroup aria-label="Shape tools">
           <Button
             variant={selectedTool === 'select' ? 'primary' : 'secondary'}
@@ -186,11 +186,9 @@ export default function ToolBar({
             <FaTrashAlt />
           </Button>
         </ButtonGroup>
-      </div>
-      
-      {/* Connectors */}
-      <div className="d-flex align-items-center gap-2">
-        <div className="d-flex align-items-center">
+
+        {/* Connectors */}
+        <div className="d-flex align-items-center ms-3">
           <span>Connectors</span>
           <select
             className="form-select d-inline-block ms-2"
@@ -205,9 +203,13 @@ export default function ToolBar({
           </select>
         </div>
       </div>
-  
-      {/* Grupo de herramientas de cambio de color */}
-      <div className="d-flex align-items-center gap-2">
+
+      {/* Separador */}
+      <div className="w-100"></div>
+
+      {/* Fila 2: Opciones de estilo y personalización */}
+      <div className="d-flex align-items-center gap-3 flex-wrap">
+        {/* Grupo de herramientas de cambio de color */}
         <ButtonGroup>
           <Button
             variant={showFillColorPicker ? 'primary' : 'secondary'}
@@ -232,28 +234,25 @@ export default function ToolBar({
             </div>
           )}
         </ButtonGroup>
-      </div>
-  
-      {/* Herramientas de línea */}
-      <div className="d-flex align-items-center gap-3">
-        {/* Dropdown de estilo de línea */}
+
+        {/* Herramientas de línea */}
         <div className="d-flex align-items-center">
           <TbBorderStyle2 size={24} />
-          <select
-            className="form-select d-inline-block ms-2"
-            style={{ width: '140px' }}
-            value={Array.isArray(lineStyle) ? 'custom' : lineStyle}
-            onChange={handleLineStyleChange}
-          >
-            <option value="solid">Solid</option>
-            <option value="dashed">Dashed (5 5)</option>
-            <option value="dotted">Dotted (2 2)</option>
-            <option value="longDashed">Long Dashed (10 10)</option>
-            <option value="custom">Custom…</option>
-          </select>
+            <select
+              className="form-select d-inline-block ms-2"
+              style={{ width: '140px' }}
+              value={Array.isArray(lineStyle) ? 'custom' : lineStyle}
+              onChange={handleLineStyleChange}
+            >
+              <option value="solid">Solid</option>
+              <option value="dashed">Dashed (5 5)</option>
+              <option value="dotted">Dotted (2 2)</option>
+              <option value="longDashed">Long Dashed (10 10)</option>
+              <option value="custom">Custom…</option>
+            </select>
         </div>
-  
-        {/* Stepper Control para el grosor de línea */}
+
+        {/* Grosor de línea */}
         <div className="d-flex align-items-center">
           <RxBorderWidth />
           <input
@@ -264,8 +263,8 @@ export default function ToolBar({
             className="mx-2"
           />
         </div>
-  
-        {/* Control para el tamaño de fuente */}
+
+        {/* Tamaño de fuente */}
         <div className="d-flex align-items-center">
           <AiOutlineFontSize />
           <div className="position-relative">
@@ -306,11 +305,10 @@ export default function ToolBar({
             )}
           </div>
         </div>
-      </div>
 
-      {/* Botón para cargar imagen */}
-      <div className="d-flex align-items-center">
+        {/* Overlays */}
         <Button variant="secondary" onClick={onFileClick}>
+          Upload Overlay 
           <FaUpload />
         </Button>
       </div>
