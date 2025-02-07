@@ -6,7 +6,6 @@ import { Triangle } from "./Triangle";
 import { Shape } from "./Shape";
 import { Polygon } from "./Polygon";
 import { TextElement } from "./TextElement";
-import { current } from "immer";
 
 export class ShapeCollection {
     shapes: Shape[] = [];

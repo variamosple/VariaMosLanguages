@@ -13,6 +13,8 @@ import { Polygon } from "./Shapes/Polygon";
 import { TextElement } from './Shapes/TextElement';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { Overlay } from './Shapes/Overlay';
+import { useLanguageContext } from '../../../../../context/LanguageContext/LanguageContextProvider';
+import { useItemEditorContext } from "../../../../../context/LanguageContext/ItemEditorContextProvider";
 
 interface CanvasProps {
   xml: string;
@@ -43,6 +45,9 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const [curveHandleIndex, setCurveHandleIndex] = useState<number | null>(null);
   const [isMovingControlPoint, setIsMovingControlPoint] = useState<boolean>(false);
   const [connectors, setConnectors] = useState<number>(0);
+
+  const { concreteSyntax } = useLanguageContext();
+  const { formValues } = useItemEditorContext();
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     // Dibujar formas
@@ -146,6 +151,39 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       setShapeCollection(newShapeCollection); // Actualizar colección de figuras
       setConnectors(newShapeCollection.connectorsCount);
     }
+
+    // Traer los overlays desde el concreteSyntax
+    const currentConcreteSyntax = JSON.parse(concreteSyntax);
+    const figureName = formValues.name;
+
+    if (!currentConcreteSyntax.elements[figureName]) {
+      console.error(`Element '${figureName}' not found in concreteSyntax.`);
+      return;
+    }
+
+    const element = currentConcreteSyntax.elements[figureName];
+
+    // Verificar si el elemento tiene overlays
+    if (!element.overlays || !Array.isArray(element.overlays)) {
+      console.warn(`Element '${figureName}' has no overlays.`);
+      return;
+    }
+
+    element.overlays.forEach((overlayData: any) => {
+      if (!overlayData.icon) {
+        console.warn(`Overlay missing 'icon' property for element '${figureName}'.`);
+        return;
+      }
+
+      // Crear overlay desde Base64
+      const overlay = Overlay.fromBase64(overlayData.icon);
+
+      overlay.then(resolvedOverlay => {
+        resolvedOverlay.calculateOverlayPosition(overlayData.align, overlayData.offset_x, overlayData.offset_y);
+        setOverlays((prev) => [...prev, resolvedOverlay]);
+      });
+      console.log(`Overlay processed for '${figureName}':`, overlay);
+    });
   }, []);
 
   useEffect(() => {    
@@ -215,6 +253,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     shapeCollection.shapes.forEach(shape => shape.isSelected = false);
     for (let i = shapeCollection.shapes.length - 1; i >= 0; i--) {
       if (shapeCollection.shapes[i].contains(x, y)) {
+        // Comprobar que no haya seleccionado un overlay
+        if (overlays.some(overlay => overlay.contains(x, y))) return false;
         shapeCollection.shapes[i].isSelected = true;
         setSelectedShape(shapeCollection.shapes[i]);
         setIsDragging(true);
@@ -699,11 +739,23 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     console.log("Saved JSON:", json);
   };
 
-  const updateXml = () => {
+  const updateXml = async () => {
     const xml = shapeCollection.toXML();
     onScaleFactorChange(shapeCollection.getScaleFactor());
     const icon = getIcon();
     onXmlChange(xml, icon);
+
+    // Guardar los overlays en el concreteSyntax
+    // const currentConcreteSyntax = JSON.parse(concreteSyntax);
+    const processedOverlays = async () => {
+      try {
+        const overlaysData = await Promise.all(overlays.map(overlay => overlay.toJson()));
+        return overlaysData;
+      } catch (error) {
+        console.error("Error processing overlays:", error);
+      }
+    }
+    const overlaysInfo = await processedOverlays();
   };
 
   function getIcon() {
