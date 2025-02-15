@@ -336,6 +336,7 @@ export class Overlay {
             };
             
             img.onerror = (error) => {
+                console.error("Error al cargar la imagen:", error, "URL:", url);
                 reject(error);
             };
             

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, DropdownButton, Dropdown  } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import XMLInput from './XMLInput';
 import Canvas from './Canvas';
 import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
@@ -7,7 +7,7 @@ import GenericFileUploadButton from '../../Utils/FormUtils/UploadButton';
 import ShapeRenderer from "./ShapeRenderer";
 
 
-export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange, viewMode }) {
+export default function XmlTab({ previewXml, setPreviewXml, xml, overlays, onXmlChange, viewMode }) {
   const svgToXmlService = new SvgToXmlService();
 
   const [ scaleFactor, setScaleFactor ] = useState(1);
@@ -87,6 +87,7 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange, vi
         <Canvas 
           xml={xml} 
           onXmlChange={XMLInput_onXmlChange} 
+          elementOverlays={overlays}
           scaleFactor={scaleFactor} 
           onScaleFactorChange={setScaleFactor} 
         />

@@ -2,29 +2,33 @@ import { Modal, Button, DropdownButton, Dropdown } from "react-bootstrap";
 import XmlTab from "./XmlTab";
 import { useEffect, useState } from "react";
 
-export default function Drawtool({ show, handleClose, xml, onXmlChange }) {
+export default function Drawtool({ show, handleClose, xml, overlays, onXmlChange }) {
   const [previewXml, setPreviewXml] = useState<string | null>(null);
   const [editedXml, setEditedXml] = useState<string | null>(null);
+  const [editedOverlays, setEditedOverlays] = useState<string | null>(null);
   const [icon, setIcon] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'canvas' | 'xml'>('canvas');
 
   const handleFormSubmit = () => {
-    onXmlChange(editedXml, icon);
+    onXmlChange(editedXml, icon, editedOverlays);
     handleClose();
   };
 
   const onCancel = () => {
     setEditedXml(xml);
+    setEditedOverlays(overlays);
     handleClose();
   }
 
   useEffect(() => {
     setEditedXml(xml);
-  }, [xml]);
+    setEditedOverlays(overlays);
+  }, [xml, overlays]);
 
-  const xmlTab_onXmlChange =(xml: string, icon?: string) => {
+  const xmlTab_onXmlChange =(xml: string, icon?: string, overlays?: string) => {
     setEditedXml(xml);
     setIcon(icon);
+    setEditedOverlays(overlays);
   }
 
 
@@ -48,6 +52,7 @@ export default function Drawtool({ show, handleClose, xml, onXmlChange }) {
           previewXml={previewXml} 
           setPreviewXml={setPreviewXml} 
           xml={editedXml} 
+          overlays={editedOverlays}
           onXmlChange={xmlTab_onXmlChange} 
           viewMode={viewMode} 
         />

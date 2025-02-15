@@ -13,17 +13,16 @@ import { Polygon } from "./Shapes/Polygon";
 import { TextElement } from './Shapes/TextElement';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { Overlay } from './Shapes/Overlay';
-import { useLanguageContext } from '../../../../../context/LanguageContext/LanguageContextProvider';
-import { useItemEditorContext } from "../../../../../context/LanguageContext/ItemEditorContextProvider";
 
 interface CanvasProps {
   xml: string;
-  onXmlChange: (xml: string, icon?: string) => void; // Prop para manejar los cambios en el XML
+  onXmlChange: (xml: string, icon?: string, overlays?: string) => void; // Prop para manejar los cambios en el XML
+  elementOverlays: [];
   scaleFactor: number;
   onScaleFactorChange: (scaleFactor: number) => void;
 }
 
-export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChange }: CanvasProps) {
+export default function Canvas({xml, onXmlChange, elementOverlays, scaleFactor, onScaleFactorChange }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -45,9 +44,6 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
   const [curveHandleIndex, setCurveHandleIndex] = useState<number | null>(null);
   const [isMovingControlPoint, setIsMovingControlPoint] = useState<boolean>(false);
   const [connectors, setConnectors] = useState<number>(0);
-
-  const { concreteSyntax } = useLanguageContext();
-  const { formValues } = useItemEditorContext();
 
   const drawShapes = (ctx: CanvasRenderingContext2D) => {
     // Dibujar formas
@@ -152,38 +148,31 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       setConnectors(newShapeCollection.connectorsCount);
     }
 
-    // Traer los overlays desde el concreteSyntax
-    const currentConcreteSyntax = JSON.parse(concreteSyntax);
-    const figureName = formValues.name;
-
-    if (!currentConcreteSyntax.elements[figureName]) {
-      console.error(`Element '${figureName}' not found in concreteSyntax.`);
-      return;
-    }
-
-    const element = currentConcreteSyntax.elements[figureName];
-
-    // Verificar si el elemento tiene overlays
-    if (!element.overlays || !Array.isArray(element.overlays)) {
-      console.warn(`Element '${figureName}' has no overlays.`);
-      return;
-    }
-
-    element.overlays.forEach((overlayData: any) => {
-      if (!overlayData.icon) {
-        console.warn(`Overlay missing 'icon' property for element '${figureName}'.`);
-        return;
-      }
-
-      // Crear overlay desde Base64
-      const overlay = Overlay.fromBase64(overlayData.icon);
-
-      overlay.then(resolvedOverlay => {
-        resolvedOverlay.calculateOverlayPosition(overlayData.align, overlayData.offset_x, overlayData.offset_y);
-        setOverlays((prev) => [...prev, resolvedOverlay]);
+    // Inicializar overlays
+    if(elementOverlays) {
+      elementOverlays.forEach((overlayData: any) => {
+        if (!overlayData.icon) {
+          console.warn(`Overlay missing 'icon' property for element.`);
+          return;
+        }
+        
+        // Crear overlay desde Base64
+        const overlay = Overlay.fromBase64(overlayData.icon);
+  
+        overlay
+          .then(resolvedOverlay => {
+            resolvedOverlay.calculateOverlayPosition(
+              overlayData.align,
+              overlayData.offset_x,
+              overlayData.offset_y
+            );
+            setOverlays((prev) => [...prev, resolvedOverlay]);
+          })
+          .catch(error => {
+            console.error("Error creando overlay:", error);
+          });
       });
-      console.log(`Overlay processed for '${figureName}':`, overlay);
-    });
+    }
   }, []);
 
   useEffect(() => {    
@@ -743,7 +732,6 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
     const xml = shapeCollection.toXML();
     onScaleFactorChange(shapeCollection.getScaleFactor());
     const icon = getIcon();
-    onXmlChange(xml, icon);
 
     // Guardar los overlays en el concreteSyntax
     // const currentConcreteSyntax = JSON.parse(concreteSyntax);
@@ -756,6 +744,8 @@ export default function Canvas({xml, onXmlChange, scaleFactor, onScaleFactorChan
       }
     }
     const overlaysInfo = await processedOverlays();
+    
+    onXmlChange(xml, icon, JSON.stringify(overlaysInfo));
   };
 
   function getIcon() {
