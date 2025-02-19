@@ -16,10 +16,17 @@ import { Overlay } from './Shapes/Overlay';
 
 interface CanvasProps {
   xml: string;
-  onXmlChange: (xml: string, icon?: string, overlays?: string) => void; // Prop para manejar los cambios en el XML
+  onXmlChange: (xml: string, icon?: string, overlays?: OverlayType[]) => void; // Prop para manejar los cambios en el XML
   elementOverlays: [];
   scaleFactor: number;
   onScaleFactorChange: (scaleFactor: number) => void;
+}
+
+interface OverlayType {
+  icon: string;
+  align: string;
+  offset_x: number;
+  offset_y: number;
 }
 
 export default function Canvas({xml, onXmlChange, elementOverlays, scaleFactor, onScaleFactorChange }: CanvasProps) {
@@ -733,19 +740,13 @@ export default function Canvas({xml, onXmlChange, elementOverlays, scaleFactor, 
     onScaleFactorChange(shapeCollection.getScaleFactor());
     const icon = getIcon();
 
-    // Guardar los overlays en el concreteSyntax
-    // const currentConcreteSyntax = JSON.parse(concreteSyntax);
-    const processedOverlays = async () => {
-      try {
-        const overlaysData = await Promise.all(overlays.map(overlay => overlay.toJson()));
-        return overlaysData;
-      } catch (error) {
-        console.error("Error processing overlays:", error);
-      }
+    try {
+      const overlaysData = await Promise.all(overlays.map(overlay => overlay.toJson()));
+      let json = overlaysData;
+      onXmlChange(xml, icon, json);
+    } catch (error) {
+      console.error("Error processing overlays:", error);
     }
-    const overlaysInfo = await processedOverlays();
-    
-    onXmlChange(xml, icon, JSON.stringify(overlaysInfo));
   };
 
   function getIcon() {

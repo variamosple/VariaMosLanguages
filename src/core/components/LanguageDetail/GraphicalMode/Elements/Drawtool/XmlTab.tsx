@@ -6,7 +6,6 @@ import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlSer
 import GenericFileUploadButton from '../../Utils/FormUtils/UploadButton';
 import ShapeRenderer from "./ShapeRenderer";
 
-
 export default function XmlTab({ previewXml, setPreviewXml, xml, overlays, onXmlChange, viewMode }) {
   const svgToXmlService = new SvgToXmlService();
 
@@ -34,8 +33,8 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, overlays, onXml
     }
   };
 
-  const XMLInput_onXmlChange = (xml, icon) => {
-    onXmlChange(xml, icon);
+  const XMLInput_onXmlChange = (xml, icon, overlays) => {
+    onXmlChange(xml, icon, overlays);
   };
 
   const handleRectangleShape = (e) => {

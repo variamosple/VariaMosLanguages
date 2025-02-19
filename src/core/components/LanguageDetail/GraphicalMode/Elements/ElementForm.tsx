@@ -19,7 +19,8 @@ export default function ElementForm() {
   const [xml, setXml] = useState(`<shape></shape>`);
   const [overlays, setOverlays] = useState<OverlayType[]>(formValues.overlays  || []);
 
-  const handleXmlChange = (xml: string, icon?: string, overlays?: string) => {
+
+  const handleXmlChange = (xml: string, icon?: string, overlays?: OverlayType[]) => {
     setXml(xml);
     handleChange({ target: { name: "draw", value: btoa(xml) } });
 
@@ -29,18 +30,8 @@ export default function ElementForm() {
     }
 
     if(overlays){
-      if(typeof overlays === 'string') {
-        try {
-            const parsedOverlays = JSON.parse(overlays) as OverlayType[];
-            setOverlays(parsedOverlays);
-            handleChange({ target: { name: "overlays", value: overlays } });
-        } catch(error) {
-            console.error("Error parsing overlays:", error);
-        }
-      } else {
-        setOverlays(overlays);
-        handleChange({ target: { name: "overlays", value: JSON.stringify(overlays) } });
-      }
+      setOverlays(overlays);
+      handleChange({ target: { name: "overlays", value: overlays } });
     }
   };
 

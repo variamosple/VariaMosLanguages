@@ -27,6 +27,7 @@ export function graphicalToTextual(elements, relationships, restrictions) {
           width: parseInt(element.width), 
           height: parseInt(element.height), 
           resizable: element.resizable,
+          overlays: element.overlays,
           label_property: element.label_property
         };
         return acc;

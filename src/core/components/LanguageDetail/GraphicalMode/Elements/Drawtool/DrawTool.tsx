@@ -2,10 +2,17 @@ import { Modal, Button, DropdownButton, Dropdown } from "react-bootstrap";
 import XmlTab from "./XmlTab";
 import { useEffect, useState } from "react";
 
+interface OverlayType {
+  icon: string;
+  align: string;
+  offset_x: number;
+  offset_y: number;
+}
+
 export default function Drawtool({ show, handleClose, xml, overlays, onXmlChange }) {
   const [previewXml, setPreviewXml] = useState<string | null>(null);
   const [editedXml, setEditedXml] = useState<string | null>(null);
-  const [editedOverlays, setEditedOverlays] = useState<string | null>(null);
+  const [editedOverlays, setEditedOverlays] = useState<OverlayType[] | null>(null);
   const [icon, setIcon] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'canvas' | 'xml'>('canvas');
 
@@ -25,7 +32,7 @@ export default function Drawtool({ show, handleClose, xml, overlays, onXmlChange
     setEditedOverlays(overlays);
   }, [xml, overlays]);
 
-  const xmlTab_onXmlChange =(xml: string, icon?: string, overlays?: string) => {
+  const xmlTab_onXmlChange =(xml: string, icon?: string, overlays?: OverlayType[]) => {
     setEditedXml(xml);
     setIcon(icon);
     setEditedOverlays(overlays);
