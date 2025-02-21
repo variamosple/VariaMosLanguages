@@ -5,25 +5,44 @@ import DrawTool from "./Drawtool/DrawTool";
 import UploadButton from "../Utils/FormUtils/UploadButton";
 import { useItemEditorContext } from "../../../../context/LanguageContext/ItemEditorContextProvider";
 
+interface OverlayType {
+  icon: string;
+  align: string;
+  offset_x: number;
+  offset_y: number;
+}
+
 export default function ElementForm() {
 
   const { formValues, handleChange, handleChecked } = useItemEditorContext()
   const [showDrawTool, setShowDrawTool] = useState(false);
   const [xml, setXml] = useState(`<shape></shape>`);
+  const [overlays, setOverlays] = useState<OverlayType[]>(formValues.overlays  || []);
 
-  const handleXmlChange = (xml: string, icon?: string) => {
+
+  const handleXmlChange = (xml: string, icon?: string, overlays?: OverlayType[]) => {
     setXml(xml);
     handleChange({ target: { name: "draw", value: btoa(xml) } });
-    //alert(icon);
+
     if(icon){
       const base64WithoutPrefix = icon.split(",")[1];
       handleChange({ target: { name: "icon", value: base64WithoutPrefix } });
+    }
+
+    if(overlays){
+      setOverlays(overlays);
+      handleChange({ target: { name: "overlays", value: overlays } });
     }
   };
 
   const handleOpenDrawtool = () => {
     if (formValues.draw) {
       try { setXml(atob(formValues.draw)) }
+      catch (e) { }
+    }
+    if (formValues.overlays) {
+      try { setOverlays(formValues.overlays);
+      }
       catch (e) { }
     }
     setTimeout(() => setShowDrawTool(true), 100);
@@ -173,6 +192,7 @@ export default function ElementForm() {
         show={showDrawTool}
         handleClose={() => setShowDrawTool(false)}
         xml={xml}
+        overlays={overlays}
         onXmlChange={handleXmlChange}
       />
     </div>

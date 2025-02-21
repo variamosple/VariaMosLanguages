@@ -1,22 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, DropdownButton, Dropdown  } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import XMLInput from './XMLInput';
 import Canvas from './Canvas';
 import SvgToXmlService from '../../../../../../DataProvider/Services/svgToXmlService';
 import GenericFileUploadButton from '../../Utils/FormUtils/UploadButton';
 import ShapeRenderer from "./ShapeRenderer";
 
-
-export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) {
+export default function XmlTab({ previewXml, setPreviewXml, xml, overlays, onXmlChange, viewMode }) {
   const svgToXmlService = new SvgToXmlService();
 
   const [ scaleFactor, setScaleFactor ] = useState(1);
-
-  const [viewMode, setViewMode] = useState<'canvas' | 'xml'>('canvas');
-
-  // Manejar el cambio de modo de vista
-  const handleSwitchToCanvas = () => setViewMode('canvas');
-  const handleSwitchToXml = () => setViewMode('xml');
 
   // Este efecto se ejecutará cada vez que el estado "data" cambie
   useEffect(() => {
@@ -40,8 +33,8 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
     }
   };
 
-  const XMLInput_onXmlChange = (xml, icon) => {
-    onXmlChange(xml, icon);
+  const XMLInput_onXmlChange = (xml, icon, overlays) => {
+    onXmlChange(xml, icon, overlays);
   };
 
   const handleRectangleShape = (e) => {
@@ -84,19 +77,8 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
     return;
   };
 
-
-
   return (
     <Row className="mb-5">
-    {/* Dropdown para elegir entre Canvas o XML */}
-    <DropdownButton size="sm" title="Mode" variant="primary" id="modeDropdown" className="mb-3">
-      <Dropdown.Item onClick={handleSwitchToCanvas}>
-        Canvas Editor
-      </Dropdown.Item>
-      <Dropdown.Item onClick={handleSwitchToXml}>
-        XML textual editor
-      </Dropdown.Item>
-    </DropdownButton>
 
     {/* Renderizar dinámicamente el Canvas o el XML */}
     {viewMode === 'canvas' ? (
@@ -104,6 +86,7 @@ export default function XmlTab({ previewXml, setPreviewXml, xml, onXmlChange }) 
         <Canvas 
           xml={xml} 
           onXmlChange={XMLInput_onXmlChange} 
+          elementOverlays={overlays}
           scaleFactor={scaleFactor} 
           onScaleFactorChange={setScaleFactor} 
         />
