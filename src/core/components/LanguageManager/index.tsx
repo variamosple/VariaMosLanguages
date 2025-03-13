@@ -1,28 +1,27 @@
-import { useEffect, useState } from 'react';
-import { Col, Row, Tab, Tabs } from 'react-bootstrap';
-import { UserTypes } from '../../../UI/SignUp/SignUp.constants';
-import { PublicLanguagesContainer } from '../PublicLanguages/PublicLanguagesContainer';
-import { UserLanguagesContainer } from '../UserLanguages/UserLangugesContainer';
-import CreateLanguageButton from './CreateLanguageButton/CreateLanguageButton';
-import LanguageManagerLayout from './LanguageManagerLayout/LanguageManagerLayout';
-import { LanguageManagerProps } from './index.types';
+import { useSession } from "@variamosple/variamos-components";
+import { useEffect, useState } from "react";
+import { Col, Row, Tab, Tabs } from "react-bootstrap";
+import { PublicLanguagesContainer } from "../PublicLanguages/PublicLanguagesContainer";
+import { UserLanguagesContainer } from "../UserLanguages/UserLangugesContainer";
+import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
+import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
+import { LanguageManagerProps } from "./index.types";
 
 export default function LanguageManager({
   setLanguage,
   setCreatingLanguage,
   setEditLanguage,
 }: LanguageManagerProps) {
+  const { user } = useSession();
   const [isGuestUser, setIsGuestUser] = useState(true);
   const [loadPublicLanguages, setLoadPublicLanguages] = useState(false);
 
   useEffect(() => {
-    const currentProfileString = localStorage.getItem('currentUserProfile');
-    const currentProfile = JSON.parse(currentProfileString);
+    const isGuest = user.roles.find((role) => role.toLowerCase() === "guest");
 
-    const isGuest = currentProfile.userType === UserTypes.Guest;
-    setIsGuestUser(isGuest);
-    setLoadPublicLanguages(isGuest);
-  }, []);
+    setIsGuestUser(!!isGuest);
+    setLoadPublicLanguages(!!isGuest);
+  }, [user]);
 
   const handleCreateClick = () => {
     setCreatingLanguage(true);
@@ -61,22 +60,28 @@ export default function LanguageManager({
       </Col>
 
       <Tabs
-        defaultActiveKey='userLanguages'
-        id='uncontrolled-tab'
+        defaultActiveKey="userLanguages"
+        id="uncontrolled-tab"
         onSelect={(eventKey) => {
-          if (eventKey === 'publicLanguages') {
+          if (eventKey === "publicLanguages") {
             setLoadPublicLanguages(true);
           }
         }}
       >
-        <Tab eventKey='userLanguages' title='My Languages' className='pt-3'>
+        <Tab
+          eventKey="userLanguages"
+          title="My Languages"
+          className="pt-3"
+          unmountOnExit
+        >
           <UserLanguagesContainer onLanguageClick={handleClick} />
         </Tab>
 
         <Tab
-          eventKey='publicLanguages'
-          title='Public Languages'
-          className='pt-3'
+          eventKey="publicLanguages"
+          title="Public Languages"
+          className="pt-3"
+          unmountOnExit
         >
           <PublicLanguagesContainer
             loadDataOnInit={loadPublicLanguages}

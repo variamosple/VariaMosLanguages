@@ -1,43 +1,32 @@
-import { FC } from 'react';
-import { Alert, Table } from 'react-bootstrap';
-import { Language } from '../../../Domain/ProductLineEngineering/Entities/Language';
-import { Paginator } from '../Paginator';
+import { Paginator, PaginatorProps } from "@variamosple/variamos-components";
+import { FC } from "react";
+import { Alert, Table } from "react-bootstrap";
+import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 
-export interface PublicLanguagesProps {
+export interface PublicLanguagesProps extends PaginatorProps {
   languages: Language[];
   onLanguageClick: (language: Language) => void;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
-  totalPages: number;
 }
 
 export const PublicLanguagesList: FC<PublicLanguagesProps> = ({
   languages,
   onLanguageClick,
   currentPage,
-  setCurrentPage,
+  onPageChange,
   totalPages,
 }) => {
   if (!languages?.length) {
-    return <Alert variant='info'>No results available</Alert>;
+    return <Alert variant="info">No results available</Alert>;
   }
 
-  const onPageChanges = (page: number) => {
-    if (page === currentPage) {
-      return;
-    }
-
-    setCurrentPage(page);
-  };
-
   return (
-    <div className='d-flex flex-column'>
+    <div className="d-flex flex-column">
       <Paginator
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={onPageChanges}
+        onPageChange={onPageChange}
       />
-      <Table bordered hover responsive='sm'>
+      <Table bordered hover responsive="sm">
         <thead>
           <tr>
             <th>Name</th>
@@ -49,12 +38,12 @@ export const PublicLanguagesList: FC<PublicLanguagesProps> = ({
           {languages.map((language, index) => (
             <tr
               key={index}
-              className='cursor-pointer'
+              className="cursor-pointer"
               onClick={() => onLanguageClick(language)}
             >
               <td>{language.name}</td>
               <td>{language.type}</td>
-              <td>{language?.['ownerName']}</td>
+              <td>{language?.["ownerName"]}</td>
             </tr>
           ))}
         </tbody>
@@ -62,7 +51,7 @@ export const PublicLanguagesList: FC<PublicLanguagesProps> = ({
       <Paginator
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={onPageChanges}
+        onPageChange={onPageChange}
       />
     </div>
   );

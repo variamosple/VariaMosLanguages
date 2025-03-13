@@ -1,19 +1,13 @@
-import axios, { Method } from "axios";
-import _config from "../../Infraestructure/config.json";
 import { Language } from "../../Domain/ProductLineEngineering/Entities/Language";
-
-const URL_BACKEND_LANGUAGE = process.env.REACT_APP_URLBACKENDLANGUAGE || _config.urlBackEndLanguage
+import { LANGUAGES_CLIENT } from "../../Infraestructure/AxiosConfig";
 
 export default class LanguageService {
-  apiVariamos = axios.create({
-    baseURL: URL_BACKEND_LANGUAGE,
-  });
 
   getLanguagesDetail(): Language[] {
     let languages: Language[] = [];
 
     try {
-      this.apiVariamos.get("/languages/detail").then((res) => {
+      LANGUAGES_CLIENT.get("/languages/detail").then((res) => {
         let responseAPISuccess: ResponseAPISuccess = new ResponseAPISuccess();
         responseAPISuccess = Object.assign(responseAPISuccess, res.data);
 
@@ -32,7 +26,7 @@ export default class LanguageService {
     let languages: Language[] = [];
     try {
       let url = "/languagesbyuser/" + user;
-      this.apiVariamos.get(url).then((res) => {
+      LANGUAGES_CLIENT.get(url).then((res) => {
         let responseAPISuccess: ResponseAPISuccess = new ResponseAPISuccess();
         responseAPISuccess = Object.assign(responseAPISuccess, res.data);
 
@@ -58,13 +52,8 @@ export default class LanguageService {
     };
     // Standard Request End
 
-    const config = {
-      baseURL: URL_BACKEND_LANGUAGE + "/languages",
-      method: "post" as Method,
-      data: requestBody,
-    };
     try {
-      axios(config).then((res) => {
+      LANGUAGES_CLIENT.post("/languages", requestBody).then((res) => {
         let responseAPISuccess: ResponseAPISuccess = new ResponseAPISuccess();
         responseAPISuccess = Object.assign(responseAPISuccess, res.data);
         response = responseAPISuccess.message;
@@ -103,14 +92,8 @@ export default class LanguageService {
     };
     // Standard Request End
 
-    const config = {
-      baseURL: URL_BACKEND_LANGUAGE + "/languages/" + languageId + "/" + user,
-      method: "delete" as Method,
-      data: requestBody,
-    };
-
     try {
-      axios(config).then((res) => {
+      LANGUAGES_CLIENT.delete("/languages/" + languageId + "/" + user, {data: requestBody}).then((res) => {
         let responseAPISuccess: ResponseAPISuccess = new ResponseAPISuccess();
         responseAPISuccess = Object.assign(responseAPISuccess, res.data);
         response = responseAPISuccess.message;
@@ -151,14 +134,8 @@ export default class LanguageService {
     };
     // Standard Request End
 
-    const config = {
-      baseURL: URL_BACKEND_LANGUAGE + "/languages/" + language.id,
-      method: "put" as Method,
-      data: requestBody,
-    };
-
     try {
-      axios(config).then((res) => {
+      LANGUAGES_CLIENT.put("/languages/" + language.id, requestBody).then((res) => {
         let responseAPISuccess: ResponseAPISuccess = new ResponseAPISuccess();
         responseAPISuccess = Object.assign(responseAPISuccess, res.data);
         response = responseAPISuccess.message;
@@ -191,7 +168,7 @@ export default class LanguageService {
   getLanguages(callBack: any) {
     let languages: Language[] = [];
     try {
-      this.apiVariamos.get("/languages/detail").then((res) => {
+      LANGUAGES_CLIENT.get("/languages/detail").then((res) => {
         let responseAPISuccess: ResponseAPISuccess = new ResponseAPISuccess();
         responseAPISuccess = Object.assign(responseAPISuccess, res.data);
 

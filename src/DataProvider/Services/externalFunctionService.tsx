@@ -1,18 +1,14 @@
 import axios, { Method } from "axios";
 import { ExternalFuntion } from "../../Domain/ProductLineEngineering/Entities/ExternalFuntion";
 import { ResponseAPISuccess } from "./languageService";
-import config from "../../Infraestructure/config.json";
-
+import { LANGUAGES_CLIENT } from "../../Infraestructure/AxiosConfig";
 export default class ExternalFuntionService {
   apiVariamos: any;
 
   getExternalFunctions(callback: any, languageId: number) {
-    this.apiVariamos = axios.create({
-      baseURL: process.env.REACT_APP_URLBACKENDLANGUAGE || config.urlBackEndLanguage,
-    });
     let externalFunctions: ExternalFuntion[] = [];
     try {
-      this.apiVariamos
+      LANGUAGES_CLIENT
         .get("/languages/" + languageId + "/externalfunctions")
         .then((res) => {
           let responseAPISuccess: ResponseAPISuccess = new ResponseAPISuccess();

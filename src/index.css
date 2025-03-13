@@ -1,3 +1,16 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
 .cursor-pointer {
   cursor: pointer !important;
 }
@@ -20,8 +33,7 @@
   border-color: #a3cfbb !important;
 }
 
-.copyright{ 
+.copyright {
   text-align: center;
-  margin-top: 1rem;
   color: #c0c0c0 !important;
 }

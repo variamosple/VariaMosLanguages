@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -19,18 +15,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/@typed-mxgraph"
-    ],
+    "typeRoots": ["node_modules/@types", "node_modules/@typed-mxgraph"],
     "noImplicitAny": false,
     "strictNullChecks": false,
     "sourceMap": true,
     "paths": {
-      "react": [ "./node_modules/@types/react" ]
+      "react": ["./node_modules/@types/react"]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

@@ -1,24 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Prism from "prismjs";
+import { useSession } from "@variamosple/variamos-components";
+import "prism-themes/themes/prism-vsc-dark-plus.css";
 import { highlight, languages } from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-json";
-import "prism-themes/themes/prism-vsc-dark-plus.css";
+import { Container } from "react-bootstrap";
 import Editor from "react-simple-code-editor";
 import { SourceCodeProps } from "./SourceCode.types";
-import { Container } from "react-bootstrap";
-import { UserTypes } from "../../../../../UI/SignUp/SignUp.constants";
 
 export default function SourceCode({ code, dispatcher }: SourceCodeProps) {
+  const { user } = useSession();
+
   const handleCodeChange = (currentCode) => {
-    const currentProfileString = localStorage.getItem("currentUserProfile")
-    const currentProfile = JSON.parse(currentProfileString);
+    const isGuest = user.roles.find((role) => role.toLowerCase() === "guest");
 
-    if (currentProfile.userType === UserTypes.Guest) {
-      return;
-    }
-
-    if (!currentProfile.email) {
+    if (isGuest || !user.email) {
       return;
     }
 
@@ -40,7 +36,7 @@ export default function SourceCode({ code, dispatcher }: SourceCodeProps) {
           caretColor: "gray",
           color: "gray",
           borderRadius: "10px",
-          overflow: "auto"
+          overflow: "auto",
         }}
       />
     </Container>
