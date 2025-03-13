@@ -1,20 +1,19 @@
-import * as alertify from 'alertifyjs';
 import {
-  ChangeEvent,
-  FC,
-  FormEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { Button, ButtonGroup, Col, Form, Row, Spinner } from 'react-bootstrap';
-import { PagedModel } from '../../../Domain/Core/Entity/PagedModel';
-import { ResponseModel } from '../../../Domain/Core/Entity/ResponseModel';
-import { Language } from '../../../Domain/ProductLineEngineering/Entities/Language';
-import ConfirmationModal from '../ConfirmationModal';
-import { getServiceUrl } from '../LanguageManager/index.utils';
-import { UserLanguagesList } from './UserLanguagesList';
+  usePaginatedQuery,
+  useSession,
+  withPageVisit,
+} from "@variamosple/variamos-components";
+import * as alertify from "alertifyjs";
+import { ChangeEvent, FC, FormEvent, useEffect, useState } from "react";
+import { Button, ButtonGroup, Col, Form, Row, Spinner } from "react-bootstrap";
+import {
+  deleteLanguage,
+  queryUserLanguages,
+} from "../../../DataProvider/Services/languagesService";
+import { PagedModel } from "../../../Domain/Core/Entity/PagedModel";
+import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
+import ConfirmationModal from "../ConfirmationModal";
+import { UserLanguagesList } from "./UserLanguagesList";
 
 export class LanguagesFilter extends PagedModel {
   constructor(
@@ -27,7 +26,7 @@ export class LanguagesFilter extends PagedModel {
   }
 }
 
-const defaultFormValue = Object.freeze({ name: '' });
+const defaultFormValue = Object.freeze({ name: "" });
 
 export interface UserLanguagesContainerProps {
   loadDataOnInit?: boolean;
@@ -36,76 +35,28 @@ export interface UserLanguagesContainerProps {
 
 // TODO: refactor this component so it content is no more than 100 lines of Code
 
-export const UserLanguagesContainer: FC<UserLanguagesContainerProps> = ({
+const UserLanguagesContainerComponent: FC<UserLanguagesContainerProps> = ({
   loadDataOnInit = true,
   onLanguageClick = () => {},
 }) => {
-  const userId = useMemo(() => {
-    return JSON.parse(localStorage.getItem('databaseUserProfile'))?.user?.id;
-  }, []);
+  const { user } = useSession();
 
-  const [languagesFilter, setLanguagesFilter] = useState(
-    new LanguagesFilter(null, userId)
-  );
-  const [isLoading, setIsloading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [languages, setLanguages] = useState<Language[]>([]);
-  const [totalPages, setTotalPages] = useState(0);
   const [formValue, setFormValue] = useState({ ...defaultFormValue });
   const [showDelete, setShowDelete] = useState(false);
   const [toDeleteLanguage, setToDeleteLanguage] = useState<Language>();
 
-  const loadLanguages = useCallback(
-    (filter: LanguagesFilter = new LanguagesFilter(null, userId)) => {
-      setIsloading(true);
-      setLanguagesFilter(filter);
-
-      // TODO: move to a service
-      const route = getServiceUrl('v2', 'users', filter.userId, 'languages');
-      const url = new URL(route);
-      const params = url.searchParams;
-      if (filter.name) {
-        params.append('name', filter.name);
-      }
-      params.append('pageNumber', filter.pageNumber.toString());
-      params.append('pageSize', filter.pageSize.toString());
-
-      fetch(url)
-        .then(async (httpResponse) => {
-          const responseContent = await httpResponse.json();
-          const result: ResponseModel<Language[]> = new ResponseModel<
-            Language[]
-          >();
-          Object.assign(result, { data: [] }, responseContent);
-
-          if (!httpResponse.ok) {
-            throw new Error(`${result.errorCode}: ${result.message}`);
-          }
-
-          setLanguages(result.data);
-          setTotalPages(Math.ceil((result.totalCount || 0) / 20));
-        })
-        .catch((error) => {
-          console.log(
-            `Error trying to connect to the ${route} service. Error: ${error}`
-          );
-          setLanguages([]);
-        })
-        .finally(() => {
-          setIsloading(false);
-        });
-    },
-    [userId]
-  );
-
-  const onPageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-    loadLanguages(
-      Object.assign(new LanguagesFilter(null, userId), languagesFilter, {
-        pageNumber,
-      })
-    );
-  };
+  const {
+    data: languages,
+    loadData: loadLanguages,
+    isLoading,
+    currentPage,
+    onPageChange,
+    totalPages,
+    filter: languagesFilter,
+  } = usePaginatedQuery<LanguagesFilter, Language>({
+    queryFunction: queryUserLanguages,
+    initialFilter: new LanguagesFilter(null, user?.id),
+  });
 
   const onClear = () => {
     setFormValue({ ...defaultFormValue });
@@ -113,8 +64,7 @@ export const UserLanguagesContainer: FC<UserLanguagesContainerProps> = ({
 
   const onReset = () => {
     setFormValue({ ...defaultFormValue });
-    setCurrentPage(1);
-    loadLanguages(new LanguagesFilter(null, userId));
+    loadLanguages(new LanguagesFilter(null, user?.id));
   };
 
   const hanldeOnChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +79,6 @@ export const UserLanguagesContainer: FC<UserLanguagesContainerProps> = ({
       .filter(([_, value]) => value !== null && value !== undefined)
       .forEach(([key, value]) => (filterValues[key] = value));
 
-    setCurrentPage(1);
     loadLanguages(
       Object.assign(
         new LanguagesFilter(),
@@ -139,37 +88,20 @@ export const UserLanguagesContainer: FC<UserLanguagesContainerProps> = ({
     );
   };
 
-  const deleteLanguage = (language: Language) => {
+  const onDeleteLanguage = (language: Language) => {
     const { id, userId } = language || {};
 
-    // TODO: move to a service
-    const route = getServiceUrl('languages', id, userId);
-    const url = new URL(route);
+    alertify.notify("Deleting language...", "info");
 
-    alertify.notify('Deleting language...', 'info');
-    fetch(url, { method: 'DELETE' })
-      .then(async (httpResponse) => {
-        const responseContent = await httpResponse.json();
-        const result: ResponseModel<Language[]> = new ResponseModel<
-          Language[]
-        >();
-        Object.assign(result, { data: [] }, responseContent);
-
-        if (!httpResponse.ok) {
-          throw new Error(`${result.errorCode}: ${result.message}`);
-        }
-
+    deleteLanguage(id, userId).then((response) => {
+      if (response.errorCode) {
+        alertify.error("Error when trying to delete the language");
+      } else {
         alertify.dismissAll();
-        alertify.success('Language deleted successfully');
-        onPageChange(1);
-      })
-      .catch((error) => {
-        console.log(
-          `Error trying to connect to the ${route} service. Error: ${error}`
-        );
-
-        alertify.error('Error when trying to delete the language');
-      });
+        alertify.success("Language deleted successfully");
+        onPageChange(currentPage);
+      }
+    });
   };
 
   const onLanguageDelete = (language: Language) => {
@@ -179,20 +111,20 @@ export const UserLanguagesContainer: FC<UserLanguagesContainerProps> = ({
 
   useEffect(() => {
     if (loadDataOnInit) {
-      loadLanguages();
+      loadLanguages(new LanguagesFilter(null, user?.id));
     }
-  }, [loadDataOnInit, loadLanguages]);
+  }, [loadDataOnInit, loadLanguages, user?.id]);
 
   if (isLoading) {
     return (
-      <div className='w-100 text-center'>
+      <div className="w-100 text-center">
         <Spinner
-          animation='border'
-          role='status'
-          variant='primary'
-          className='mx-3'
+          animation="border"
+          role="status"
+          variant="primary"
+          className="mx-3"
         >
-          <span className='visually-hidden'>Loading...</span>
+          <span className="visually-hidden">Loading...</span>
         </Spinner>
       </div>
     );
@@ -201,37 +133,37 @@ export const UserLanguagesContainer: FC<UserLanguagesContainerProps> = ({
   return (
     <div>
       <Form onSubmit={onSubmit}>
-        <Row className='mb-3'>
+        <Row className="mb-3">
           <Col xs={12} sm lg={9}>
             <Form.Control
-              name='name'
-              type='text'
-              placeholder='Find a language...'
+              name="name"
+              type="text"
+              placeholder="Find a language..."
               value={formValue.name}
               onChange={hanldeOnChange}
             />
           </Col>
 
-          <Col xs={12} sm='auto' lg={3} className='mt-2 mt-sm-0 text-center'>
-            <ButtonGroup className='d-flex w-100'>
+          <Col xs={12} sm="auto" lg={3} className="mt-2 mt-sm-0 text-center">
+            <ButtonGroup className="d-flex w-100">
               <Button
-                type='button'
+                type="button"
                 onClick={onClear}
                 disabled={isLoading}
-                className='flex-fill'
+                className="flex-fill"
               >
                 Clear
               </Button>
               <Button
-                type='button'
+                type="button"
                 onClick={onReset}
                 disabled={isLoading}
-                className='flex-fill'
+                className="flex-fill"
               >
                 Reset
               </Button>
-              <Button type='submit' disabled={isLoading} className='flex-fill'>
-                Filter
+              <Button type="submit" disabled={isLoading} className="flex-fill">
+                Search
               </Button>
             </ButtonGroup>
           </Col>
@@ -243,16 +175,16 @@ export const UserLanguagesContainer: FC<UserLanguagesContainerProps> = ({
         onLanguageClick={onLanguageClick}
         onLanguageDelete={onLanguageDelete}
         currentPage={currentPage}
-        setCurrentPage={onPageChange}
+        onPageChange={onPageChange}
         totalPages={totalPages}
       />
 
       <ConfirmationModal
         show={showDelete}
-        message='Are you sure you want to delete the language?'
-        confirmButtonVariant='danger'
+        message="Are you sure you want to delete the language?"
+        confirmButtonVariant="danger"
         onConfirm={() => {
-          deleteLanguage(toDeleteLanguage);
+          onDeleteLanguage(toDeleteLanguage);
           setShowDelete(false);
         }}
         onCancel={() => {
@@ -263,3 +195,8 @@ export const UserLanguagesContainer: FC<UserLanguagesContainerProps> = ({
     </div>
   );
 };
+
+export const UserLanguagesContainer = withPageVisit(
+  UserLanguagesContainerComponent,
+  "UserLanguageList"
+);

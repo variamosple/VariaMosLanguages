@@ -1,13 +1,10 @@
+import { useSession } from "@variamosple/variamos-components";
 import axios from "axios";
 import { Button, ListGroup } from "react-bootstrap";
 import { People, PersonGear } from "react-bootstrap-icons";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
-import {
-  getDataBaseUserProfile,
-  getUserProfile,
-} from "../../../UI/SignUp/SignUp.utils";
-import AutocompleteUserSearch from "./AutocompleteUserSearch";
 import { UseLanguageReviewOutput } from "../../hooks/useLanguageReview.type";
+import AutocompleteUserSearch from "./AutocompleteUserSearch";
 import { ExternalServices } from "./index.constants";
 import { Service } from "./index.structures";
 import { Review, ReviewUser } from "./index.types";
@@ -30,10 +27,9 @@ export default function LanguageReview({
   users: ReviewUser[];
   selectedLanguage: Language;
 }) {
-  const handleStartReviewClick = () => {
-    const userDBProfile = getDataBaseUserProfile();
-    const userLoginProfile = getUserProfile();
+  const { user } = useSession();
 
+  const handleStartReviewClick = () => {
     axios
       .post(
         Service(ExternalServices.LanguageReviewDomain).getAll(
@@ -42,8 +38,8 @@ export default function LanguageReview({
         {
           languageId: selectedLanguage.id,
           status: "review",
-          languageOwner: userDBProfile.user.id,
-          languageOwnerEmail: userLoginProfile.email,
+          languageOwner: user.id,
+          languageOwnerEmail: user.email,
         }
       )
       .then(({ data }) => {

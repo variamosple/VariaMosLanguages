@@ -1,18 +1,21 @@
-import { useState } from "react";
+import { Events, PAGE_VISIT_EVENT } from "@variamosple/variamos-components";
+import { useEffect, useState } from "react";
+import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import LanguageDetail from "../../components/LanguageDetail";
 import LanguageManager from "../../components/LanguageManager";
 import LanguagePageLayout from "../../components/LanguagePageLayout";
 import LanguageReview from "../../components/LanguageReview";
-import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import LanguageContextProvider from "../../context/LanguageContext/LanguageContextProvider";
-import useUsers from "../../hooks/useUsers";
 import useLanguageReview from "../../hooks/useLanguageReview";
+import useUsers from "../../hooks/useUsers";
 
 export default function LanguagePage() {
   const [language, setLanguage] = useState<Language | null>(null);
   const [isCreatingLanguage, setCreatingLanguage] = useState(false);
   const [showLanguageManager, setShowLanguageManager] = useState(null);
-  const [showLanguageDetail, setShowLanguageDetail] = useState({display:"none"}); 
+  const [showLanguageDetail, setShowLanguageDetail] = useState({
+    display: "none",
+  });
 
   const users = useUsers();
   const {
@@ -26,7 +29,7 @@ export default function LanguagePage() {
     setEnableReviewButton,
     selectedUsers,
     setSelectedUsers,
-    setComment
+    setComment,
   } = useLanguageReview({
     selectedLanguage: language,
     users,
@@ -34,13 +37,21 @@ export default function LanguagePage() {
 
   const setEditLanguage = (edit) => {
     if (edit) {
-      setShowLanguageManager({display:"none"});
-      setShowLanguageDetail(null); 
-    }else{
+      setShowLanguageManager({ display: "none" });
+      setShowLanguageDetail(null);
+    } else {
       setShowLanguageManager(null);
-      setShowLanguageDetail({display:"none"});
+      setShowLanguageDetail({ display: "none" });
     }
-  }
+  };
+
+  useEffect(() => {
+    if (!showLanguageDetail) {
+      Events.publish(PAGE_VISIT_EVENT, {
+        id: isCreatingLanguage ? "CreateLanguage" : "EditLanguage",
+      });
+    }
+  }, [showLanguageDetail, isCreatingLanguage]);
 
   return (
     <LanguageContextProvider>

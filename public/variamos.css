@@ -30,13 +30,7 @@ html{
 
 body{
   margin: 0px;
-  padding: 0px;  
-  background-color: var(--dark-color-font);
-} 
-
-.bodyContent{ 
-  background-color: white;
-  min-height: 100vh;
+  padding: 0px;
 } 
 
 /* General design
@@ -255,18 +249,6 @@ a:hover {
 
 ::-webkit-scrollbar-thumb:window-inactive {
   background: rgba(255, 255, 255, 0.3);
-}
-
-
-footer{
-  background-color: var(--dark-color-font);
-  height: 100%;
-  color: white;
-  padding-top: 3rem;
-}
-
-footer .copyright{
-  text-align: center;
 }
 
 .form-control{

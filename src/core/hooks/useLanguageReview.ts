@@ -1,6 +1,5 @@
+import { useSession } from "@variamosple/variamos-components";
 import { useEffect, useState } from "react";
-import { UserTypes } from "../../UI/SignUp/SignUp.constants";
-import { getUserProfile } from "../../UI/SignUp/SignUp.utils";
 import { ExternalServices } from "../components/LanguageReview/index.constants";
 import { Review, ReviewUser } from "../components/LanguageReview/index.types";
 import {
@@ -8,7 +7,10 @@ import {
   getReviewers,
 } from "../components/LanguageReview/index.utils";
 import { joinPath } from "../utils/PathUtils";
-import { UseLanguageReviewOutput, UseLanguageReviewProps } from "./useLanguageReview.type";
+import {
+  UseLanguageReviewOutput,
+  UseLanguageReviewProps,
+} from "./useLanguageReview.type";
 
 export default function useLanguageReview({
   selectedLanguage,
@@ -20,27 +22,24 @@ export default function useLanguageReview({
   const [enableReviewButton, setEnableReviewButton] = useState<boolean>(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [comment, setComment] = useState(null);
+  const { user } = useSession();
 
   useEffect(() => {
-    const userLoginProfile = getUserProfile();
+    const isGuest = user.roles.find((role) => role.toLowerCase() === "guest");
 
-    if (userLoginProfile.userType === UserTypes.Guest) {
-      return;
-    }
-
-    if (!selectedLanguage) {
+    if (isGuest || !selectedLanguage) {
       return;
     }
 
     const servicePath = joinPath(
-      process.env.REACT_APP_URLBACKENDLANGUAGEREVIEWS || ExternalServices.LanguageReviewDomain,
+      process.env.REACT_APP_URLBACKENDLANGUAGEREVIEWS ||
+        ExternalServices.LanguageReviewDomain,
       ExternalServices.LanguageReviewsContext,
       ExternalServices.LanguageResource,
       String(selectedLanguage.id)
     );
 
     const fetchData = async () => {
-
       try {
         const response = await fetch(servicePath);
         const data = await response.json();
@@ -64,10 +63,11 @@ export default function useLanguageReview({
         setEnableReviewButton(false);
         setOwner(owner);
       } catch (error) {
-        console.log(`Error trying to connect to the ${servicePath} service. Error ${(error)}`);
+        console.log(
+          `Error trying to connect to the ${servicePath} service. Error ${error}`
+        );
       }
-      
-    }
+    };
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
