@@ -395,7 +395,7 @@ export default class ProjectService {
 
   getUser(){
     let userId = "0";
-    let databaseUserProfile = sessionStorage.getItem("databaseUserProfile");
+    let databaseUserProfile = localStorage.getItem("databaseUserProfile");
     if (databaseUserProfile) {
       let data = JSON.parse(databaseUserProfile);
       userId = data.user.id;

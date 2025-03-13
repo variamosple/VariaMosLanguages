@@ -13,6 +13,7 @@ export default function ElementTab() {
     icon: "iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAABmSURBVGhD7ZkxDsAgAIS0//9z2xjs4BMKDJK4SW5z3i9DzIW1fAuYc64LC3v4LeBcwC7zV8536hdQAKylAFhLAbCWAmAtBcBaCoC1FABrKQDWUgCspQBYSwGwln6G1imm32EsZYwH6mkgKD+7AsEAAAAASUVORK5CYII=",
     height: "33",
     width: "100",
+    overlays: [],
     label_property:"",
     resizable:true,
     properties: []
