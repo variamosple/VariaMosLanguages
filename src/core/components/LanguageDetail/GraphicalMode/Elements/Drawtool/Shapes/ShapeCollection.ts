@@ -162,6 +162,7 @@ export class ShapeCollection {
         const offset = 100;
         let textElements: TextElement[] = [];
 
+        this.shapeAttributes = this.shapeAttributes || {};
         // Preparar los atributos
         if (!this.shapeAttributes["name"]) this.shapeAttributes["name"] = "compositeShape";
         if (!this.shapeAttributes["aspect"]) this.shapeAttributes["aspect"] = "variable";
