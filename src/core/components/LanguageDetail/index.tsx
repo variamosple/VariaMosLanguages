@@ -314,7 +314,7 @@ export default function LanguageDetail({
           className="btn-Variamos-yellow"
           onClick={NoBackEndPopUp}
         >
-          Historic
+          History
         </Button>
         <Button
           variant="primary"

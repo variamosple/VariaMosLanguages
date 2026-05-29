@@ -36,7 +36,8 @@ export const PublicLanguagesList: FC<PublicLanguagesProps> = ({
         </thead>
         <tbody>
           {languages.map((language, index) => (
-            <tr
+            (language.stateAccept.toLowerCase()==="active") && 
+            (<tr
               key={index}
               className="cursor-pointer"
               onClick={() => onLanguageClick(language)}
@@ -44,7 +45,7 @@ export const PublicLanguagesList: FC<PublicLanguagesProps> = ({
               <td>{language.name}</td>
               <td>{language.type}</td>
               <td>{language?.["ownerName"]}</td>
-            </tr>
+            </tr>)
           ))}
         </tbody>
       </Table>
