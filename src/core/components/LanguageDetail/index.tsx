@@ -286,6 +286,24 @@ export default function LanguageDetail({
         >
           Save
         </Button>
+        <Button
+          variant="primary"
+          className="btn-Variamos-green"
+        >
+          Share
+        </Button>
+        <Button
+          variant="primary"
+          className="btn-Variamos-yellow"
+        >
+          Historic
+        </Button>
+        <Button
+          variant="primary"
+          className="btn-Variamos-red"
+        >
+          Delete
+        </Button>
       </div>
       <br />
       <Container>
