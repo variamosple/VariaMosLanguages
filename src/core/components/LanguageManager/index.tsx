@@ -6,7 +6,7 @@ import { UserLanguagesContainer } from "../UserLanguages/UserLangugesContainer";
 import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { LanguageManagerProps } from "./index.types";
-
+import {Button} from "react-bootstrap";
 export default function LanguageManager({
   setLanguage,
   setCreatingLanguage,
@@ -40,6 +40,7 @@ export default function LanguageManager({
         <Col as={Row}>
           <Col sm={6}>
             <CreateLanguageButton handleCreateClick={handleCreateClick} />
+            <button>Sementic Rules</button>
           </Col>
         </Col>
 
@@ -53,11 +54,13 @@ export default function LanguageManager({
 
   return (
     <LanguageManagerLayout>
-      <Col as={Row}>
-        <Col sm={6}>
-          <CreateLanguageButton handleCreateClick={handleCreateClick} />
-        </Col>
-      </Col>
+
+      <div className='d-flex gap-1'>
+        <CreateLanguageButton handleCreateClick={handleCreateClick} />
+        <Button variant="secondary">
+          Sementic Rules
+        </Button>
+      </div>
 
       <Tabs
         defaultActiveKey="userLanguages"
