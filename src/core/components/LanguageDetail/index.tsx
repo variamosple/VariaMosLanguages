@@ -30,6 +30,7 @@ import Semantics from "./Semantics";
 import ConfirmationModal, {ConfirmationModalProps, confirmationModalDefaultProps} from "../ConfirmationModal";
 import * as alertify from "alertifyjs";
 
+
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
 const DEFAULT_ELEMENTS = [];
@@ -63,6 +64,21 @@ export default function LanguageDetail({
   const [confirmModalState, setConfirmModalState] = useState<ConfirmationModalProps>({...confirmationModalDefaultProps});
 
   const [activeTab, setActiveTab] = useState('information');
+
+  /*temporary for the developpement*/
+  // const [showNoBackEndPopUp, setShowNoBackEndPopUp] = useState(false);
+  const NoBackEndPopUp = () => {
+    setConfirmModalState({
+      ...confirmationModalDefaultProps,
+      show: true,
+      message: "For now, there's no Back-end linked to this functionnality. Sorry for the inconvenience.",
+      onConfirm: () => {
+        setConfirmModalState((currentState) => ({...currentState, show: false, }));
+      },
+      onCancel: () => setConfirmModalState((currentState) => ({...currentState, show: false})),
+    });
+  }
+  /*------------------------------*/
 
   const {
     abstractSyntax,
@@ -289,18 +305,21 @@ export default function LanguageDetail({
         <Button
           variant="primary"
           className="btn-Variamos-green"
+          onClick={NoBackEndPopUp}
         >
           Share
         </Button>
         <Button
           variant="primary"
           className="btn-Variamos-yellow"
+          onClick={NoBackEndPopUp}
         >
           Historic
         </Button>
         <Button
           variant="primary"
           className="btn-Variamos-red"
+          onClick={NoBackEndPopUp}
         >
           Delete
         </Button>
