@@ -36,7 +36,7 @@ export const PublicLanguagesList: FC<PublicLanguagesProps> = ({
         </thead>
         <tbody>
           {languages.map((language, index) => (
-            (language.stateAccept.toLowerCase()==="active") && 
+            // (language.stateAccept.toLowerCase()==="active") && 
             (<tr
               key={index}
               className="cursor-pointer"

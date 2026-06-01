@@ -28,6 +28,7 @@ import { Tab, Tabs } from "react-bootstrap";
 import CreationModeButton from "../LanguageManager/CreationModeButton/CreationModeButton";
 import Semantics from "./Semantics";
 import ConfirmationModal, {ConfirmationModalProps, confirmationModalDefaultProps} from "../ConfirmationModal";
+import NoBackEndModal, { NoBackEndModalProps, NoBackEndModalDefaultProps } from "../NoBackEndModal";
 import * as alertify from "alertifyjs";
 
 
@@ -62,23 +63,19 @@ export default function LanguageDetail({
   const { saveComment } = useComment({ setComment });
   const { setCreatingMode } = useLanguageContext();
   const [confirmModalState, setConfirmModalState] = useState<ConfirmationModalProps>({...confirmationModalDefaultProps});
+  const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
 
   const [activeTab, setActiveTab] = useState('information');
 
-  /*temporary for the developpement*/
-  // const [showNoBackEndPopUp, setShowNoBackEndPopUp] = useState(false);
+/*Temporary for Developpment*/
   const NoBackEndPopUp = () => {
-    setConfirmModalState({
-      ...confirmationModalDefaultProps,
+    setNoBackEndModalState({
+      ...NoBackEndModalDefaultProps,
       show: true,
-      message: "For now, there's no Back-end linked to this functionnality. Sorry for the inconvenience.",
-      onConfirm: () => {
-        setConfirmModalState((currentState) => ({...currentState, show: false, }));
-      },
-      onCancel: () => setConfirmModalState((currentState) => ({...currentState, show: false})),
+      onCancel: () => setNoBackEndModalState((currentState) => ({...currentState, show: false})),
     });
   }
-  /*------------------------------*/
+/*------------------------------*/
 
   const {
     abstractSyntax,
@@ -453,6 +450,9 @@ export default function LanguageDetail({
         </Tab>
       </Tabs>
       <ConfirmationModal {...confirmModalState} />
+      
+      {/* To be delete*/}
+      <NoBackEndModal {...noBackEndModalState} />
     </>
   );
 }

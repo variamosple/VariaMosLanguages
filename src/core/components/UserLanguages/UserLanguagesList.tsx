@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Paginator, PaginatorProps } from "@variamosple/variamos-components";
 import { FC } from "react";
 import { Alert, Button, ButtonGroup, Table } from "react-bootstrap";
-import { Trash } from "react-bootstrap-icons";
+import { Trash, Share } from "react-bootstrap-icons";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
+import NoBackEndModal, { NoBackEndModalProps, NoBackEndModalDefaultProps } from "../NoBackEndModal";
+
 
 export interface UserLanguagesProps extends PaginatorProps {
   languages: Language[];
@@ -18,6 +21,18 @@ export const UserLanguagesList: FC<UserLanguagesProps> = ({
   onPageChange,
   totalPages,
 }) => {
+
+    /*To be delete in the end */
+    const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
+      const NoBackEndPopUp = () => {
+        setNoBackEndModalState({
+          ...NoBackEndModalDefaultProps,
+          show: true,
+          onCancel: () => setNoBackEndModalState((currentState) => ({...currentState, show: false})),
+        });
+      }
+    /*--------------------------*/
+
   if (!languages?.length) {
     return <Alert variant="info">No results available</Alert>;
   }
@@ -61,6 +76,13 @@ export const UserLanguagesList: FC<UserLanguagesProps> = ({
                   >
                     <Trash />
                   </Button>
+                  <Button
+                    className="btn-Variamos-green"
+                    title="Share Language"
+                    onClick={NoBackEndPopUp}>
+                      <Share/>
+                    </Button>
+                  
                 </ButtonGroup>
               </td>
             </tr>
@@ -72,6 +94,8 @@ export const UserLanguagesList: FC<UserLanguagesProps> = ({
         totalPages={totalPages}
         onPageChange={onPageChange}
       />
+    {/* To be delete*/}
+    <NoBackEndModal {...noBackEndModalState} />
     </div>
   );
 };
