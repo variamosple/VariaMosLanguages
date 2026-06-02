@@ -13,6 +13,7 @@ export interface UserLanguagesProps extends PaginatorProps {
   onLanguageDelete: (language: Language) => void;
 }
 
+
 export const UserLanguagesList: FC<UserLanguagesProps> = ({
   languages,
   onLanguageClick,
@@ -68,7 +69,7 @@ export const UserLanguagesList: FC<UserLanguagesProps> = ({
                 {language.type}
               </td>
               <td className="text-center">
-                <ButtonGroup size="sm">
+                <div className='d-flex gap-1'>
                   <Button
                     variant="danger"
                     onClick={() => onLanguageDelete(language)}
@@ -81,9 +82,9 @@ export const UserLanguagesList: FC<UserLanguagesProps> = ({
                     title="Share Language"
                     onClick={NoBackEndPopUp}>
                       <Share/>
-                    </Button>
+                  </Button>
                   
-                </ButtonGroup>
+                </div>
               </td>
             </tr>
           ))}

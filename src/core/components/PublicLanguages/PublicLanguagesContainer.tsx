@@ -16,7 +16,7 @@ export class LanguagesFilter extends PagedModel {
     public userId?: string,
     pageNumber?: number,
     pageSize?: number,
-    stateAccept?: string
+    // stateAccept?: string
   ) {
     super(pageNumber, pageSize);
   }

@@ -1,13 +1,15 @@
 import { useSession } from "@variamosple/variamos-components";
 import { useEffect, useState } from "react";
 import { Col, Row, Tab, Tabs } from "react-bootstrap";
-import { PublicLanguagesContainer } from "../PublicLanguages/PublicLanguagesContainer";
 import { UserLanguagesContainer } from "../UserLanguages/UserLangugesContainer";
+import { PublicLanguagesContainer } from "../PublicLanguages/PublicLanguagesContainer";
+import { LanguagesContainer } from "../LanguageTable/LanguagesContainer";
 import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { LanguageManagerProps } from "./index.types";
 import {Button} from "react-bootstrap";
 import NoBackEndModal, {NoBackEndModalDefaultProps,NoBackEndModalProps} from "../NoBackEndModal";
+import { queryLanguages } from "../../../DataProvider/Services/languagesService";
 
 export default function LanguageManager({
   setLanguage,
@@ -83,7 +85,7 @@ export default function LanguageManager({
         defaultActiveKey="userLanguages"
         id="uncontrolled-tab"
         onSelect={(eventKey) => {
-          if (eventKey === "publicLanguages") {
+          if (eventKey !== "userLanguages") {
             setLoadPublicLanguages(true);
           }
         }}
@@ -107,6 +109,21 @@ export default function LanguageManager({
             loadDataOnInit={loadPublicLanguages}
             onLanguageClick={handleClick}
           />
+        </Tab>
+        <Tab 
+          eventKey="allLanguages"
+          title="All Languages"
+          className="pt-3"
+          unmountOnExit
+          >
+            <LanguagesContainer
+            state={true}
+            del={true}
+            approve={true}
+            queryFunction={queryLanguages}
+            loadDataOnInit={loadPublicLanguages}
+            onLanguageClick={handleClick}
+            />
         </Tab>
       </Tabs>
     {/* To be deleted in the end */}

@@ -89,4 +89,13 @@ body {
   background-color: var(--yellow-color-contrast);
   border-color: var(--yellow-color-contrast);
 }
+
+.center {
+  text-align: center;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /*----------------------------*/
