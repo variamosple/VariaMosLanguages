@@ -89,13 +89,13 @@ export const LanguagesList: FC<LanguagesProps> = ({
                     onClick={NoBackEndPopUp}>
                       <XLg/>
                   </Button>)}
-                  {share && (<Button
+                  {share && language.accessLevel.toLowerCase() == "owner" && (<Button
                     className="btn-Variamos-green"
                     title="Share Language"
                     onClick={NoBackEndPopUp}>
                       <Share/>
                   </Button>)}
-                  {del && (<Button
+                  {del && language.accessLevel.toLowerCase() == "owner" && (<Button
                     variant="danger"
                     onClick={() => onLanguageDelete(language)}
                     title="Delete language"

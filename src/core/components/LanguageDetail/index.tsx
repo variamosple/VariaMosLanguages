@@ -1,3 +1,4 @@
+import { useSession } from "@variamosple/variamos-components";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -30,6 +31,7 @@ import Semantics from "./Semantics";
 import ConfirmationModal, {ConfirmationModalProps, confirmationModalDefaultProps} from "../ConfirmationModal";
 import NoBackEndModal, { NoBackEndModalProps, NoBackEndModalDefaultProps } from "../NoBackEndModal";
 import * as alertify from "alertifyjs";
+import { set } from "immer/dist/internal";
 
 
 const DEFAULT_SYNTAX = "{}";
@@ -53,6 +55,7 @@ export default function LanguageDetail({
   setComment,
   setEditLanguage
 }: LanguageDetailProps) {
+  const { user } = useSession()
   const [showSpinner, setShowSpinner] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
@@ -64,9 +67,24 @@ export default function LanguageDetail({
   const { setCreatingMode } = useLanguageContext();
   const [confirmModalState, setConfirmModalState] = useState<ConfirmationModalProps>({...confirmationModalDefaultProps});
   const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
-
+  const [isOwner, setIsOwner] = useState(false);
+  const [isUserWithSharedAcces, setIsUserWithSharedAcces] = useState(false);
   const [activeTab, setActiveTab] = useState('information');
 
+  useEffect(() => {
+    if (language?.accessLevel?.toLowerCase() == "owner") {
+      setIsOwner(true);
+      setIsUserWithSharedAcces(true);      
+    }
+    else if (language?.accessLevel?.toLowerCase() == "shared") {
+      setIsUserWithSharedAcces(true);
+    }
+    else {
+      setIsUserWithSharedAcces(false);
+      setIsOwner(false);
+    }
+    
+  },[user, language])
 /*Temporary for Developpment*/
   const NoBackEndPopUp = () => {
     setNoBackEndModalState({
@@ -262,7 +280,7 @@ export default function LanguageDetail({
     setConfirmModalState({
       ...confirmationModalDefaultProps,
       show: true,
-      message: "All the changes will be lost. Are you sure you want to cancel?",
+      message: isUserWithSharedAcces ? "All the changes will be lost. Are you sure you want to cancel?" : "Are you sure you want to leave this page?",
       onConfirm: () => {
         setConfirmModalState((currentState) => ({...currentState, show: false, }));
         handleCancel();
@@ -292,34 +310,34 @@ export default function LanguageDetail({
         >
           Cancel
         </Button>
-        <Button
+        { isUserWithSharedAcces && (<Button
           variant="primary"
           onClick={confirmSave}
           disabled={disableSaveButton}
         >
           Save
-        </Button>
-        <Button
+        </Button>)}
+        { isOwner && (<Button
           variant="primary"
           className="btn-Variamos-green"
           onClick={NoBackEndPopUp}
         >
           Share
-        </Button>
-        <Button
+        </Button>)}
+        { isUserWithSharedAcces && (<Button
           variant="primary"
           className="btn-Variamos-yellow"
           onClick={NoBackEndPopUp}
         >
           History
-        </Button>
-        <Button
+        </Button>)}
+        { isOwner && (<Button
           variant="primary"
           className="btn-Variamos-red"
           onClick={NoBackEndPopUp}
         >
           Delete
-        </Button>
+        </Button>)}
       </div>
       <br />
       <Container>

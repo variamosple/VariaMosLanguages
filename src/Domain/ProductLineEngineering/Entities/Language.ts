@@ -8,6 +8,7 @@ export class Language {
   type: string;
   stateAccept: string;
   semantics: string;
+  accessLevel?: string;
   userId?: string;
   ownerName?: string;
 
@@ -19,6 +20,7 @@ export class Language {
     type: string,
     stateAccept?: string,
     semantics?: string,
+    accessLevel?: string,
     userId?: string,
     ownerName?: string
   ) {
@@ -30,6 +32,7 @@ export class Language {
     this.stateAccept = stateAccept;
     this.semantics = semantics;
     this.userId = userId;
+    this.accessLevel = accessLevel;
     this.ownerName = ownerName;
   }
 }
