@@ -15,6 +15,7 @@ export default function LanguageManager({
 }: LanguageManagerProps) {
   const { user } = useSession();
   const [isGuestUser, setIsGuestUser] = useState(true);
+  const [isLanguageDirectorUser, setIsLanguageDirectorUser] = useState(false);
   const [loadLanguages, setLoadLanguages] = useState(false);
   const [loadUserLanguages, setLoadUserLanguages] = useState(true);
   const [loadPublicLanguages, setLoadPublicLanguages] = useState(false);
@@ -32,8 +33,10 @@ export default function LanguageManager({
 
   useEffect(() => {
     const isGuest = user.roles.find((role) => role.toLowerCase() === "guest");
-
+    const isLanguageDirector = user.roles.find((role) => role.toLowerCase() === "language director");
+    console.log("User roles: ",user.roles, "\nUser id : ", user.id)
     setIsGuestUser(!!isGuest);
+    setIsLanguageDirectorUser(!!isLanguageDirector);
     setLoadLanguages(!!isGuest);
   }, [user]);
 
@@ -123,7 +126,7 @@ export default function LanguageManager({
             onLanguageClick={handleClick}
           />
         </Tab>
-        <Tab 
+        { isLanguageDirectorUser && (<Tab 
           eventKey="allLanguages"
           title="All Languages"
           className="pt-3"
@@ -134,7 +137,7 @@ export default function LanguageManager({
             loadDataOnInit={loadLanguages}
             onLanguageClick={handleClick}
             />
-        </Tab>
+        </Tab>)}
       </Tabs>
     {/* To be deleted in the end */}
     <NoBackEndModal {...noBackEndModalState} />
