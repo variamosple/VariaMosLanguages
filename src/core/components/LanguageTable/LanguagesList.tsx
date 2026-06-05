@@ -77,25 +77,25 @@ export const LanguagesList: FC<LanguagesProps> = ({
               <td onClick={() => onLanguageClick(language)}>{language?.["ownerName"]}</td>
               {(del || approve || share) && (<td className="text-center">
                 <div className='d-flex gap-1 center'>
-                  {approve && (language.stateAccept.toLowerCase()=="pending") && (<Button
+                  {approve && (language?.stateAccept?.toLowerCase()=="pending") && (<Button
                     className="btn-Variamos-green"
                     title="Approve Language"
                     onClick={NoBackEndPopUp}>
                       <CheckLg/>
                   </Button>)}
-                  {approve && (language.stateAccept.toLowerCase()=="active") && (<Button
+                  {approve && (language?.stateAccept?.toLowerCase()=="active") && (<Button
                     className="btn-Variamos-yellow"
                     title="Disapprove Language"
                     onClick={NoBackEndPopUp}>
                       <XLg/>
                   </Button>)}
-                  {share && language.accessLevel.toLowerCase() == "owner" && (<Button
+                  {share && language?.accessLevel?.toLowerCase() == "owner" && (<Button
                     className="btn-Variamos-green"
                     title="Share Language"
                     onClick={NoBackEndPopUp}>
                       <Share/>
                   </Button>)}
-                  {del && language.accessLevel.toLowerCase() == "owner" && (<Button
+                  {((del && language?.accessLevel?.toLowerCase() == "owner") || (del && approve)) && (<Button
                     variant="danger"
                     onClick={() => onLanguageDelete(language)}
                     title="Delete language"
