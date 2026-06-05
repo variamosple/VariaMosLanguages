@@ -1,10 +1,11 @@
 import {
   usePaginatedQuery,
   withPageVisit,
+  useSession,
 } from "@variamosple/variamos-components";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
-import { queryLanguages, queryUserLanguages } from "../../../DataProvider/Services/languagesService";
+import { queryLanguages, queryPublicLanguages, queryUserLanguages } from "../../../DataProvider/Services/languagesService";
 import { PagedModel } from "../../../Domain/Core/Entity/PagedModel";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import { SearchForm } from "../SearchForm";
@@ -12,7 +13,7 @@ import { LanguagesList } from "./LanguagesList";
 import { deleteLanguage } from "../../../DataProvider/Services/languagesService";
 import ConfirmationModal from "../ConfirmationModal";
 import * as alertify from "alertifyjs";
-import { set } from "immer/dist/internal";
+
 
 export class LanguagesFilter extends PagedModel {
   constructor(
@@ -20,17 +21,13 @@ export class LanguagesFilter extends PagedModel {
     public userId?: string,
     pageNumber?: number,
     pageSize?: number,
-    stateAccept?: string
   ) {
     super(pageNumber, pageSize);
   }
 }
 
 export interface LanguagesContainerProps {
-  state? : boolean;
-  del? : boolean;
-  share? : boolean;
-  approve? : boolean;
+  variant : "user" | "public" | "languageDirector";
   loadDataOnInit?: boolean;
   eventKey?: string;
   queryFunction?;
@@ -38,16 +35,33 @@ export interface LanguagesContainerProps {
 }
 
 function LanguagesContainerComponent ({
-  state = false,
-  del = false,
-  share = false,
-  approve = false,
-  queryFunction,
-  // onLanguageShare, // To be continued
-  // onLanguageApproved, // To be continued 
+  variant,
   loadDataOnInit,
   onLanguageClick
 } : LanguagesContainerProps) : JSX.Element {
+
+  let queryFunction;
+  let [state, del, share, approve] = [false,false,false,false]
+  const { user } = useSession();
+  let parameters = {name : null, userId : null};
+  
+  switch (variant) {
+    case "user" :
+      queryFunction = queryUserLanguages;
+      share = true;
+      del = true;
+      parameters = {name : null, userId : user?.id};
+      break;
+    case "languageDirector" :
+      queryFunction = queryLanguages;
+      state = true;
+      del = true;
+      approve = true;
+      break;
+    default:
+      queryFunction = queryPublicLanguages;
+      break;
+  }
 
   const {
     data: languages,
@@ -59,14 +73,14 @@ function LanguagesContainerComponent ({
     filter: languagesFilter,
   } = usePaginatedQuery<LanguagesFilter, Language>({
     queryFunction: queryFunction,
-    initialFilter: new LanguagesFilter(),
+    initialFilter: new LanguagesFilter(parameters.name, parameters.userId),
   });
 
   const [showDelete, setShowDelete] = useState(false);
   const [toDeleteLanguage, setToDeleteLanguage] = useState<Language>();
 
   const onReset = () => {
-    loadLanguages(new LanguagesFilter());
+    loadLanguages(new LanguagesFilter(parameters.name, parameters.userId));
   };
 
    const onLanguageDelete = (language: Language) => {
@@ -93,7 +107,7 @@ function LanguagesContainerComponent ({
 
   const onSubmit = (name: string) => {
     loadLanguages(
-      Object.assign(new LanguagesFilter(), {
+      Object.assign(new LanguagesFilter(parameters.name, parameters.userId), {
         ...languagesFilter,
         name,
         pageNumber: 1,
@@ -103,9 +117,9 @@ function LanguagesContainerComponent ({
 
   useEffect(() => {
     if (loadDataOnInit) {
-      loadLanguages(new LanguagesFilter());
+      loadLanguages(new LanguagesFilter(parameters.name, parameters.userId));
     }
-  }, [loadDataOnInit, loadLanguages]);
+  }, [loadDataOnInit, loadLanguages, user?.id]);
 
   return (
     <div>

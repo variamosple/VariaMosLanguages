@@ -69,11 +69,13 @@ export const LanguagesList: FC<LanguagesProps> = ({
               key={index}
               className="cursor-pointer"
             >
-              <td onClick={() => onLanguageClick(language)}>{language.name}</td>
-              <td onClick={() => onLanguageClick(language)}>{language.type}</td>
+              <td 
+              onClick={() => onLanguageClick(language)}>{language.name}</td>
+              <td 
+              onClick={() => onLanguageClick(language)}>{language.type}</td>
               {state && (<td onClick={() => onLanguageClick(language)}>{language.stateAccept}</td>)}
               <td onClick={() => onLanguageClick(language)}>{language?.["ownerName"]}</td>
-              <td className="text-center">
+              {(del || approve || share) && (<td className="text-center">
                 <div className='d-flex gap-1 center'>
                   {approve && (language.stateAccept.toLowerCase()=="pending") && (<Button
                     className="btn-Variamos-green"
@@ -95,13 +97,13 @@ export const LanguagesList: FC<LanguagesProps> = ({
                   </Button>)}
                   {del && (<Button
                     variant="danger"
-                    onClick={NoBackEndPopUp}
+                    onClick={() => onLanguageDelete(language)}
                     title="Delete language"
                   >
                     <Trash />
                   </Button>)}                  
                 </div>
-              </td>
+              </td>)}
             </tr>)
           )}
         </tbody>
