@@ -9,7 +9,10 @@
         "lines": 1,
         "statements": 1
       }
-    }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@variamosple/variamos-components)/)"
+    ]
   },
   "engines": {
     "node": ">=16.18.1"
@@ -49,7 +52,8 @@
     "docker:clear": "docker stop variamos-languages; docker rm variamos-languages; docker rmi variamos-languages:latest;",
     "docker:build": "docker build -t variamos-languages:latest .",
     "docker:ci": "yarn docker:build && yarn docker:clear",
-    "docker:deploy": "yarn docker:build && docker run -d --name variamos-languages -p 3000:3000 variamos-languages:latest"
+    "docker:deploy": "yarn docker:build && docker run -d --name variamos-languages -p 3000:3000 variamos-languages:latest",
+    "cy:open": "cypress open"
   },
   "eslintConfig": {
     "extends": [
@@ -80,6 +84,7 @@
     "@types/react": "^18.3.18",
     "@types/react-bootstrap": "^0.32.32",
     "@types/react-color": "^3.0.6",
-    "@types/react-dom": "^18.3.5"
+    "@types/react-dom": "^18.3.5",
+    "cypress": "^9.7.0"
   }
 }
