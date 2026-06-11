@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useSession } from "@variamosple/variamos-components";
+import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { Paginator, PaginatorProps } from "@variamosple/variamos-components";
 import { FC } from "react";
 import { Alert, Table } from "react-bootstrap";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
-import { Trash, Share, CheckLg, XLg } from "react-bootstrap-icons";
+import { Trash, Share, CheckLg, XLg, ArrowClockwise } from "react-bootstrap-icons";
 
 import NoBackEndModal, {NoBackEndModalDefaultProps,NoBackEndModalProps} from "../NoBackEndModal";
 export interface LanguagesProps extends PaginatorProps {
@@ -41,6 +42,12 @@ export const LanguagesList: FC<LanguagesProps> = ({
       });
     }
   /*--------------------------*/
+  const { user } = useSession();
+  const isLanguageDirector = useState(false);
+
+  useEffect(() => {
+    console.log("isLanguageDirector", isLanguageDirector);
+  }, [user]);
 
   if (!languages?.length) {
     return <Alert variant="info">No results available</Alert>;
@@ -56,6 +63,7 @@ export const LanguagesList: FC<LanguagesProps> = ({
       <Table bordered hover responsive="sm">
         <thead>
           <tr>
+            {approve && <th>Id</th>}
             <th>Name</th>
             <th>Type</th>
             {state && <th>Status</th>}
@@ -69,6 +77,8 @@ export const LanguagesList: FC<LanguagesProps> = ({
               key={index}
               className="cursor-pointer"
             >
+              {approve && (<td 
+              onClick={() => onLanguageClick(language)}>{language.id}</td>)}
               <td 
               onClick={() => onLanguageClick(language)}>{language.name}</td>
               <td 
@@ -95,12 +105,17 @@ export const LanguagesList: FC<LanguagesProps> = ({
                     onClick={NoBackEndPopUp}>
                       <Share/>
                   </Button>)}
-                  {((del && language?.accessLevel?.toLowerCase() == "owner") || (del && approve)) && (<Button
+                  { language?.stateAccept?.toLowerCase() !=="deleted" &&(((del && language?.accessLevel?.toLowerCase() == "owner") || isLanguageDirector)) && (<Button
                     variant="danger"
                     onClick={() => onLanguageDelete(language)}
                     title="Delete language"
                   >
                     <Trash />
+                  </Button>)}
+                  {language?.stateAccept?.toLowerCase() =="deleted" && isLanguageDirector && (<Button
+                  variant="secondary"
+                  onClick={NoBackEndPopUp}>
+                    <ArrowClockwise/>
                   </Button>)}                  
                 </div>
               </td>)}

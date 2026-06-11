@@ -31,7 +31,6 @@ import Semantics from "./Semantics";
 import ConfirmationModal, {ConfirmationModalProps, confirmationModalDefaultProps} from "../ConfirmationModal";
 import NoBackEndModal, { NoBackEndModalProps, NoBackEndModalDefaultProps } from "../NoBackEndModal";
 import * as alertify from "alertifyjs";
-import { set } from "immer/dist/internal";
 
 
 const DEFAULT_SYNTAX = "{}";
@@ -69,6 +68,7 @@ export default function LanguageDetail({
   const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
   const [isOwner, setIsOwner] = useState(false);
   const [isUserWithSharedAcces, setIsUserWithSharedAcces] = useState(false);
+  const [isLanguageDirector, setIsLanguageDirector] = useState(false);
   const [activeTab, setActiveTab] = useState('information');
 
   useEffect(() => {
@@ -78,6 +78,9 @@ export default function LanguageDetail({
     }
     else if (language?.accessLevel?.toLowerCase() == "shared") {
       setIsUserWithSharedAcces(true);
+    }
+    else if (user.roles.find((role) => role.toLowerCase() === "language director")) {
+      setIsLanguageDirector(true);
     }
     else {
       setIsUserWithSharedAcces(false);
@@ -310,28 +313,28 @@ export default function LanguageDetail({
         >
           Cancel
         </Button>
-        { isUserWithSharedAcces && (<Button
+        { (isUserWithSharedAcces || isLanguageDirector )&& (<Button
           variant="primary"
           onClick={confirmSave}
           disabled={disableSaveButton}
         >
           Save
         </Button>)}
-        { isOwner && (<Button
+        { (isOwner || isLanguageDirector) && (<Button
           variant="primary"
           className="btn-Variamos-green"
           onClick={NoBackEndPopUp}
         >
           Share
         </Button>)}
-        { isUserWithSharedAcces && (<Button
+        { (isUserWithSharedAcces || isLanguageDirector) && (<Button
           variant="primary"
           className="btn-Variamos-yellow"
           onClick={NoBackEndPopUp}
         >
           History
         </Button>)}
-        { isOwner && (<Button
+        { (isOwner || isLanguageDirector) && (<Button
           variant="primary"
           className="btn-Variamos-red"
           onClick={NoBackEndPopUp}
