@@ -1,4 +1,3 @@
-import { useSession } from "@variamosple/variamos-components";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -29,9 +28,7 @@ import { Tab, Tabs } from "react-bootstrap";
 import CreationModeButton from "../LanguageManager/CreationModeButton/CreationModeButton";
 import Semantics from "./Semantics";
 import ConfirmationModal, {ConfirmationModalProps, confirmationModalDefaultProps} from "../ConfirmationModal";
-import NoBackEndModal, { NoBackEndModalProps, NoBackEndModalDefaultProps } from "../NoBackEndModal";
 import * as alertify from "alertifyjs";
-
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -54,7 +51,6 @@ export default function LanguageDetail({
   setComment,
   setEditLanguage
 }: LanguageDetailProps) {
-  const { user } = useSession()
   const [showSpinner, setShowSpinner] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
@@ -65,38 +61,8 @@ export default function LanguageDetail({
   const { saveComment } = useComment({ setComment });
   const { setCreatingMode } = useLanguageContext();
   const [confirmModalState, setConfirmModalState] = useState<ConfirmationModalProps>({...confirmationModalDefaultProps});
-  const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
-  const [isOwner, setIsOwner] = useState(false);
-  const [isUserWithSharedAcces, setIsUserWithSharedAcces] = useState(false);
-  const [isLanguageDirector, setIsLanguageDirector] = useState(false);
-  const [activeTab, setActiveTab] = useState('information');
 
-  useEffect(() => {
-    if (language?.accessLevel?.toLowerCase() == "owner") {
-      setIsOwner(true);
-      setIsUserWithSharedAcces(true);      
-    }
-    else if (language?.accessLevel?.toLowerCase() == "shared") {
-      setIsUserWithSharedAcces(true);
-    }
-    else if (user.roles.find((role) => role.toLowerCase() === "language director")) {
-      setIsLanguageDirector(true);
-    }
-    else {
-      setIsUserWithSharedAcces(false);
-      setIsOwner(false);
-    }
-    
-  },[user, language])
-/*Temporary for Developpment*/
-  const NoBackEndPopUp = () => {
-    setNoBackEndModalState({
-      ...NoBackEndModalDefaultProps,
-      show: true,
-      onCancel: () => setNoBackEndModalState((currentState) => ({...currentState, show: false})),
-    });
-  }
-/*------------------------------*/
+  const [activeTab, setActiveTab] = useState('information');
 
   const {
     abstractSyntax,
@@ -283,7 +249,7 @@ export default function LanguageDetail({
     setConfirmModalState({
       ...confirmationModalDefaultProps,
       show: true,
-      message: isUserWithSharedAcces ? "All the changes will be lost. Are you sure you want to cancel?" : "Are you sure you want to leave this page?",
+      message: "All the changes will be lost. Are you sure you want to cancel?",
       onConfirm: () => {
         setConfirmModalState((currentState) => ({...currentState, show: false, }));
         handleCancel();
@@ -313,34 +279,13 @@ export default function LanguageDetail({
         >
           Cancel
         </Button>
-        { (isUserWithSharedAcces || isLanguageDirector )&& (<Button
+        <Button
           variant="primary"
           onClick={confirmSave}
           disabled={disableSaveButton}
         >
           Save
-        </Button>)}
-        { (isOwner || isLanguageDirector) && (<Button
-          variant="primary"
-          className="btn-Variamos-green"
-          onClick={NoBackEndPopUp}
-        >
-          Share
-        </Button>)}
-        { (isUserWithSharedAcces || isLanguageDirector) && (<Button
-          variant="primary"
-          className="btn-Variamos-yellow"
-          onClick={NoBackEndPopUp}
-        >
-          History
-        </Button>)}
-        { (isOwner || isLanguageDirector) && (<Button
-          variant="primary"
-          className="btn-Variamos-red"
-          onClick={NoBackEndPopUp}
-        >
-          Delete
-        </Button>)}
+        </Button>
       </div>
       <br />
       <Container>
@@ -471,9 +416,6 @@ export default function LanguageDetail({
         </Tab>
       </Tabs>
       <ConfirmationModal {...confirmModalState} />
-      
-      {/* To be delete*/}
-      <NoBackEndModal {...noBackEndModalState} />
     </>
   );
 }
