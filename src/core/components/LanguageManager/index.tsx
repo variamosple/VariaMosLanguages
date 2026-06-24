@@ -1,11 +1,12 @@
 import { useSession } from "@variamosple/variamos-components";
 import { useEffect, useState } from "react";
 import { Col, Row, Tab, Tabs } from "react-bootstrap";
-import { PublicLanguagesContainer } from "../PublicLanguages/PublicLanguagesContainer";
-import { UserLanguagesContainer } from "../UserLanguages/UserLangugesContainer";
+import { LanguagesContainer } from "../LanguageTable/LanguagesContainer";
 import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { LanguageManagerProps } from "./index.types";
+import {Button} from "react-bootstrap";
+import NoBackEndModal, {NoBackEndModalDefaultProps,NoBackEndModalProps} from "../NoBackEndModal";
 
 export default function LanguageManager({
   setLanguage,
@@ -14,13 +15,28 @@ export default function LanguageManager({
 }: LanguageManagerProps) {
   const { user } = useSession();
   const [isGuestUser, setIsGuestUser] = useState(true);
+  const [isLanguageDirectorUser, setIsLanguageDirectorUser] = useState(false);
+  const [loadLanguages, setLoadLanguages] = useState(false);
+  const [loadUserLanguages, setLoadUserLanguages] = useState(true);
   const [loadPublicLanguages, setLoadPublicLanguages] = useState(false);
+
+  /*To be delete in the end */
+  const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
+    const NoBackEndPopUp = () => {
+      setNoBackEndModalState({
+        ...NoBackEndModalDefaultProps,
+        show: true,
+        onCancel: () => setNoBackEndModalState((currentState) => ({...currentState, show: false})),
+      });
+    }
+  /*--------------------------*/
 
   useEffect(() => {
     const isGuest = user.roles.find((role) => role.toLowerCase() === "guest");
-
+    const isLanguageDirector = user.roles.find((role) => role.toLowerCase() === "language director");
     setIsGuestUser(!!isGuest);
-    setLoadPublicLanguages(!!isGuest);
+    setIsLanguageDirectorUser(!!isLanguageDirector);
+    setLoadLanguages(!!isGuest);
   }, [user]);
 
   const handleCreateClick = () => {
@@ -43,7 +59,8 @@ export default function LanguageManager({
           </Col>
         </Col>
 
-        <PublicLanguagesContainer
+        <LanguagesContainer
+          variant = "public"
           loadDataOnInit={loadPublicLanguages}
           onLanguageClick={handleClick}
         />
@@ -53,20 +70,33 @@ export default function LanguageManager({
 
   return (
     <LanguageManagerLayout>
-      <Col as={Row}>
-        <Col sm={6}>
-          <CreateLanguageButton handleCreateClick={handleCreateClick} />
-        </Col>
-      </Col>
+
+      <div className='d-flex gap-1'>
+        <CreateLanguageButton handleCreateClick={handleCreateClick} />
+        
+        {/* <Button 
+          variant="secondary"
+          onClick={NoBackEndPopUp}>
+          Sementic Rules
+        </Button> */}
+      </div>
 
       <Tabs
         defaultActiveKey="userLanguages"
         id="uncontrolled-tab"
-        onSelect={(eventKey) => {
-          if (eventKey === "publicLanguages") {
-            setLoadPublicLanguages(true);
-          }
-        }}
+        onSelect={
+          (eventKey)=> {
+            switch (eventKey) {
+              case ("userLanguages"):
+                setLoadUserLanguages(true);
+                break;
+              case "publicLanguages":
+                setLoadPublicLanguages(true);
+                break;
+              case "allLanguages":
+                setLoadLanguages(true);
+                break;}
+              }}
       >
         <Tab
           eventKey="userLanguages"
@@ -74,7 +104,11 @@ export default function LanguageManager({
           className="pt-3"
           unmountOnExit
         >
-          <UserLanguagesContainer onLanguageClick={handleClick} />
+          <LanguagesContainer
+            variant = "user"
+            loadDataOnInit={loadUserLanguages}
+            onLanguageClick={handleClick}
+          />
         </Tab>
 
         <Tab
@@ -83,12 +117,27 @@ export default function LanguageManager({
           className="pt-3"
           unmountOnExit
         >
-          <PublicLanguagesContainer
+          <LanguagesContainer
+            variant = "public"
             loadDataOnInit={loadPublicLanguages}
             onLanguageClick={handleClick}
           />
         </Tab>
+        { isLanguageDirectorUser && (<Tab 
+          eventKey="allLanguages"
+          title="All Languages"
+          className="pt-3"
+          unmountOnExit
+          >
+            <LanguagesContainer
+            variant = "languageDirector"
+            loadDataOnInit={loadLanguages}
+            onLanguageClick={handleClick}
+            />
+        </Tab>)}
       </Tabs>
+    {/* To be deleted in the end */}
+    <NoBackEndModal {...noBackEndModalState} />
     </LanguageManagerLayout>
   );
 }

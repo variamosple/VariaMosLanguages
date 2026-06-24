@@ -1,17 +1,15 @@
 import { Button, Modal } from 'react-bootstrap';
 
-export interface ConfirmationModalProps {
+export interface NoBackEndModalProps {
   show: boolean;
   onCancel: () => void;
-  onConfirm: () => void;
-  message: string;
   confirmLabel?: string;
   confirmButtonVariant?: string;
   cancelLabel?: string;
   cancelButtonVariant?: string;
 }
 
-export const confirmationModalDefaultProps: ConfirmationModalProps =
+export const NoBackEndModalDefaultProps: NoBackEndModalProps =
   Object.freeze({
     message: '',
     show: false,
@@ -19,25 +17,18 @@ export const confirmationModalDefaultProps: ConfirmationModalProps =
     onConfirm: () => {},
   });
 
-export default function ConfirmationModal({
+export default function NoBackEndModal({
   show,
   onCancel,
-  onConfirm,
-  message,
-  confirmLabel = 'Accept',
-  confirmButtonVariant = 'primary',
   cancelButtonVariant = 'secondary',
-  cancelLabel = 'Cancel',
-}: ConfirmationModalProps) {
+  cancelLabel = 'Close',
+}: NoBackEndModalProps) {
   return (
     <Modal show={show} onHide={onCancel}>
-      <Modal.Body style={{ whiteSpace: 'pre-line' }}>{message}</Modal.Body>
+      <Modal.Body>There's no BackEnd linked to that functionnality for now. Sorry for the inconvenience.</Modal.Body>
       <Modal.Footer>
         <Button variant={cancelButtonVariant} onClick={onCancel}>
           {cancelLabel}
-        </Button>
-        <Button variant={confirmButtonVariant} onClick={onConfirm}>
-          {confirmLabel}
         </Button>
       </Modal.Footer>
     </Modal>

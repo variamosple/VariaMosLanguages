@@ -8,7 +8,8 @@ export class Language {
   type: string;
   stateAccept: string;
   semantics: string;
-  userId?: string;
+  accessLevel?: string;
+  ownerId?: string;
   ownerName?: string;
 
   constructor(
@@ -19,7 +20,8 @@ export class Language {
     type: string,
     stateAccept?: string,
     semantics?: string,
-    userId?: string,
+    accessLevel?: string,
+    ownerId?: string,
     ownerName?: string
   ) {
     this.id = id;
@@ -29,7 +31,8 @@ export class Language {
     this.type = type;
     this.stateAccept = stateAccept;
     this.semantics = semantics;
-    this.userId = userId;
+    this.ownerId = ownerId;
+    this.accessLevel = accessLevel;
     this.ownerName = ownerName;
   }
 }

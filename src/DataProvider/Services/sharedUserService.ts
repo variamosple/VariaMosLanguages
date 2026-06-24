@@ -1,20 +1,11 @@
 import axios from "axios";
-
-import { ResponseModel } from "@variamosple/variamos-components";
-import { Language } from "../../Domain/ProductLineEngineering/Entities/Language";
 import { LANGUAGES_CLIENT } from "../../Infraestructure/AxiosConfig";
-import { LanguagesFilter } from "../../core/components/LanguageTable/LanguagesContainer";
+import { ResponseModel } from "@variamosple/variamos-components";
+import { User } from "../../Domain/ProductLineEngineering/Entities/User";
+import { PagedModel } from "../../Domain/Core/Entity/PagedModel";
 
-export const queryUserLanguages = (
-  filter: LanguagesFilter
-): Promise<ResponseModel<Language[]>> => {
-  const userId: string = filter?.userId || "";
-
-  const newFilter = Object.assign({}, filter, { userId: null });
-
-  return LANGUAGES_CLIENT.get(`/v2/users/${userId}/languages`, {
-    params: newFilter,
-  })
+export async function querySharedUsers(languageId: number): Promise<ResponseModel<User[]>> {
+    return LANGUAGES_CLIENT.get(`/v2/users/shared/${languageId}`)
     .then((response) => response.data)
     .catch((error) => {
       if (axios.isAxiosError(error)) {
@@ -39,14 +30,29 @@ export const queryUserLanguages = (
         );
       }
     });
-};
+}
 
-export const queryLanguages = (
-  filter: LanguagesFilter
-): Promise<ResponseModel<Language[]>> => {
-  return LANGUAGES_CLIENT.get(`/v2/languages`, {
-    params: filter,
-  })
+export class UsersFilter extends PagedModel {
+  constructor(
+    public languageId?: number,
+    public name?: string,
+    public email?: string,
+    pageNumber?: number,
+    pageSize?: number,
+  ) {
+    super(pageNumber, pageSize);
+  }
+}
+
+export async function queryAllUsers(filter: UsersFilter): Promise<ResponseModel<User[]>> {
+    const params = {
+        pageNumber: filter.pageNumber || 1,
+        pageSize: filter.pageSize || 10,
+        name: filter.name || null,
+        email: filter.email || null,
+    };
+    
+    return LANGUAGES_CLIENT.get(`/v2/users/${filter.languageId}`, { params })
     .then((response) => response.data)
     .catch((error) => {
       if (axios.isAxiosError(error)) {
@@ -67,19 +73,14 @@ export const queryLanguages = (
 
         return new ResponseModel("APP-ERROR").withError(
           500,
-          "Error when trying to get session info, please try again later."
+          "Error when trying to get users, please try again later."
         );
       }
     });
-};
+}
 
-
-export const queryPublicLanguages = (
-  filter: LanguagesFilter
-): Promise<ResponseModel<Language[]>> => {
-  return LANGUAGES_CLIENT.get(`/v2/languages/public`, {
-    params: filter,
-  })
+export async function shareLanguageWithUser(languageId: number, userId: string): Promise<ResponseModel<void>> {
+    return LANGUAGES_CLIENT.post(`/v2/users/share/${userId}/${languageId}`)
     .then((response) => response.data)
     .catch((error) => {
       if (axios.isAxiosError(error)) {
@@ -100,17 +101,14 @@ export const queryPublicLanguages = (
 
         return new ResponseModel("APP-ERROR").withError(
           500,
-          "Error when trying to get session info, please try again later."
+          "Error when trying to share language with user, please try again later."
         );
       }
     });
-};
+}
 
-export const deleteLanguage = (
-  languageId: number,
-  userId: string
-): Promise<ResponseModel<void>> => {
-  return LANGUAGES_CLIENT.delete(`/languages/${languageId}/${userId}`)
+export async function unshareLanguageWithUser(languageId: number, userId: string): Promise<ResponseModel<void>> {
+    return LANGUAGES_CLIENT.post(`/v2/users/unshare/${userId}/${languageId}`)
     .then((response) => response.data)
     .catch((error) => {
       if (axios.isAxiosError(error)) {
@@ -118,41 +116,21 @@ export const deleteLanguage = (
 
         const response = error.response?.data;
 
-        return response;
+        if (!!response) {
+          return response;
+        }
+
+        return new ResponseModel("BACK-ERROR").withError(
+          Number.parseInt(error.code || "500"),
+          "Error when comunicating with the back-end."
+        );
       } else {
         console.error("Unexpected error:", error);
 
         return new ResponseModel("APP-ERROR").withError(
           500,
-          `Error when trying to delete the user with id: ${userId}, please try again later.`
+          "Error when trying to unshare language with user, please try again later."
         );
       }
     });
-};
-
-export const updateLanguageStateAccept = (
-  languageId: number,
-  userId: string,
-  stateAccept: string
-): Promise<ResponseModel<void>> => {
-  console.log("FRONTEND :", languageId, userId, stateAccept);
-  return LANGUAGES_CLIENT.put(`/languages/${languageId}/${userId}/stateAccept`, {
-     params: { "stateAccept": stateAccept }
-  })
-    .then((response) => response.data)
-    .catch((error) => {
-      if (axios.isAxiosError(error)) {
-        console.error("Axios error:", error.message);
-        const response = error.response?.data;
-
-        return response;
-      } else {
-        console.error("Unexpected error:", error);
-
-        return new ResponseModel("APP-ERROR").withError(
-          500,
-          `Error when trying to update the Accept of the language with id: ${languageId}, with the user with id: ${userId}, please try again later.`
-        );
-      }
-    });
-};
+}

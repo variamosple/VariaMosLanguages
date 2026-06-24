@@ -1,3 +1,4 @@
+import { useSession } from "@variamosple/variamos-components";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -13,6 +14,7 @@ import Comment from "./Comment/Comment";
 import { capitalize, formatCode, getFormattedDate } from "./index.utils";
 import ProjectService from "../../../Application/Project/ProjectService";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
+import { User } from "../../../Domain/ProductLineEngineering/Entities/User";
 import { LanguageDetailProps } from "./index.types";
 import config from "../LanguageManager/CreateLanguageButton/CreateLanguageButton.json";
 import {
@@ -28,7 +30,12 @@ import { Tab, Tabs } from "react-bootstrap";
 import CreationModeButton from "../LanguageManager/CreationModeButton/CreationModeButton";
 import Semantics from "./Semantics";
 import ConfirmationModal, {ConfirmationModalProps, confirmationModalDefaultProps} from "../ConfirmationModal";
+import SharedUserModal from "../SharedUserModal";
+import { SharedUserTable } from "../SharedUserTable/SharedUserTable";
 import * as alertify from "alertifyjs";
+import { querySharedUsers, shareLanguageWithUser, unshareLanguageWithUser } from "../../../DataProvider/Services/sharedUserService";
+
+import NoBackEndModal, { NoBackEndModalProps, NoBackEndModalDefaultProps } from "../NoBackEndModal";
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -51,18 +58,68 @@ export default function LanguageDetail({
   setComment,
   setEditLanguage
 }: LanguageDetailProps) {
+  const { user } = useSession()
   const [showSpinner, setShowSpinner] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
   const [errorMessage, setErrorMessage] = useState(String());
   const [languageName, setLanguageName] = useState(String());
+  const [languageOwner, setLanguageOwner] = useState(String());
   const [languageType, setLanguageType] = useState(String());
   const [commentContent, setCommentContent] = useState(String());
   const { saveComment } = useComment({ setComment });
   const { setCreatingMode } = useLanguageContext();
+  const [sharedUserModal, setSharedUserModal] = useState(false);
   const [confirmModalState, setConfirmModalState] = useState<ConfirmationModalProps>({...confirmationModalDefaultProps});
-
+  const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
+  const [isOwner, setIsOwner] = useState(false);
+  const [isUserWithSharedAcces, setIsUserWithSharedAcces] = useState(false);
+  const [isLanguageDirector, setIsLanguageDirector] = useState(false);
   const [activeTab, setActiveTab] = useState('information');
+  const [sharedUsers, setSharedUsers] = useState<User[]>([]);
+
+  async function loadSharedUsers(): Promise<void> {
+    const response = await querySharedUsers(language?.id!);
+    setSharedUsers(response.data);
+  };
+
+  const handleShareUser = async (userId: string, languageId: number) => {
+    await shareLanguageWithUser(languageId, userId);
+    loadSharedUsers();
+  };
+
+  useEffect(() => {
+    if (language?.accessLevel?.toLowerCase() === "owner") {
+      setIsOwner(true);
+      setIsUserWithSharedAcces(true);
+    }
+    else if (language?.accessLevel?.toLowerCase() === "shared") {
+      setIsUserWithSharedAcces(true);
+    }
+    else if (user.roles.find((role) => role.toLowerCase() === "language director")) {
+      setIsLanguageDirector(true);
+    }
+    else {
+      setIsUserWithSharedAcces(false);
+      setIsOwner(false);
+    }
+  },[user, language])
+
+  useEffect(() => {
+    if (activeTab === 'information') {
+      loadSharedUsers();
+    }
+  },[activeTab, language])
+
+/*Temporary for Developpment*/
+  const NoBackEndPopUp = () => {
+    setNoBackEndModalState({
+      ...NoBackEndModalDefaultProps,
+      show: true,
+      onCancel: () => setNoBackEndModalState((currentState) => ({...currentState, show: false})),
+    });
+  }
+/*------------------------------*/
 
   const {
     abstractSyntax,
@@ -104,6 +161,7 @@ export default function LanguageDetail({
   useEffect(() => {
     if (language && !isCreatingLanguage) {
       setLanguageName(language.name || "");
+      setLanguageOwner(language.ownerName || "");
       setLanguageType(capitalize(language.type));
       setAbstractSyntax(formatCode(language.abstractSyntax || DEFAULT_SYNTAX));
       setConcreteSyntax(formatCode(language.concreteSyntax || DEFAULT_SYNTAX));
@@ -232,6 +290,21 @@ export default function LanguageDetail({
     setCreatingMode(mode);
   };
 
+  const handleSharedUserDelete = (userId: string) => {
+    setConfirmModalState({
+      ...confirmationModalDefaultProps,
+      show: true,
+      message: "Are you sure you want to remove this user's access?",
+      onConfirm: async () => {
+        setConfirmModalState((currentState) => ({...currentState, show: false }));
+        await unshareLanguageWithUser(language?.id!, userId);
+        loadSharedUsers();
+      },
+      onCancel: () => setConfirmModalState((currentState) => ({...currentState, show: false })),
+      confirmButtonVariant: "danger",
+    });
+  };
+
   const confirmSave = () => {
     setConfirmModalState({
       ...confirmationModalDefaultProps,
@@ -249,7 +322,7 @@ export default function LanguageDetail({
     setConfirmModalState({
       ...confirmationModalDefaultProps,
       show: true,
-      message: "All the changes will be lost. Are you sure you want to cancel?",
+      message: isUserWithSharedAcces ? "All the changes will be lost. Are you sure you want to cancel?" : "Are you sure you want to leave this page?",
       onConfirm: () => {
         setConfirmModalState((currentState) => ({...currentState, show: false, }));
         handleCancel();
@@ -279,13 +352,34 @@ export default function LanguageDetail({
         >
           Cancel
         </Button>
-        <Button
+        { (isUserWithSharedAcces || isLanguageDirector || isCreatingLanguage)&& (<Button
           variant="primary"
           onClick={confirmSave}
           disabled={disableSaveButton}
         >
           Save
-        </Button>
+        </Button>)}
+        { (isOwner) && (<Button
+          variant="primary"
+          className="btn-Variamos-green"
+          onClick={()=>setSharedUserModal(true)}
+        >
+          Share
+        </Button>)}
+      {/* { (isUserWithSharedAcces || isLanguageDirector) && (<Button
+          variant="primary"
+          className="btn-Variamos-yellow"
+          onClick={NoBackEndPopUp}
+        >
+          History
+        </Button>)}
+        { (isOwner || isLanguageDirector) && (<Button
+          variant="primary"
+          className="btn-Variamos-red"
+          onClick={NoBackEndPopUp}
+        >
+          Delete
+        </Button>)} */}
       </div>
       <br />
       <Container>
@@ -311,6 +405,15 @@ export default function LanguageDetail({
         onSelect={(key) => setActiveTab(key || 'information')}
       >
         <Tab eventKey="information" title="Information">
+          <InputGroup className="mb-3 mt-3">
+            <InputGroup.Text id="inputGroup-sizing-default">Owner</InputGroup.Text>
+            <Form.Control
+              aria-label="Default"
+              aria-describedby="inputGroup-sizing-default"
+              value={languageOwner}
+              disabled
+            />
+          </InputGroup>
           <InputGroup className="mb-3 mt-3">
             <InputGroup.Text id="inputGroup-sizing-default">Name</InputGroup.Text>
             <Form.Control
@@ -342,6 +445,12 @@ export default function LanguageDetail({
               <option>Approved</option>
             </Form.Select>
           </InputGroup>
+          <SharedUserTable
+            onSharedUserDelete={handleSharedUserDelete}
+            users={sharedUsers}
+            isOwner={isOwner}
+          />
+
         </Tab>
         <Tab eventKey="syntax" title="Syntax">
           <br />
@@ -416,6 +525,14 @@ export default function LanguageDetail({
         </Tab>
       </Tabs>
       <ConfirmationModal {...confirmModalState} />
+      <SharedUserModal
+        show={sharedUserModal}
+        languageId={language?.id}
+        onClose={() => setSharedUserModal(false)}
+        onShareUser={handleShareUser}
+      />
+      {/* To be delete*/}
+      <NoBackEndModal {...noBackEndModalState} />
     </>
   );
 }
