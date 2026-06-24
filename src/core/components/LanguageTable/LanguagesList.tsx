@@ -6,6 +6,9 @@ import { FC } from "react";
 import { Alert, Table } from "react-bootstrap";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import { Trash, Share, CheckLg, XLg, ArrowClockwise } from "react-bootstrap-icons";
+import SharedUserModal from "../SharedUserModal";
+import { shareLanguageWithUser } from "../../../DataProvider/Services/sharedUserService";
+import { set } from "immer/dist/internal";
 
 export interface LanguagesProps extends PaginatorProps {
   state? : boolean;
@@ -35,7 +38,8 @@ export const LanguagesList: FC<LanguagesProps> = ({
   
   const { user } = useSession();
   const [isLanguageDirector, setIsLanguageDirector] = useState(false);
-  
+  const [sharedUserModal, setSharedUserModal] = useState(false);
+  const [languageId, setLanguageId ] = useState(null);
   useEffect(() => {
     setIsLanguageDirector(!!(user.roles.find((role) => role.toLowerCase() === "language director")));
   }, [user]);
@@ -43,6 +47,10 @@ export const LanguagesList: FC<LanguagesProps> = ({
   if (!languages?.length) {
     return <Alert variant="info">No results available</Alert>;
   }
+
+  const handleShareUser = async (userId: string, languageId: number) => {
+    await shareLanguageWithUser(languageId, userId);
+  };
 
   return (
     <div className="d-flex flex-column">
@@ -92,7 +100,8 @@ export const LanguagesList: FC<LanguagesProps> = ({
                   </Button>)}
                   {share && language?.accessLevel?.toLowerCase() == "owner" && (<Button
                     className="btn-Variamos-green"
-                    title="Share Language">
+                    title="Share Language"
+                    onClick={()=> {setLanguageId(language.id); setSharedUserModal(true)}}>
                       <Share/>
                   </Button>)}
                   { language?.stateAccept?.toLowerCase() !=="deleted" &&(((del && language?.accessLevel?.toLowerCase() == "owner") || isLanguageDirector)) && (<Button
@@ -117,6 +126,12 @@ export const LanguagesList: FC<LanguagesProps> = ({
         totalPages={totalPages}
         onPageChange={onPageChange}
       />
+      <SharedUserModal
+        show={sharedUserModal}
+        languageId={languageId}
+        onClose={() => {setSharedUserModal(false); setLanguageId(null)}}
+        onShareUser={handleShareUser}
+        />
     </div>
   );
 };

@@ -292,7 +292,7 @@ export default function LanguageDetail({
     setConfirmModalState({
       ...confirmationModalDefaultProps,
       show: true,
-      message: "All the changes will be lost. Are you sure you want to cancel?",
+      message: "All the changes (exept the shared users) will be lost. Are you sure you want to cancel?",
       onConfirm: () => {
         setConfirmModalState((currentState) => ({...currentState, show: false, }));
         handleCancel();
