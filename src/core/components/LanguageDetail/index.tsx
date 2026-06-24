@@ -1,15 +1,6 @@
 import { useSession } from "@variamosple/variamos-components";
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  Button,
-  Form,
-  InputGroup,
-  ListGroup,
-  Spinner,
-  Container,
-  Row,
-} from "react-bootstrap";
+import {  Alert,Button,Form,InputGroup,ListGroup,Spinner,Container,Row } from "react-bootstrap";
 import Comment from "./Comment/Comment";
 import { capitalize, formatCode, getFormattedDate } from "./index.utils";
 import ProjectService from "../../../Application/Project/ProjectService";
@@ -35,7 +26,6 @@ import { SharedUserTable } from "../SharedUserTable/SharedUserTable";
 import * as alertify from "alertifyjs";
 import { querySharedUsers, shareLanguageWithUser, unshareLanguageWithUser } from "../../../DataProvider/Services/sharedUserService";
 
-import NoBackEndModal, { NoBackEndModalProps, NoBackEndModalDefaultProps } from "../NoBackEndModal";
 
 const DEFAULT_SYNTAX = "{}";
 const DEFAULT_STATE_ACCEPT = "PENDING";
@@ -71,7 +61,6 @@ export default function LanguageDetail({
   const { setCreatingMode } = useLanguageContext();
   const [sharedUserModal, setSharedUserModal] = useState(false);
   const [confirmModalState, setConfirmModalState] = useState<ConfirmationModalProps>({...confirmationModalDefaultProps});
-  const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
   const [isOwner, setIsOwner] = useState(false);
   const [isUserWithSharedAcces, setIsUserWithSharedAcces] = useState(false);
   const [isLanguageDirector, setIsLanguageDirector] = useState(false);
@@ -111,15 +100,6 @@ export default function LanguageDetail({
     }
   },[activeTab, language])
 
-/*Temporary for Developpment*/
-  const NoBackEndPopUp = () => {
-    setNoBackEndModalState({
-      ...NoBackEndModalDefaultProps,
-      show: true,
-      onCancel: () => setNoBackEndModalState((currentState) => ({...currentState, show: false})),
-    });
-  }
-/*------------------------------*/
 
   const {
     abstractSyntax,
@@ -531,8 +511,6 @@ export default function LanguageDetail({
         onClose={() => setSharedUserModal(false)}
         onShareUser={handleShareUser}
       />
-      {/* To be delete*/}
-      <NoBackEndModal {...noBackEndModalState} />
     </>
   );
 }

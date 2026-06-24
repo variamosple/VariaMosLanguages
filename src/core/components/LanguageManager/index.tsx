@@ -6,7 +6,6 @@ import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { LanguageManagerProps } from "./index.types";
 import {Button} from "react-bootstrap";
-import NoBackEndModal, {NoBackEndModalDefaultProps,NoBackEndModalProps} from "../NoBackEndModal";
 
 export default function LanguageManager({
   setLanguage,
@@ -20,16 +19,6 @@ export default function LanguageManager({
   const [loadUserLanguages, setLoadUserLanguages] = useState(true);
   const [loadPublicLanguages, setLoadPublicLanguages] = useState(false);
 
-  /*To be delete in the end */
-  const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
-    const NoBackEndPopUp = () => {
-      setNoBackEndModalState({
-        ...NoBackEndModalDefaultProps,
-        show: true,
-        onCancel: () => setNoBackEndModalState((currentState) => ({...currentState, show: false})),
-      });
-    }
-  /*--------------------------*/
 
   useEffect(() => {
     const isGuest = user.roles.find((role) => role.toLowerCase() === "guest");
@@ -136,8 +125,6 @@ export default function LanguageManager({
             />
         </Tab>)}
       </Tabs>
-    {/* To be deleted in the end */}
-    <NoBackEndModal {...noBackEndModalState} />
     </LanguageManagerLayout>
   );
 }

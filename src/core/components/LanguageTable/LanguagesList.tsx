@@ -6,7 +6,6 @@ import { FC } from "react";
 import { Alert, Table } from "react-bootstrap";
 import { Language } from "../../../Domain/ProductLineEngineering/Entities/Language";
 import { Trash, Share, CheckLg, XLg, ArrowClockwise } from "react-bootstrap-icons";
-import NoBackEndModal, {NoBackEndModalDefaultProps,NoBackEndModalProps} from "../NoBackEndModal";
 
 export interface LanguagesProps extends PaginatorProps {
   state? : boolean;
@@ -33,16 +32,7 @@ export const LanguagesList: FC<LanguagesProps> = ({
   onPageChange,
   totalPages,
 }) => {
-  /*To be delete in the end */
-  const [noBackEndModalState, setNoBackEndModalState] = useState<NoBackEndModalProps>({...NoBackEndModalDefaultProps});
-  const NoBackEndPopUp = () => {
-      setNoBackEndModalState({
-        ...NoBackEndModalDefaultProps,
-        show: true,
-        onCancel: () => setNoBackEndModalState((currentState) => ({...currentState, show: false})),
-      });
-    }
-  /*--------------------------*/
+  
   const { user } = useSession();
   const [isLanguageDirector, setIsLanguageDirector] = useState(false);
   
@@ -102,8 +92,7 @@ export const LanguagesList: FC<LanguagesProps> = ({
                   </Button>)}
                   {share && language?.accessLevel?.toLowerCase() == "owner" && (<Button
                     className="btn-Variamos-green"
-                    title="Share Language"
-                    onClick={NoBackEndPopUp}>
+                    title="Share Language">
                       <Share/>
                   </Button>)}
                   { language?.stateAccept?.toLowerCase() !=="deleted" &&(((del && language?.accessLevel?.toLowerCase() == "owner") || isLanguageDirector)) && (<Button
@@ -114,8 +103,7 @@ export const LanguagesList: FC<LanguagesProps> = ({
                     <Trash />
                   </Button>)}
                   {language?.stateAccept?.toLowerCase() =="deleted" && isLanguageDirector && (<Button
-                  variant="secondary"
-                  onClick={NoBackEndPopUp}>
+                  variant="secondary">
                     <ArrowClockwise/>
                   </Button>)}                  
                 </div>
@@ -129,8 +117,6 @@ export const LanguagesList: FC<LanguagesProps> = ({
         totalPages={totalPages}
         onPageChange={onPageChange}
       />
-    {/* To be delete*/}
-    <NoBackEndModal {...noBackEndModalState} />
     </div>
   );
 };
