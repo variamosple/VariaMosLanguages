@@ -5,7 +5,7 @@ body,
   margin: 0;
   padding: 0;
 
-  /*Couleurs principales ajoutées pour les languages*/
+  /*Main colors for languages*/
   --red-color : #ff0000;
   --red-color-contrast : #990000;
   --red-color-text: #ffffff;
@@ -53,7 +53,7 @@ body {
 }
 
 
-/*Style pour les boutons */
+/*Style for buttons*/
 .btn-Variamos-red {
   color: var(--red-color-text);
   background-color: var(--red-color);
@@ -100,7 +100,7 @@ body {
 
 /*----------------------------*/
 
-/* Style pour les tableaux */
+/* Style for tables */
 .grey-header-table {
   border-collapse: separate;
   border: 1px solid #dee2e6;
