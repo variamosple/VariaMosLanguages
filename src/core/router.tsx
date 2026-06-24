@@ -4,18 +4,13 @@ import { AppConfig } from "../Infraestructure/AppConfig";
 import { AuthWrapper } from "@variamosple/variamos-components";
 import LanguagePage from "./pages/LanguagesPage";
 
-// Check if running in Cypress test environment
-const isCypressTest = typeof window !== 'undefined' && (window as any).Cypress;
-
 export const ROUTES: RouteObject[] = [
   {
     path: "/",
     children: [
       {
         index: true,
-        element: isCypressTest ? (
-          <LanguagePage />
-        ) : (
+        element : (
           <AuthWrapper redirectPath={AppConfig.LOGIN_URL}>
             <LanguagePage />
           </AuthWrapper>
