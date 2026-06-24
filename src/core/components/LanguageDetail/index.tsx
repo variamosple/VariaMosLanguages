@@ -25,6 +25,7 @@ import SharedUserModal from "../SharedUserModal";
 import { SharedUserTable } from "../SharedUserTable/SharedUserTable";
 import * as alertify from "alertifyjs";
 import { querySharedUsers, shareLanguageWithUser, unshareLanguageWithUser } from "../../../DataProvider/Services/sharedUserService";
+import { is } from "immer/dist/internal";
 
 
 const DEFAULT_SYNTAX = "{}";
@@ -78,21 +79,10 @@ export default function LanguageDetail({
   };
 
   useEffect(() => {
-    if (language?.accessLevel?.toLowerCase() === "owner") {
-      setIsOwner(true);
-      setIsUserWithSharedAcces(true);
-    }
-    else if (language?.accessLevel?.toLowerCase() === "shared") {
-      setIsUserWithSharedAcces(true);
-    }
-    else if (user.roles.find((role) => role.toLowerCase() === "language director")) {
-      setIsLanguageDirector(true);
-    }
-    else {
-      setIsUserWithSharedAcces(false);
-      setIsOwner(false);
-    }
-  },[user, language])
+      setIsOwner(language?.accessLevel?.toLowerCase() === "owner");
+      setIsUserWithSharedAcces(language?.accessLevel?.toLowerCase() === "shared");
+      setIsLanguageDirector(user.roles.find((role) => role.toLowerCase() === "language director")=== "language director");
+    },[user, language])
 
   useEffect(() => {
     if (activeTab === 'information') {
@@ -302,7 +292,7 @@ export default function LanguageDetail({
     setConfirmModalState({
       ...confirmationModalDefaultProps,
       show: true,
-      message: isUserWithSharedAcces ? "All the changes will be lost. Are you sure you want to cancel?" : "Are you sure you want to leave this page?",
+      message: "All the changes will be lost. Are you sure you want to cancel?",
       onConfirm: () => {
         setConfirmModalState((currentState) => ({...currentState, show: false, }));
         handleCancel();
@@ -332,7 +322,7 @@ export default function LanguageDetail({
         >
           Cancel
         </Button>
-        { (isUserWithSharedAcces || isLanguageDirector || isCreatingLanguage)&& (<Button
+        { (isUserWithSharedAcces || isOwner ||isLanguageDirector || isCreatingLanguage)&& (<Button
           variant="primary"
           onClick={confirmSave}
           disabled={disableSaveButton}
@@ -346,20 +336,6 @@ export default function LanguageDetail({
         >
           Share
         </Button>)}
-      {/* { (isUserWithSharedAcces || isLanguageDirector) && (<Button
-          variant="primary"
-          className="btn-Variamos-yellow"
-          onClick={NoBackEndPopUp}
-        >
-          History
-        </Button>)}
-        { (isOwner || isLanguageDirector) && (<Button
-          variant="primary"
-          className="btn-Variamos-red"
-          onClick={NoBackEndPopUp}
-        >
-          Delete
-        </Button>)} */}
       </div>
       <br />
       <Container>
