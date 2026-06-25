@@ -34,7 +34,7 @@ export const SharedUserTable: React.FC<SharedUserTableProps> = ({
                     </thead>
                     <tbody>
                         {users.map((user) => (
-                            <tr>
+                            <tr key={user.id}>
                                 <td>{user.name}</td>
                                 <td>{user.email}</td>
                                 {isOwner && <td className="text-center">
