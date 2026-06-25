@@ -6,6 +6,7 @@ import CreateLanguageButton from "./CreateLanguageButton/CreateLanguageButton";
 import LanguageManagerLayout from "./LanguageManagerLayout/LanguageManagerLayout";
 import { LanguageManagerProps } from "./index.types";
 import {Button} from "react-bootstrap";
+import { set } from "immer/dist/internal";
 
 export default function LanguageManager({
   setLanguage,
@@ -24,6 +25,7 @@ export default function LanguageManager({
     const isGuest = user.roles.find((role) => role.toLowerCase() === "guest");
     const isLanguageDirector = user.roles.find((role) => role.toLowerCase() === "language director");
     setIsGuestUser(!!isGuest);
+    setLoadPublicLanguages(isGuestUser);
     setIsLanguageDirectorUser(!!isLanguageDirector);
     setLoadLanguages(!!isGuest);
   }, [user]);
