@@ -10,7 +10,7 @@ export const ROUTES: RouteObject[] = [
     children: [
       {
         index: true,
-        element : (
+        element: (
           <AuthWrapper redirectPath={AppConfig.LOGIN_URL}>
             <LanguagePage />
           </AuthWrapper>

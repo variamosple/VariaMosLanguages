@@ -2490,8 +2490,8 @@
   version "0.0.23"
   resolved "file:node_modules/@variamosple/variamos-components"
   dependencies:
-    "@variamosple/variamos-components" "file:"  
-
+    "@variamosple/variamos-components" "file:"
+    
 "@webassemblyjs/ast@^1.14.1", "@webassemblyjs/ast@1.14.1":
   version "1.14.1"
   resolved "https://registry.npmjs.org/@webassemblyjs/ast/-/ast-1.14.1.tgz"
@@ -4453,7 +4453,35 @@ es-object-atoms@^1.0.0:
     es-errors "^1.3.0"
 
 es-set-tostringtag@^2.0.3, es-set-tostringtag@^2.1.0:
-  version "2.1.0"
+  version "2.1.0""version": "1.0.0",
+      "resolved": "file:",
+      "dependencies": {
+        "@variamosple/variamos-components": "^0.0.23",
+        "alertifyjs": "^1.13.1",
+        "axios": "^0.21.1",
+        "buffer": "^6.0.3",
+        "gapi-script": "^1.2.0",
+        "immer": "^9.0.12",
+        "mxgraph": "^4.2.2",
+        "prism-themes": "^1.9.0",
+        "prismjs": "^1.29.0",
+        "react": "^18.3.1",
+        "react-bootstrap": "^2.8.0",
+        "react-bootstrap-icons": "1.11",
+        "react-color": "^2.19.3",
+        "react-dom": "^18.3.1",
+        "react-hook-form": "^7.55.0",
+        "react-icons": "5.4",
+        "react-router-dom": "^6.29.0",
+        "react-scripts": "^5.0.1",
+        "react-select": "^5.7.4",
+        "react-simple-code-editor": "^0.13.1",
+        "typescript": "^4.2.3",
+        "variamos-languages": "file:"
+      },
+      "engines": {
+        "node": ">=16.18.1"
+      }
   resolved "https://registry.npmjs.org/es-set-tostringtag/-/es-set-tostringtag-2.1.0.tgz"
   integrity sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==
   dependencies:
@@ -5151,7 +5179,6 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   integrity sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==
-
 
 fsevents@^2.3.2, fsevents@~2.3.2:
   version "2.3.3"
