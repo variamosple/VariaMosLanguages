@@ -2479,12 +2479,18 @@
   resolved "https://registry.npmjs.org/@ungap/structured-clone/-/structured-clone-1.3.0.tgz"
   integrity sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==
 
-"@variamosple/variamos-components@^0.0.23", "@variamosple/variamos-components@file:":
+"@variamosple/variamos-components@^0.0.23":
   version "0.0.23"
   resolved "https://registry.npmjs.org/@variamosple/variamos-components/-/variamos-components-0.0.23.tgz"
   integrity sha512-wSY/QomBmYde05DdRi6cCOdc+vkE/ooh3FU9kCzxj4VdENnwabenNuUFFrliBSDtkulo1xjRm6pyoYkeI63/Kw==
   dependencies:
     "@variamosple/variamos-components" "file:"
+
+"@variamosple/variamos-components@file:":
+  version "0.0.23"
+  resolved "file:node_modules/@variamosple/variamos-components"
+  dependencies:
+    "@variamosple/variamos-components" "file:"  
 
 "@webassemblyjs/ast@^1.14.1", "@webassemblyjs/ast@1.14.1":
   version "1.14.1"
@@ -5145,6 +5151,12 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   integrity sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==
+
+
+fsevents@^2.3.2, fsevents@~2.3.2:
+  version "2.3.3"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
+  integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
 function-bind@^1.1.2:
   version "1.1.2"
