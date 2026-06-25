@@ -4,6 +4,20 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
+
+  /*Main colors for languages*/
+  --red-color : #ff0000;
+  --red-color-contrast : #990000;
+  --red-color-text: #ffffff;
+
+  --green-color : #00AB17;
+  --green-color-contrast : #006600;
+  --green-color-text: #ffffff;
+
+  --yellow-color : #FFC107;
+  --yellow-color-contrast : #996600;
+  --yellow-color-text: #ffffff;
+  /*---------------------------- */
 }
 
 body {
@@ -37,3 +51,65 @@ body {
   text-align: center;
   color: #c0c0c0 !important;
 }
+
+
+/*Style for buttons*/
+.btn-Variamos-red {
+  color: var(--red-color-text);
+  background-color: var(--red-color);
+  border-color: var(--red-color);
+}
+
+.btn-Variamos-red:hover {
+  color: var(--red-color-text);
+  background-color: var(--red-color-contrast);
+  border-color: var(--red-color-contrast);
+}
+
+.btn-Variamos-green {
+  color: var(--green-color-text);
+  background-color: var(--green-color);
+  border-color: var(--green-color);
+}
+
+.btn-Variamos-green:hover {
+  color: var(--green-color-text);
+  background-color: var(--green-color-contrast);
+  border-color: var(--green-color-contrast);
+}
+
+.btn-Variamos-yellow {
+  color: var(--yellow-color-text);
+  background-color: var(--yellow-color);
+  border-color: var(--yellow-color);
+}
+
+.btn-Variamos-yellow:hover {
+  color: var(--yellow-color-text);
+  background-color: var(--yellow-color-contrast);
+  border-color: var(--yellow-color-contrast);
+}
+
+.center {
+  text-align: center;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/*----------------------------*/
+
+/* Style for tables */
+.grey-header-table {
+  border-collapse: separate;
+  border: 1px solid #dee2e6;
+  border-spacing: 0;
+}
+
+.grey-header-table thead {
+  background-color: #e9ecef;
+}
+
+
+/*----------------------------*/

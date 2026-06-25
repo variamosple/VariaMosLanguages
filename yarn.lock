@@ -2491,7 +2491,7 @@
   resolved "file:node_modules/@variamosple/variamos-components"
   dependencies:
     "@variamosple/variamos-components" "file:"
-
+    
 "@webassemblyjs/ast@^1.14.1", "@webassemblyjs/ast@1.14.1":
   version "1.14.1"
   resolved "https://registry.npmjs.org/@webassemblyjs/ast/-/ast-1.14.1.tgz"

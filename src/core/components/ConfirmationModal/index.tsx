@@ -31,7 +31,7 @@ export default function ConfirmationModal({
 }: ConfirmationModalProps) {
   return (
     <Modal show={show} onHide={onCancel}>
-      <Modal.Body>{message}</Modal.Body>
+      <Modal.Body style={{ whiteSpace: 'pre-line' }}>{message}</Modal.Body>
       <Modal.Footer>
         <Button variant={cancelButtonVariant} onClick={onCancel}>
           {cancelLabel}
